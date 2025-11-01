@@ -6,6 +6,8 @@ import NextAuth from "next-auth";
 import { authOptions } from "../../../../../../../services/db/auth";
 import type { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 const handler = NextAuth(authOptions) as unknown as (
     req: NextRequest
 ) => Promise<NextResponse>;
