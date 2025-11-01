@@ -23,7 +23,8 @@
         "build-storybook": "storybook build",
         "prepare": "node -e \"if (!process.env.CI && !process.env.VERCEL) { try { require('husky').install() } catch(e) { } }\" || true",
         "db:migrate": "npx prisma migrate dev",
-        "db:generate": "npx prisma generate",
+        "db:migrate:deploy": "node_modules/.bin/prisma migrate deploy",
+        "db:generate": "node_modules/.bin/prisma generate",
         "db:studio": "npx prisma studio"
     },
     "lint-staged": {
