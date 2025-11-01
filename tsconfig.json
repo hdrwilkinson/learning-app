@@ -13,6 +13,7 @@
         "isolatedModules": true,
         "jsx": "preserve",
         "incremental": true,
+        "baseUrl": ".",
         "paths": {
             "@repo/ui": ["./packages/ui/src"],
             "@repo/screens": ["./packages/screens"],

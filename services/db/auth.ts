@@ -4,13 +4,13 @@
  */
 
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./db-client";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
     adapter: PrismaAdapter(prisma),
     providers: [
         GoogleProvider({
@@ -35,9 +35,17 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
 
+                const email =
+                    typeof credentials.email === "string"
+                        ? credentials.email
+                        : null;
+                if (!email) {
+                    return null;
+                }
+
                 // For now, just create/find user by email
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
+                    where: { email },
                 });
 
                 if (user) {

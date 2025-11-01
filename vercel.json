@@ -5,6 +5,7 @@
     "installCommand": "npm install --legacy-peer-deps --include dev",
     "framework": "nextjs",
     "outputDirectory": ".next",
+    "rootDirectory": "apps/web",
     "regions": ["iad1"],
     "functions": {
         "apps/web/src/app/api/**/*.ts": {

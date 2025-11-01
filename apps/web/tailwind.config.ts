@@ -1,8 +1,8 @@
 import type { Config } from "tailwindcss";
-import sharedPreset from "@repo/theme/tailwind-preset";
+import sharedPreset from "../../packages/theme/tailwind-preset.cjs";
 
 const config: Config = {
-    presets: [sharedPreset],
+    presets: [sharedPreset as Partial<Config>],
     content: [
         "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
