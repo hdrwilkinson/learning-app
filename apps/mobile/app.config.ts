@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
-    name: "learning-app",
-    slug: "learning-app",
+    name: "the-learning-app",
+    slug: "the-learning-app",
     version: "0.0.0",
     orientation: "portrait",
     // icon: "./assets/icon.png", // TODO: Add app icon
@@ -33,5 +33,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     experiments: {
         typedRoutes: true,
     },
-    scheme: "learningapp",
+    scheme: "thelearningapp",
 });

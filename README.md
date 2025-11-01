@@ -49,8 +49,8 @@ learning-app/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/hdrwilkinson/learning-app.git
-cd learning-app
+git clone https://github.com/hdrwilkinson/the-learning-app.git
+cd the-learning-app
 ```
 
 2. Install dependencies:

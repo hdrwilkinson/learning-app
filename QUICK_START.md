@@ -100,13 +100,13 @@ npm run format                # Format with Prettier
 - ✅ Storybook for component development
 - ✅ Jest + Playwright testing
 - ✅ Pre-commit hooks (lint + format)
-- ✅ Google Gemini AI ready (gemini-2.0-flash-exp)
+- ✅ Google Gemini AI ready (gemini-2.5-flash-lite)
 
 ## 🤖 AI Integration
 
 Configured for **Google Gemini**:
 
-- Model: `gemini-2.0-flash-exp` (cheapest, fastest)
+- Model: `gemini-2.5-flash-lite` (cheapest, fastest)
 - Alternative: `gemini-1.5-pro` (more capable)
 - Get API key: https://ai.google.dev/
 
