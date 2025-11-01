@@ -6,10 +6,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     slug: "learning-app",
     version: "0.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    // icon: "./assets/icon.png", // TODO: Add app icon
     userInterfaceStyle: "automatic",
     splash: {
-        image: "./assets/splash.png",
+        // image: "./assets/splash.png", // TODO: Add splash screen
         resizeMode: "contain",
         backgroundColor: "#ffffff",
     },
@@ -20,13 +20,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     android: {
         adaptiveIcon: {
-            foregroundImage: "./assets/adaptive-icon.png",
+            // foregroundImage: "./assets/adaptive-icon.png", // TODO: Add adaptive icon
             backgroundColor: "#ffffff",
         },
         package: "com.hdrwilkinson.learningapp",
     },
     web: {
-        favicon: "./assets/favicon.png",
+        // favicon: "./assets/favicon.png", // TODO: Add favicon
         bundler: "metro",
     },
     plugins: ["expo-router", "expo-font"],
