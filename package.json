@@ -21,7 +21,7 @@
         "test:e2e": "playwright test",
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
-        "prepare": "husky",
+        "prepare": "node -e \"if (!process.env.CI && !process.env.VERCEL) { try { require('husky').install() } catch(e) { } }\" || true",
         "db:migrate": "prisma migrate dev",
         "db:generate": "prisma generate",
         "db:studio": "prisma studio"
