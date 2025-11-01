@@ -1,0 +1,210 @@
+---
+description: Cursor rules for a cross-platform monorepo: Next.js (web/SSR on Vercel) + Expo (React Native mobile), shared UI with React Native primitives + NativeWind/Tailwind, HeroUI for web, PostgreSQL via Prisma, Auth.js.
+globs:
+alwaysApply: true
+---
+You are a Senior Full-Stack Developer and an Expert in Next.js, React Native (Expo), TypeScript, TailwindCSS, NativeWind, HeroUI, Auth.js, Prisma, and PostgreSQL. You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers, and are a genius at reasoning.
+
+## Codebase Structure
+
+Follow this structure for file organization, using a **monorepo** with workspaces. Keep the `src` directory for app code inside each app. Favor **shared UI in `packages/ui`** (RN primitives + NativeWind) so components run on mobile and, via `react-native-web`, in the browser.
+
+```plaintext
+.
+├── apps/
+│   ├── web/                                   # Next.js (App Router) — browser/desktop
+│   │   ├── src/
+│   │   │   ├── app/                           # layouts, pages, API routes (server actions/route handlers)
+│   │   │   │   ├── layout.tsx                 # Wrap with HeroUI Provider if needed
+│   │   │   │   ├── page.tsx                   # Home
+│   │   │   │   ├── (auth)/                    # Auth routes (web UX)
+│   │   │   │   │   ├── login/page.tsx
+│   │   │   │   │   └── signup/page.tsx
+│   │   │   │   ├── feature-one/
+│   │   │   │   │   ├── page.tsx               # Thin route wrapper rendering shared screen
+│   │   │   │   │   ├── new/page.tsx
+│   │   │   │   │   └── [itemId]/page.tsx
+│   │   │   │   ├── feature-two/
+│   │   │   │   │   ├── layout.tsx
+│   │   │   │   │   └── [featureTwoId]/page.tsx
+│   │   │   │   └── api/                       # Server-only code
+│   │   │   │       ├── auth/[...nextauth]/route.ts    # Auth.js handler (PrismaAdapter)
+│   │   │   │       ├── feature-one/route.ts           # Prisma-backed endpoints
+│   │   │   │       └── feature-two/route.ts
+│   │   │   ├── components/                    # Web-only wrappers (HeroUI shells, adapters)
+│   │   │   ├── styles/                        # Tailwind entry (globals.css)
+│   │   │   └── lib/                           # Web utils (RSC helpers, caching, revalidate)
+│   │   ├── next.config.mjs                    # transpilePackages + alias react-native -> react-native-web
+│   │   └── tailwind.config.ts                 # Consumes shared preset from packages/theme
+│   │
+│   └── mobile/                                # Expo (iOS/Android)
+│       ├── app/                               # Expo Router (file-based)
+│       │   ├── _layout.tsx                    # Navigation container, Safe Areas
+│       │   ├── index.tsx                      # Renders shared home screen
+│       │   ├── feature-one/index.tsx
+│       │   └── feature-two/[featureTwoId].tsx
+│       ├── components/                        # Mobile-only wrappers/adapters
+│       ├── app.config.ts                      # Expo app config
+│       └── tailwind.config.js                 # NativeWind config (extends shared preset)
+│
+├── packages/
+│   ├── ui/                                    # **Shared UI**: atoms/molecules/organisms (RN primitives + NativeWind)
+│   │   ├── src/
+│   │   │   ├── atoms/                         # Fundamental building blocks
+│   │   │   │   ├── Button/
+│   │   │   │   │   ├── Button.tsx             # Default universal impl (uses RN primitives)
+│   │   │   │   │   ├── Button.web.tsx         # Web-specific override (e.g., focus ring, tooltip)
+│   │   │   │   │   ├── Button.native.tsx      # Mobile-specific override (e.g., haptics)
+│   │   │   │   │   ├── Button.test.tsx
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── Input/
+│   │   │   │   ├── Typography/
+│   │   │   │   └── ...
+│   │   │   ├── molecules/                     # Combinations of atoms (forms, menu items)
+│   │   │   ├── organisms/                     # Complex components (auth, navigation, cards)
+│   │   │   ├── templates/                     # Cross-platform layouts/structures
+│   │   │   └── providers/                     # Theme, SafeArea, Gesture handlers
+│   │   └── package.json
+│   │
+│   ├── screens/                               # Route-agnostic feature screens (compose from packages/ui)
+│   │   ├── feature-one/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   │   └── __tests__/useFeatureOne.test.ts
+│   │   │   └── FeatureOneScreen.tsx           # Imported by both routers
+│   │   └── feature-two/
+│   │       └── FeatureTwoScreen.tsx
+│   │
+│   ├── theme/                                 # Design tokens shared across web/mobile
+│   │   ├── tailwind-preset.cjs                # Consumed by web & NativeWind
+│   │   └── tokens.ts                          # Colors/spacing/typography
+│   │
+│   ├── api/                                   # Shared API contracts/clients
+│   │   ├── schemas/                           # Zod schemas, DTOs
+│   │   ├── client.ts                          # fetch wrappers / TanStack Query setup
+│   │   └── types.ts
+│   │
+│   └── lib/                                   # Shared utilities, formatters, constants
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/                            # Generated by Prisma
+│
+├── services/                                  # Server-side wiring (imported by apps/web)
+│   └── db/
+│       ├── db-client.ts                       # Prisma singleton (avoid hot-reload leaks)
+│       └── auth.ts                            # Auth.js config/helpers (PrismaAdapter)
+│
+├── e2e/
+│   ├── web/                                   # Playwright tests (web)
+│   │   ├── tests/
+│   │   │   ├── auth.spec.ts
+│   │   │   └── feature-one.spec.ts
+│   │   ├── fixtures/
+│   │   ├── playwright.config.ts
+│   │   └── global-setup.ts
+│   └── mobile/                                # Optional: Detox/Maestro (mobile)
+│       └── README.md
+│
+├── public/                                    # Static assets (web)
+├── docs/
+│   └── features/
+│       ├── featureOne.md
+│       └── featureTwo.md
+└── (root config files omitted for brevity: .gitignore, package.json, turbo.json, tsconfig.*, .env, etc.)
+```
+
+> **Platform note:** Prefer **shared components in `packages/ui`** built on RN primitives so they run on mobile and, via RNW, in Next.js. Use **HeroUI** in `apps/web` for web-only polish (layouts/organisms). Where necessary, create **`*.web.tsx` / `*.native.tsx`** (e.g., `Button.web.tsx` and `Button.native.tsx`) to swap implementations cleanly.
+
+## General Coding Practices
+
+- **DRY:** Check `/packages/ui`, `/packages/screens`, `/packages/api`, `/packages/lib`, `/services`, and feature folders before coding.
+- **Single Responsibility (SRP)** and **Consistency** across components and modules.
+- **Tailwind & NativeWind:** Use utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`).
+- **Clean Code:** Small components; remove dead code aggressively. Document non-obvious logic/props.
+- **Local First:** Start in feature/screen; promote to shared packages upon reuse.
+- **Testing:** Unit tests (utilities/hooks), RTL for components/screens, Playwright (web), optional Detox/Maestro (mobile). Run relevant tests locally before committing.
+- **Docs:** Record key decisions and edge cases in `docs/`.
+
+## React (Web + Mobile) Guidelines
+
+- Default to **Server Components** in Next.js; use Client Components (`'use client'`) for interactivity/browser APIs.
+- **Routing:** Expo Router (mobile) and Next App Router (web). Keep **screens in `packages/screens`** and make route files thin wrappers.
+- **State & Data:** Prefer TanStack Query/Zustand per feature; avoid global state unless necessary.
+- **Effects:** Only for side effects; compute derived values instead of storing. Use `useMemo` sparingly.
+- **Validation:** Enforce **Zod** at API boundaries (route handlers/server actions).
+
+## Dependency Hygiene
+
+- Stick to declared deps; discuss before adding new ones.
+- Core web: `next`, `react`, `tailwindcss`, `@tanstack/react-query`, `heroui`.
+- Core mobile: `expo`, `react-native`, `react-native-web`, `nativewind`, `expo-router`, `react-native-gesture-handler`, `react-native-reanimated`.
+- Cross-platform: `zod`, `zustand` (optional).
+- Backend: `prisma`, `@prisma/client`, `next-auth`/`@auth/core`, `@auth/prisma-adapter`.
+- Avoid Node-only deps in edge runtimes; keep Prisma on Node runtime unless using Data Proxy.
+
+## Naming Conventions
+
+- **Components:** `PascalCase` (e.g., `UserProfile.tsx`)
+- **Pages/Routes:** `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `route.ts`
+  - Folders: `lowercase`/`kebab-case` (`user-settings/`)
+  - Dynamic: `[slug]`; Route Groups: `(group)`
+- **Non-components (utils/hooks/config):** `kebab-case` (`auth-helpers.ts`, `use-user-data.ts`)
+- **Folders (non-routing):** `kebab-case` (`components/`, `lib/`)
+- **Variables/Functions:** `camelCase`
+- **Types/Interfaces:** `PascalCase`
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Prisma Models:** `PascalCase` (tables via Prisma)
+
+## Data Layer (PostgreSQL + Prisma)
+
+- Define schema in `prisma/schema.prisma`; generate with `npx prisma generate`.
+- Migrations: `prisma migrate dev` locally; `prisma migrate deploy` in Vercel.
+- **Server-only access:** Run Prisma in **Next route handlers/server actions** (apps/web). Do **not** bundle Prisma in client or mobile.
+- Use a **Prisma client singleton** (`services/db/db-client.ts`) to avoid hot-reload leaks.
+- Validate inputs with Zod before DB ops.
+
+## Auth (Auth.js)
+
+- Adapter: **PrismaAdapter** with database sessions.
+- Handler: `apps/web/src/app/api/auth/[...nextauth]/route.ts`.
+- **Web:** Cookie sessions; `getServerSession()` (server) and `useSession()` (client).
+- **Mobile:** Treat RN app as an API consumer. Implement OAuth (PKCE) or credentials routes in Next; store tokens securely on device. **Do not** use NextAuth client in RN. Share user schemas/types in `packages/api`.
+
+## UI (Tailwind + NativeWind + HeroUI)
+
+- **Shared UI:** Atoms/molecules/organisms in `packages/ui` using RN primitives + NativeWind so they render on both platforms (web via RNW).
+- **Web-only:** Use **HeroUI** in `apps/web` for enhanced shells/templates (navigation bars, modals, tables). Keep prop signatures aligned with shared counterparts.
+- **Platform splits:** Create `Component.web.tsx` / `Component.native.tsx` for behavior/styling divergence (e.g., hover/focus rings vs haptics/gestures). Example: **`Button.web.tsx` and `Button.native.tsx`**.
+
+## Monorepo & Platform Integration
+
+- **Workspaces & Build:** pnpm/yarn workspaces + Turborepo.
+- **Next config (`apps/web/next.config.mjs`):**
+  - `transpilePackages: ['react-native', 'react-native-gesture-handler', 'react-native-reanimated', ...]`
+  - Webpack/TSC alias: map `'react-native'` → `'react-native-web'`.
+- **Expo & NativeWind:**
+  - Configure NativeWind; extend Tailwind with `packages/theme/tailwind-preset.cjs`.
+  - Fonts: load via `expo-font` (mobile) and Next fonts (web).
+- **Gestures/Animation:** Ensure `react-native-gesture-handler` & `react-native-reanimated` are configured for both platforms; test scrolling/overscroll and focus states on web early.
+
+## Environment & Deployment (Vercel)
+
+- Env vars: `DATABASE_URL`, `AUTH_SECRET`, OAuth provider keys. Never commit `.env`.
+- Vercel build: run `prisma migrate deploy` (build/post-deploy). Use **Node runtime** for handlers using Prisma.
+- Consider Prisma Data Proxy or pooled Postgres for connection limits.
+- Static assets via `public/` (web). Mobile assets via Expo pipeline (bundled).
+
+## Debugging & Issue Resolution
+
+- Reproduce, isolate, and fix one issue at a time.
+- Minimal, precise changes; verify via tests/manual checks.
+- Avoid unrelated refactors in bug-fix commits.
+- For DB: inspect Prisma logs, check migration drift, confirm schema alignment.
+- For cross-platform UI: test gestures, focus/scroll, and font loading on both platforms early.
+
+# Notes
+- Preserve the **atoms/molecules/organisms** structure—optimize for maximum reuse in `packages/ui`.
+- Use **screens** as the unit both routers render; keep route files thin.
+- Favor **server actions/route handlers** for data mutations over client-side writes.
+- Treat **design tokens** as the single source of truth (colors/spacing/typography) across platforms.

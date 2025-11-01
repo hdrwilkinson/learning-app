@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Thinking Cycle
+
+Explicitely work through the following steps.
+
+For X, follow the following thought cycle:
+
+1. Search codebase to fully understand X
+2. Propose a solution given X and wider understanding
+3. Critique solution based on best practices
+4. Re-propose given critique
+
+- Use MDC wherever possible.
+- Use your own tools whereever possible, rather than asking me to do it.

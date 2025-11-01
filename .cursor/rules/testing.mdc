@@ -1,0 +1,48 @@
+---
+description: Implementing tests or changing them for jest or playwright
+globs: 
+alwaysApply: false
+---
+# Testing Guidelines
+
+Testing ensures code reliability and maintainability. Use **Jest** for unit/integration tests and **Playwright** for E2E tests.
+
+## Principles
+
+- **Test alongside code (TDD/BDD recommended).**
+- **Prioritize coverage of critical logic and user flows.**
+- **Don't do 'change detector' testing. Ensure testing covers desired functionality.**
+
+## Test Types
+
+| Type                 | Tool        | Scope                                      |
+|----------------------|-------------|--------------------------------------------|
+| **Unit Tests**       | Jest        | Individual units; mock dependencies.       |
+| **Integration Tests**| Jest        | Interactions between modules; mock APIs.   |
+| **E2E Tests**        | Playwright  | Realistic user journeys; minimal mocks.    |
+
+## Jest Best Practices
+
+- **Naming:** `*.test.ts(x)` or `*.spec.ts(x)` alongside code or in `__tests__/`.
+- **Pattern:** Arrange → Act → Assert.
+- **Mocks:** Use `jest.fn()`, `jest.mock('module')`, and `jest.spyOn`.
+- **React Components:** Test user interactions via `@testing-library/react`.
+
+## Playwright Best Practices
+
+- **Structure:** E2E tests in `/e2e/tests/*.spec.ts`.
+- **Focus:** Critical user journeys (e.g., login, checkout).
+- **Realism:** Minimal mocking; use Firebase emulator when applicable.
+
+## Running Tests
+
+```bash
+# Jest tests
+npm test
+npm run test:watch
+
+# Playwright tests
+npm run test:e2e
+```
+
+Ensure all tests pass before committing.

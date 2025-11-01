@@ -1,24 +1,22 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+node_modules
+.pnp
+.pnp.js
 
 # testing
-/coverage
+coverage
+*.lcov
 
 # next.js
-/.next/
-/out/
+.next
+out
+build
+dist
 
 # production
-/build
+build
 
 # misc
 .DS_Store
@@ -30,8 +28,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# local env files
+.env
+.env*.local
+.env.production
 
 # vercel
 .vercel
@@ -40,22 +40,29 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Firebase
-.firebase/
+# turbo
+.turbo
 
-# Cloud Functions build output
-functions/lib/
+# expo
+.expo
+.expo-shared
 
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/e2e/auth-state.json
+# storybook
+storybook-static
 
-*storybook.log
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
 
-# act secrets file
-.secrets
-firebase-debug.log
+# Cursor IDE (contains secrets)
+.cursor/mcp.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations/*_init/

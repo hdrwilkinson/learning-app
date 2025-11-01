@@ -1,0 +1,23 @@
+---
+description: Interacting with git, pushing code to a remote repository
+globs: 
+alwaysApply: false
+---
+# Pushing Code to Remote
+
+Write a commit message adhering strictly to conventional commit standards:
+
+- Use imperative mood (e.g., "add validation for login form").
+- Clearly reference issue number: "(#ISSUE_NUMBER)".
+- Briefly summarize the specific changes clearly and concisely.
+- Update the issue description the commit is related to and add relevant comments to the thread
+
+Example:
+
+```
+git rev-parse --abbrev-ref HEAD
+git add X
+git commit -m "feat(feature): title for commit (#issue-number)" -m "Additional information n_1" -m "Additional information n_2"
+git push origin "branch"
+```
+Don't use MCP for git add ., commit and push, instead use your own cursor native tools.

@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Project Description
+
+User is `harry`.
+
+Github: 
+- Owner=`hdrwilkinson`
+- Repo=`v3-learning-app`
+
+This application is a GenAI-powered learning platform designed to help users master subjects through structured, personalized pathways. Its core architecture organizes content hierarchically into Courses, Modules, and Lessons, with each Lesson containing granular Information Points (definitions or concepts). The primary purpose is to leverage AI for both content generation (structuring topics and creating learning points) and interactive tutoring, transforming user-provided topics or materials into manageable, ordered learning experiences tailored to specified goals and timelines.
+
+Functionally, users initiate learning by defining a topic, optionally providing materials and goals, after which the AI proposes a Course structure. Learning occurs primarily in two modes: Curiosity Mode, an interactive chat focused on understanding individual Information Points sequentially with AI explanations and guided questioning; and Quiz Mode, which tests comprehension across multiple points using varied question types (multiple choice, Q&A) and difficulty levels. A separate Curiosity Zone allows for unstructured, exploratory chat-based learning that can optionally be saved or converted into structured Course content.
+
+Underpinning the platform is a robust progress tracking system that monitors user understanding at the Information Point level, primarily through performance in Quiz Mode. User responses, weighted by question type difficulty, feed into a spaced repetition algorithm (inspired by SM-2) to determine optimal review intervals and mastery status for each point. This data drives personalized quiz question selection and provides feedback on overall progress within a Course, aiming to create an efficient and adaptive learning loop that reinforces weak areas and solidifies knowledge effectively.

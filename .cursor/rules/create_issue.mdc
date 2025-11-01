@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Issue Creation
+
+- Use iterative Q&A to find out the desired functionality or fix in this issue.
+- Use MCP to make the issue in github.
+- Issue Title
+    - Made up of a type from conventional commits
+    - The feature that it's related to
+    - A descriptive title
+    -  e.g. `feat(auth): Implement OAuth Authentication (Google & GitHub)`
+- Acceptance Criteria: clearly defined, specific conditions for completion.
+- Identify edge cases and include them explicitly.
+- Be as descriptive and detailed as possible.
+- Assign it to `hdrwilkinson`
+- Add labels

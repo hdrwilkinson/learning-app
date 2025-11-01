@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Feature to Issues
+
+Ask questions to fully understand the feature for each issue. This Q&A can be iterative i.e. multiple rounds of question asking. Break down the feature into clear, independent issues. Each issue must include:
+
+- Issue Title
+    - Made up of a type from conventional commits
+    - The feature that it's related to
+    - A descriptive title
+    -  e.g. `feat(auth): Implement OAuth Authentication (Google & GitHub)`
+- Acceptance Criteria: clearly defined, specific conditions for completion.
+- Identify edge cases and include them explicitly.
+- Be as descriptive and detailed as possible.
+
+Additional considerations:
+
+- Assign it to `hdrwilkinson`
+- Add labels
+
+Once all issues have been created, add their titles. (with links to github) as an ordered list at the top of the feature page, under the title, e.g.
+
+```
+# Feature Title
+
+## Related GitHub Issues
+
+1. [#7: feat(auth): Implement Basic Email/Password Authentication (UI & Core Logic)](https://github.com/hdrwilkinson/v3-learning-app/issues/7)
+
+2. [#8: feat(auth): Implement OAuth Authentication (Google & GitHub)](https://github.com/hdrwilkinson/v3-learning-app/issues/8)
+
+```
