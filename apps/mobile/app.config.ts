@@ -34,4 +34,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         typedRoutes: true,
     },
     scheme: "thelearningapp",
+    extra: {
+        // EAS project configuration
+        eas: {
+            projectId: "b276d10e-8d36-46dd-b440-0f80b1257785",
+        },
+        // OAuth configuration - these will be available via expo-constants
+        googleOAuthClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "",
+        googleOAuthClientIdAndroid:
+            process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID || "",
+        googleOAuthClientIdIOS:
+            process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS || "",
+        apiUrl: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api",
+    },
 });
