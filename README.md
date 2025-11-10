@@ -4,12 +4,12 @@ A GenAI-powered learning platform designed to help users master subjects through
 
 ## 🏗️ Architecture
 
-This is a monorepo built with:
+This is a **web-first** monorepo built with:
 
 - **Turborepo** - Build system
-- **Next.js** (App Router) - Web application
-- **Expo** - Mobile application (iOS/Android)
-- **React Native Web** - Cross-platform UI
+- **Next.js** (App Router) - Web application (primary platform)
+- **shadcn/ui** - Web UI components (Tailwind + Radix)
+- **Expo** - Mobile application (iOS/Android) - mirrors web design
 - **Prisma** - Database ORM
 - **PostgreSQL** - Database
 - **Auth.js** - Authentication
@@ -23,10 +23,10 @@ learning-app/
 │   ├── web/              # Next.js web app
 │   └── mobile/           # Expo mobile app
 ├── packages/
-│   ├── ui/               # Shared UI components (atoms, molecules, organisms)
-│   ├── screens/          # Shared screens for both platforms
-│   ├── theme/            # Design tokens and Tailwind preset
-│   ├── api/              # API contracts, types, and client
+│   ├── ui/               # React Native UI components (for mobile)
+│   ├── screens/          # Mobile screen components
+│   ├── theme/            # Design tokens and Tailwind preset (shared)
+│   ├── api/              # API contracts, types, and client (shared)
 │   └── lib/              # Shared utilities and constants
 ├── services/
 │   └── db/               # Database client and auth configuration
@@ -181,9 +181,22 @@ Pre-commit hooks automatically format and lint your code.
 
 ## 📦 Package Overview
 
+### Web UI (`apps/web/src/components/ui`)
+
+Web components built with **shadcn/ui** (Tailwind + Radix Primitives). These are copy-paste components that live in your codebase for maximum customization.
+
+See [shadcn/ui documentation](./docs/ui/shadcn.md) for details on available components and usage.
+
+**Get Started with shadcn/ui:**
+
+```bash
+cd apps/web
+npx shadcn@latest add <component-name>
+```
+
 ### `@repo/ui`
 
-Shared UI components built on React Native primitives. Works on both web (via react-native-web) and mobile.
+React Native UI components for mobile. These mirror the web design using React Native primitives.
 
 - Atoms: Button, Text, Input
 - Molecules: (to be added)
@@ -191,7 +204,7 @@ Shared UI components built on React Native primitives. Works on both web (via re
 
 ### `@repo/screens`
 
-Route-agnostic screen components that compose UI from `@repo/ui`.
+Mobile screen components that compose UI from `@repo/ui`.
 
 ### `@repo/theme`
 

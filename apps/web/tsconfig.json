@@ -5,6 +5,7 @@
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
         "strict": true,
         "noEmit": true,
         "esModuleInterop": true,
@@ -14,14 +15,14 @@
         "isolatedModules": true,
         "jsx": "preserve",
         "incremental": true,
+        "baseUrl": ".",
         "plugins": [
             {
                 "name": "next"
             }
         ],
         "paths": {
-            "@/*": ["./src/*"],
-            "react-native": ["react-native-web"]
+            "@/*": ["./src/*"]
         }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

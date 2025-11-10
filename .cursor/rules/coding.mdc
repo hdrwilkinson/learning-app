@@ -1,13 +1,17 @@
 ---
-description: Cursor rules for a cross-platform monorepo: Next.js (web/SSR on Vercel) + Expo (React Native mobile), shared UI with React Native primitives + NativeWind/Tailwind, HeroUI for web, PostgreSQL via Prisma, Auth.js.
+description: Cursor rules for a web-first monorepo: Next.js (web/SSR on Vercel) + Expo (React Native mobile), shadcn/ui for web, PostgreSQL via Prisma, Auth.js.
 globs:
 alwaysApply: true
 ---
-You are a Senior Full-Stack Developer and an Expert in Next.js, React Native (Expo), TypeScript, TailwindCSS, NativeWind, HeroUI, Auth.js, Prisma, and PostgreSQL. You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers, and are a genius at reasoning.
+You are a Senior Full-Stack Developer and an Expert in Next.js, React Native (Expo), TypeScript, TailwindCSS, shadcn/ui, Auth.js, Prisma, and PostgreSQL. You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers, and are a genius at reasoning.
+
+## Platform Strategy
+
+**Web-first approach:** The web application (`apps/web`) is the primary, production path built with shadcn/ui (Tailwind + Radix). Mobile (`apps/mobile`) follows closely, mirroring the web design and component APIs with React Native components. Shared design tokens (`packages/theme`), API contracts (`packages/api`), and utilities (`packages/lib`) persist across both platforms.
 
 ## Codebase Structure
 
-Follow this structure for file organization, using a **monorepo** with workspaces. Keep the `src` directory for app code inside each app. Favor **shared UI in `packages/ui`** (RN primitives + NativeWind) so components run on mobile and, via `react-native-web`, in the browser.
+Follow this structure for file organization, using a **monorepo** with workspaces. Keep the `src` directory for app code inside each app. Build web components with **shadcn/ui** in `apps/web/src/components/ui`; mobile will mirror these designs later with React Native equivalents.
 
 ```plaintext
 .
@@ -15,13 +19,13 @@ Follow this structure for file organization, using a **monorepo** with workspace
 │   ├── web/                                   # Next.js (App Router) — browser/desktop
 │   │   ├── src/
 │   │   │   ├── app/                           # layouts, pages, API routes (server actions/route handlers)
-│   │   │   │   ├── layout.tsx                 # Wrap with HeroUI Provider if needed
+│   │   │   │   ├── layout.tsx                 # Root layout
 │   │   │   │   ├── page.tsx                   # Home
 │   │   │   │   ├── (auth)/                    # Auth routes (web UX)
 │   │   │   │   │   ├── login/page.tsx
 │   │   │   │   │   └── signup/page.tsx
 │   │   │   │   ├── feature-one/
-│   │   │   │   │   ├── page.tsx               # Thin route wrapper rendering shared screen
+│   │   │   │   │   ├── page.tsx               # Feature pages
 │   │   │   │   │   ├── new/page.tsx
 │   │   │   │   │   └── [itemId]/page.tsx
 │   │   │   │   ├── feature-two/
@@ -31,24 +35,26 @@ Follow this structure for file organization, using a **monorepo** with workspace
 │   │   │   │       ├── auth/[...nextauth]/route.ts    # Auth.js handler (PrismaAdapter)
 │   │   │   │       ├── feature-one/route.ts           # Prisma-backed endpoints
 │   │   │   │       └── feature-two/route.ts
-│   │   │   ├── components/                    # Web-only wrappers (HeroUI shells, adapters)
-│   │   │   ├── styles/                        # Tailwind entry (globals.css)
-│   │   │   └── lib/                           # Web utils (RSC helpers, caching, revalidate)
-│   │   ├── next.config.mjs                    # transpilePackages + alias react-native -> react-native-web
+│   │   │   ├── components/                    # Web components
+│   │   │   │   └── ui/                        # shadcn/ui components (Button, Input, Dialog, etc.)
+│   │   │   ├── styles/                        # Tailwind entry (globals.css with shadcn tokens)
+│   │   │   └── lib/                           # Web utils (RSC helpers, caching, revalidate, cn helper)
+│   │   ├── components.json                    # shadcn/ui configuration
+│   │   ├── next.config.mjs                    # Web-only config (no RN coupling)
 │   │   └── tailwind.config.ts                 # Consumes shared preset from packages/theme
 │   │
-│   └── mobile/                                # Expo (iOS/Android)
+│   └── mobile/                                # Expo (iOS/Android) — mirrors web design
 │       ├── app/                               # Expo Router (file-based)
 │       │   ├── _layout.tsx                    # Navigation container, Safe Areas
-│       │   ├── index.tsx                      # Renders shared home screen
+│       │   ├── index.tsx                      # Home screen (mirrors web)
 │       │   ├── feature-one/index.tsx
 │       │   └── feature-two/[featureTwoId].tsx
-│       ├── components/                        # Mobile-only wrappers/adapters
+│       ├── components/                        # Mobile components (mirror web design with RN)
 │       ├── app.config.ts                      # Expo app config
 │       └── tailwind.config.js                 # NativeWind config (extends shared preset)
 │
 ├── packages/
-│   ├── ui/                                    # **Shared UI**: atoms/molecules/organisms (RN primitives + NativeWind)
+│   ├── ui/                                    # React Native UI components (for mobile)
 │   │   ├── src/
 │   │   │   ├── atoms/                         # Fundamental building blocks
 │   │   │   │   ├── Button/
@@ -66,12 +72,12 @@ Follow this structure for file organization, using a **monorepo** with workspace
 │   │   │   └── providers/                     # Theme, SafeArea, Gesture handlers
 │   │   └── package.json
 │   │
-│   ├── screens/                               # Route-agnostic feature screens (compose from packages/ui)
+│   ├── screens/                               # Route-agnostic feature screens (mobile)
 │   │   ├── feature-one/
 │   │   │   ├── components/
 │   │   │   ├── hooks/
 │   │   │   │   └── __tests__/useFeatureOne.test.ts
-│   │   │   └── FeatureOneScreen.tsx           # Imported by both routers
+│   │   │   └── FeatureOneScreen.tsx           # Mobile screen components
 │   │   └── feature-two/
 │   │       └── FeatureTwoScreen.tsx
 │   │
@@ -108,19 +114,21 @@ Follow this structure for file organization, using a **monorepo** with workspace
 │
 ├── public/                                    # Static assets (web)
 ├── docs/
+│   ├── ui/
+│   │   └── shadcn.md                          # shadcn/ui documentation
 │   └── features/
 │       ├── featureOne.md
 │       └── featureTwo.md
 └── (root config files omitted for brevity: .gitignore, package.json, turbo.json, tsconfig.*, .env, etc.)
 ```
 
-> **Platform note:** Prefer **shared components in `packages/ui`** built on RN primitives so they run on mobile and, via RNW, in Next.js. Use **HeroUI** in `apps/web` for web-only polish (layouts/organisms). Where necessary, create **`*.web.tsx` / `*.native.tsx`** (e.g., `Button.web.tsx` and `Button.native.tsx`) to swap implementations cleanly.
+> **Platform note:** Build web components with **shadcn/ui** in `apps/web/src/components/ui`. These are Tailwind-first, copy-paste components that live in your codebase. Mobile will mirror the design and component APIs later using React Native components. No React Native Web coupling in the web app.
 
 ## General Coding Practices
 
-- **DRY:** Check `/packages/ui`, `/packages/screens`, `/packages/api`, `/packages/lib`, `/services`, and feature folders before coding.
+- **DRY:** Check `/packages/api`, `/packages/lib`, `/packages/theme`, `/services`, and feature folders before coding.
 - **Single Responsibility (SRP)** and **Consistency** across components and modules.
-- **Tailwind & NativeWind:** Use utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`).
+- **Tailwind:** Use utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`).
 - **Clean Code:** Small components; remove dead code aggressively. Document non-obvious logic/props.
 - **Local First:** Start in feature/screen; promote to shared packages upon reuse.
 - **Testing:** Unit tests (utilities/hooks), RTL for components/screens, Playwright (web), optional Detox/Maestro (mobile). Run relevant tests locally before committing.
@@ -129,7 +137,7 @@ Follow this structure for file organization, using a **monorepo** with workspace
 ## React (Web + Mobile) Guidelines
 
 - Default to **Server Components** in Next.js; use Client Components (`'use client'`) for interactivity/browser APIs.
-- **Routing:** Expo Router (mobile) and Next App Router (web). Keep **screens in `packages/screens`** and make route files thin wrappers.
+- **Routing:** Expo Router (mobile) and Next App Router (web). Keep route files thin wrappers.
 - **State & Data:** Prefer TanStack Query/Zustand per feature; avoid global state unless necessary.
 - **Effects:** Only for side effects; compute derived values instead of storing. Use `useMemo` sparingly.
 - **Validation:** Enforce **Zod** at API boundaries (route handlers/server actions).
@@ -137,8 +145,8 @@ Follow this structure for file organization, using a **monorepo** with workspace
 ## Dependency Hygiene
 
 - Stick to declared deps; discuss before adding new ones.
-- Core web: `next`, `react`, `tailwindcss`, `@tanstack/react-query`, `heroui`.
-- Core mobile: `expo`, `react-native`, `react-native-web`, `nativewind`, `expo-router`, `react-native-gesture-handler`, `react-native-reanimated`.
+- Core web: `next`, `react`, `tailwindcss`, `@tanstack/react-query`, `shadcn/ui` (via CLI), `tailwindcss-animate`.
+- Core mobile: `expo`, `react-native`, `nativewind`, `expo-router`, `react-native-gesture-handler`, `react-native-reanimated`.
 - Cross-platform: `zod`, `zustand` (optional).
 - Backend: `prisma`, `@prisma/client`, `next-auth`/`@auth/core`, `@auth/prisma-adapter`.
 - Avoid Node-only deps in edge runtimes; keep Prisma on Node runtime unless using Data Proxy.
@@ -171,22 +179,24 @@ Follow this structure for file organization, using a **monorepo** with workspace
 - **Web:** Cookie sessions; `getServerSession()` (server) and `useSession()` (client).
 - **Mobile:** Treat RN app as an API consumer. Implement OAuth (PKCE) or credentials routes in Next; store tokens securely on device. **Do not** use NextAuth client in RN. Share user schemas/types in `packages/api`.
 
-## UI (Tailwind + NativeWind + HeroUI)
+## UI (Tailwind + shadcn/ui)
 
-- **Shared UI:** Atoms/molecules/organisms in `packages/ui` using RN primitives + NativeWind so they render on both platforms (web via RNW).
-- **Web-only:** Use **HeroUI** in `apps/web` for enhanced shells/templates (navigation bars, modals, tables). Keep prop signatures aligned with shared counterparts.
-- **Platform splits:** Create `Component.web.tsx` / `Component.native.tsx` for behavior/styling divergence (e.g., hover/focus rings vs haptics/gestures). Example: **`Button.web.tsx` and `Button.native.tsx`**.
+- **Web UI:** Use **shadcn/ui** components in `apps/web/src/components/ui`. These are Tailwind-first, copy-paste components built on Radix Primitives. Add components via CLI: `npx shadcn@latest add <component>`.
+- **Component usage:** Import from `@/components/ui/<component>` (e.g., `@/components/ui/button`).
+- **Styling:** Use Tailwind utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`). shadcn components use CSS variables defined in `apps/web/src/styles/globals.css`.
+- **Mobile UI:** Build React Native components in `apps/mobile/components` that mirror web design. Use shared design tokens from `packages/theme` for consistency.
+- **No cross-platform UI coupling:** Web does not use React Native Web. Mobile mirrors web design independently.
 
 ## Monorepo & Platform Integration
 
-- **Workspaces & Build:** pnpm/yarn workspaces + Turborepo.
+- **Workspaces & Build:** npm/pnpm/yarn workspaces + Turborepo.
 - **Next config (`apps/web/next.config.mjs`):**
-  - `transpilePackages: ['react-native', 'react-native-gesture-handler', 'react-native-reanimated', ...]`
-  - Webpack/TSC alias: map `'react-native'` → `'react-native-web'`.
+  - `transpilePackages: ['@repo/api', '@repo/lib', '@repo/theme']` (shared packages only)
+  - No React Native Web alias or transpilation.
 - **Expo & NativeWind:**
   - Configure NativeWind; extend Tailwind with `packages/theme/tailwind-preset.cjs`.
   - Fonts: load via `expo-font` (mobile) and Next fonts (web).
-- **Gestures/Animation:** Ensure `react-native-gesture-handler` & `react-native-reanimated` are configured for both platforms; test scrolling/overscroll and focus states on web early.
+- **Gestures/Animation:** Ensure `react-native-gesture-handler` & `react-native-reanimated` are configured for mobile; web uses standard CSS/JS animations.
 
 ## Environment & Deployment (Vercel)
 
@@ -201,10 +211,10 @@ Follow this structure for file organization, using a **monorepo** with workspace
 - Minimal, precise changes; verify via tests/manual checks.
 - Avoid unrelated refactors in bug-fix commits.
 - For DB: inspect Prisma logs, check migration drift, confirm schema alignment.
-- For cross-platform UI: test gestures, focus/scroll, and font loading on both platforms early.
+- For web UI: test components in isolation, verify Tailwind classes, check shadcn component props/docs.
 
 # Notes
-- Preserve the **atoms/molecules/organisms** structure—optimize for maximum reuse in `packages/ui`.
-- Use **screens** as the unit both routers render; keep route files thin.
+- Use **shadcn/ui** components as the foundation for web UI—they're maintainable, accessible, and Tailwind-first.
+- Mobile mirrors web design using React Native components; shared tokens ensure consistency.
 - Favor **server actions/route handlers** for data mutations over client-side writes.
 - Treat **design tokens** as the single source of truth (colors/spacing/typography) across platforms.
