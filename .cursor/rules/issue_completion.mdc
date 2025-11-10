@@ -11,4 +11,4 @@ alwaysApply: false
 4. Issue: 
     - Read the issue, add a comment. 
     - Then, update the issue description.
-5. Create a PR to merge the branch into `dev`
+5. Create a PR to merge the branch into `main`

@@ -1,12 +1,27 @@
-import '@testing-library/jest-dom';
-import React from 'react';
+import "@testing-library/jest-dom";
+import React from "react";
 
-// Mock react-markdown and related packages
-jest.mock('react-markdown', () => {
-    return function MockReactMarkdown({ children, ...props }: { children: string;[key: string]: unknown }) {
-        return React.createElement('div', { 'data-testid': 'react-markdown', ...props }, children);
-    };
-});
+// Mock react-markdown and related packages (only if installed)
+try {
+    require.resolve("react-markdown");
+    jest.mock("react-markdown", () => {
+        return function MockReactMarkdown({
+            children,
+            ...props
+        }: {
+            children: string;
+            [key: string]: unknown;
+        }) {
+            return React.createElement(
+                "div",
+                { "data-testid": "react-markdown", ...props },
+                children
+            );
+        };
+    });
+} catch {
+    // react-markdown not installed, skip mock
+}
 
 // Enhanced ResizeObserver mock that works with both global and local usage
 global.ResizeObserver = class ResizeObserver {
@@ -20,7 +35,13 @@ global.ResizeObserver = class ResizeObserver {
     observe(element: Element): void {
         this.observedElements.add(element);
         // Only auto-trigger if no custom mock is being used
-        if (!(global as typeof globalThis & { __RESIZE_OBSERVER_TEST_MODE__?: boolean }).__RESIZE_OBSERVER_TEST_MODE__) {
+        if (
+            !(
+                global as typeof globalThis & {
+                    __RESIZE_OBSERVER_TEST_MODE__?: boolean;
+                }
+            ).__RESIZE_OBSERVER_TEST_MODE__
+        ) {
             const mockEntry: ResizeObserverEntry = {
                 target: element,
                 contentRect: {
@@ -32,11 +53,11 @@ global.ResizeObserver = class ResizeObserver {
                     right: 800,
                     bottom: 600,
                     left: 0,
-                    toJSON: () => ({})
+                    toJSON: () => ({}),
                 },
                 borderBoxSize: [] as ResizeObserverSize[],
                 contentBoxSize: [] as ResizeObserverSize[],
-                devicePixelContentBoxSize: [] as ResizeObserverSize[]
+                devicePixelContentBoxSize: [] as ResizeObserverSize[],
             };
 
             // Call the callback with the mock entry
