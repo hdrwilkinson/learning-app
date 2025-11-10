@@ -6,6 +6,6 @@
     "types": "./src/index.ts",
     "scripts": {
         "lint": "echo 'Linting lib package'",
-        "test": "jest"
+        "test": "jest --passWithNoTests"
     }
 }

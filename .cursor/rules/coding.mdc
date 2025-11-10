@@ -37,13 +37,13 @@ Follow this structure for file organization, using a **monorepo** with workspace
 │   │   │   │       └── feature-two/route.ts
 │   │   │   ├── components/                    # Web components
 │   │   │   │   └── ui/                        # shadcn/ui components
-│   │   │   │       ├── atoms/                 # Atomic components (fundamental building blocks)
-│   │   │   │       ├── molecules/             # Composite components (combinations of atoms)
-│   │   │   │       ├── organisms/             # Complex components (optional, for larger compositions)
 │   │   │   │       └── shadcn/                # Direct shadcn/ui components (button.tsx, input.tsx, etc.)
 │   │   │   │           ├── button.tsx
 │   │   │   │           ├── input.tsx
 │   │   │   │           └── ...
+│   │   │   │       ├── atoms/                 # Atomic components (fundamental building blocks, uses shadcn components if needed)
+│   │   │   │       ├── molecules/             # Composite components (combinations of atoms)
+│   │   │   │       ├── organisms/             # Complex components (optional, for larger compositions)
 │   │   │   ├── styles/                        # Tailwind entry (globals.css with shadcn tokens)
 │   │   │   └── lib/                           # Web utils (RSC helpers, caching, revalidate, cn helper)
 │   │   ├── components.json                    # shadcn/ui configuration
