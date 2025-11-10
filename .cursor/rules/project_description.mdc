@@ -9,7 +9,7 @@ User is `harry`.
 
 Github: 
 - Owner=`hdrwilkinson`
-- Repo=`v3-learning-app`
+- Repo=`the-learning-app`
 
 This application is a GenAI-powered learning platform designed to help users master subjects through structured, personalized pathways. Its core architecture organizes content hierarchically into Courses, Modules, and Lessons, with each Lesson containing granular Information Points (definitions or concepts). The primary purpose is to leverage AI for both content generation (structuring topics and creating learning points) and interactive tutoring, transforming user-provided topics or materials into manageable, ordered learning experiences tailored to specified goals and timelines.
 

@@ -28,8 +28,8 @@ Once all issues have been created, add their titles. (with links to github) as a
 
 ## Related GitHub Issues
 
-1. [#7: feat(auth): Implement Basic Email/Password Authentication (UI & Core Logic)](https://github.com/hdrwilkinson/v3-learning-app/issues/7)
+1. [#7: feat(auth): Implement Basic Email/Password Authentication (UI & Core Logic)](https://github.com/hdrwilkinson/the-learning-app/issues/7)
 
-2. [#8: feat(auth): Implement OAuth Authentication (Google & GitHub)](https://github.com/hdrwilkinson/v3-learning-app/issues/8)
+2. [#8: feat(auth): Implement OAuth Authentication (Google & GitHub)](https://github.com/hdrwilkinson/the-learning-app/issues/8)
 
 ```
