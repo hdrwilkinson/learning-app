@@ -84,6 +84,7 @@ Alternates: *Your path to mastery, simplified.* / *From effort to mastery.*
 - **--surface-3:** `222 47% 16%` (Active/Border)
 - **--foreground:** `0 0% 98%`
 - **--primary:** `262 83% 65%` *(Purple 500 for better dark contrast)*
+- **--destructive:** `0 84% 60%` *(Bright Red #EF4444 for visibility)*
 
 ### Data Visualization Palette (Charts/Progress)
 *Distinct from UI colors to avoid confusion with actions. Colors are optimized for contrast in each mode.*

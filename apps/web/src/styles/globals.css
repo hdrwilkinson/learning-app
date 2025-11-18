@@ -57,7 +57,7 @@
     --accent-gold-foreground: 0 0% 100%;
     --muted: 223 10% 20%;
     --muted-foreground: 215 20% 70%;
-    --destructive: 0 62% 30%;
+    --destructive: 0 84% 60%; /* Brightened for visibility on dark navy */
     --destructive-foreground: 0 0% 100%;
     --border: 223 10% 20%;
     --input: 223 10% 20%;
