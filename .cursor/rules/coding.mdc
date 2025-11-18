@@ -188,6 +188,8 @@ Follow this structure for file organization, using a **monorepo** with workspace
 
 ## UI (Tailwind + shadcn/ui)
 
+> **Brand Guidelines:** All UI components, colors, typography, and design decisions must follow the [branding guidelines](./branding.mdc). Reference it when building components or making design choices.
+
 - **Web UI Structure:** Organize components in `apps/web/src/components/ui` using atomic design principles:
   - **`atoms/`** - Fundamental building blocks (e.g., `DropdownElement`, `IconButton`). Each atom lives in its own PascalCase folder with:
     - `ComponentName.tsx` - Component implementation
@@ -199,7 +201,7 @@ Follow this structure for file organization, using a **monorepo** with workspace
 - **Component usage:** 
   - Atoms/molecules: Import from `@/components/ui/atoms/ComponentName` or `@/components/ui/molecules/ComponentName`
   - shadcn components: Import from `@/components/ui/shadcn/<component>` (e.g., `@/components/ui/shadcn/button`)
-- **Styling:** Use Tailwind utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`). shadcn components use CSS variables defined in `apps/web/src/styles/globals.css`.
+- **Styling:** Use Tailwind utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`). shadcn components use CSS variables defined in `apps/web/src/styles/globals.css`. **All colors, spacing, typography, and design tokens must align with brand guidelines.**
 - **Mobile UI:** Build React Native components in `apps/mobile/components` that mirror web design. Use shared design tokens from `packages/theme` for consistency.
 - **No cross-platform UI coupling:** Web does not use React Native Web. Mobile mirrors web design independently.
 

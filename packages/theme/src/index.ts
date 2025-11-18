@@ -3,32 +3,55 @@
  * These tokens are used across both web and mobile platforms
  */
 
+export const tokens = {
+    radius: { sm: 4, md: 8, lg: 12, xl: 16, xxl: 24 },
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, "2xl": 48, "3xl": 64 },
+    font: {
+        displayFun: "Space Grotesk",
+        display: "Inter Tight",
+        body: "Inter",
+        mono: "Fira Code",
+    },
+    color: {
+        primary: { 600: "#7C3AED", 700: "#6D28D9" },
+        secondary: { 600: "#2563EB", 700: "#1D4ED8" },
+        accent: { 600: "#0891B2", 700: "#0E7490" },
+        accentGold: { 500: "#F59E0B", 600: "#D97706" },
+        success: { 600: "#16A34A" },
+        warning: { 600: "#D97706" },
+        error: { 600: "#DC2626" },
+        surface: { bg: "hsl(var(--background))", fg: "hsl(var(--foreground))" },
+    },
+};
+
+// Legacy exports for backward compatibility if needed,
+// otherwise these can be deprecated in favor of the `tokens` object
 export const colors = {
     primary: {
-        50: "#f0f9ff",
-        100: "#e0f2fe",
-        200: "#bae6fd",
-        300: "#7dd3fc",
-        400: "#38bdf8",
-        500: "#0ea5e9",
-        600: "#0284c7",
-        700: "#0369a1",
-        800: "#075985",
-        900: "#0c4a6e",
-        950: "#082f49",
+        50: "#FAF5FF",
+        100: "#F3E8FF",
+        200: "#E9D5FF",
+        300: "#D8B4FE",
+        400: "#C084FC",
+        500: "#A855F7",
+        600: "#7C3AED",
+        700: "#6D28D9",
+        800: "#5B21B6",
+        900: "#4C1D95",
+        950: "#2E1065",
     },
     secondary: {
-        50: "#faf5ff",
-        100: "#f3e8ff",
-        200: "#e9d5ff",
-        300: "#d8b4fe",
-        400: "#c084fc",
-        500: "#a855f7",
-        600: "#9333ea",
-        700: "#7e22ce",
-        800: "#6b21a8",
-        900: "#581c87",
-        950: "#3b0764",
+        50: "#EFF6FF",
+        100: "#DBEAFE",
+        200: "#BFDBFE",
+        300: "#93C5FD",
+        400: "#60A5FA",
+        500: "#3B82F6",
+        600: "#2563EB",
+        700: "#1D4ED8",
+        800: "#1E40AF",
+        900: "#1E3A8A",
+        950: "#172554",
     },
 } as const;
 

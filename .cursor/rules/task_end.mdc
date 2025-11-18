@@ -8,6 +8,6 @@ alwaysApply: false
 1. Run `npm test` and `npm run test:e2e` to check all tests pass. 
 2. Run `npx tsc --noEmit`, `npx next lint`, and `npm run build`. Fix any issues [debugging.mdc](mdc:.cursor/rules/debugging.mdc).
 3. Git: add relevant files, commit and push to branch. Use tools to find branch and MDC for commit message template.
-4. Issue: 
+4. (If needed) Issue: 
     - Read the issue, add a comment. 
     - Then, update the issue description.
