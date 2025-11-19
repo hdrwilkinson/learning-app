@@ -2,6 +2,8 @@
  * Shared utility functions
  */
 
+export * from "./username-generator";
+
 /**
  * Format a date to a readable string
  */

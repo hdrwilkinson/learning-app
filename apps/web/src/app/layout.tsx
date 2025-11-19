@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
 import { Inter, Inter_Tight, Space_Grotesk, Fira_Code } from "next/font/google";
 import "@/styles/globals.css";
 import { SettingsMenu } from "@/components/ui/molecules/SettingsMenu/SettingsMenu";
+import { Providers } from "@/components/providers";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -44,16 +44,12 @@ export default function RootLayout({
             <body
                 className={`${inter.variable} ${interTight.variable} ${spaceGrotesk.variable} ${firaCode.variable} font-sans antialiased`}
             >
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                >
+                <Providers>
                     <div className="fixed right-4 top-4 z-50">
                         <SettingsMenu />
                     </div>
                     {children}
-                </ThemeProvider>
+                </Providers>
             </body>
         </html>
     );

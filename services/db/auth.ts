@@ -9,6 +9,8 @@ import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./db-client";
+import bcrypt from "bcrypt";
+import { generateUsername } from "@repo/lib";
 
 export const authOptions: NextAuthConfig = {
     adapter: PrismaAdapter(prisma),
@@ -28,52 +30,94 @@ export const authOptions: NextAuthConfig = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                // TODO: Implement proper password authentication
-                // This is a placeholder - you should add proper password hashing
-                // and verification using bcrypt or similar
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
 
-                const email =
-                    typeof credentials.email === "string"
-                        ? credentials.email
-                        : null;
-                if (!email) {
-                    return null;
-                }
+                const email = credentials.email as string;
+                const password = credentials.password as string;
 
-                // For now, just create/find user by email
                 const user = await prisma.user.findUnique({
                     where: { email },
                 });
 
-                if (user) {
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        image: user.image,
-                    };
+                if (!user || !user.password) {
+                    return null;
                 }
 
-                return null;
+                const isValid = await bcrypt.compare(password, user.password);
+
+                if (!isValid) {
+                    return null;
+                }
+
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                };
             },
         }),
     ],
     session: {
-        strategy: "database",
+        strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     pages: {
-        signIn: "/auth/signin",
+        signIn: "/login",
         signOut: "/auth/signout",
         error: "/auth/error",
     },
+    events: {
+        async createUser({ user }) {
+            if (!user.username) {
+                let username = generateUsername();
+                let exists = await prisma.user.findUnique({
+                    where: { username },
+                });
+                let retries = 0;
+                while (exists && retries < 3) {
+                    username = generateUsername();
+                    exists = await prisma.user.findUnique({
+                        where: { username },
+                    });
+                    retries++;
+                }
+
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { username },
+                });
+            }
+        },
+    },
     callbacks: {
-        async session({ session, user }) {
-            if (session?.user) {
-                session.user.id = user.id;
+        async jwt({ token, user, trigger, session }) {
+            if (user) {
+                token.id = user.id;
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: user.id },
+                });
+                if (dbUser) {
+                    token.username = dbUser.username;
+                    token.dateOfBirth = dbUser.dateOfBirth;
+                    token.country = dbUser.country;
+                    token.bio = dbUser.bio;
+                }
+            }
+            if (trigger === "update" && session) {
+                token = { ...token, ...session };
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user && token) {
+                session.user.id = token.id as string;
+                session.user.username = token.username as string;
+                session.user.dateOfBirth = token.dateOfBirth as Date;
+                session.user.country = token.country as string;
+                session.user.bio = token.bio as string;
             }
             return session;
         },
