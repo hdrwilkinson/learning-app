@@ -15,7 +15,6 @@
         "incremental": true,
         "baseUrl": ".",
         "paths": {
-            "@repo/ui": ["./packages/ui/src"],
             "@repo/screens": ["./packages/screens"],
             "@repo/theme": ["./packages/theme"],
             "@repo/api": ["./packages/api"],

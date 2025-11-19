@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+## Pre-Commit Steps
+
+Run these pre-commit commands locally. Fix any issues that arise [debugging.mdc](mdc:.cursor/rules/debugging.mdc)., and then re-run until all pass.
+
+1. Run `npm test` and `npm run test:e2e` to check all tests pass. 
+2. Run `npx tsc --noEmit`, `npx next lint`, and `npm run build`.

@@ -26,7 +26,7 @@ const DropdownElement = React.forwardRef<HTMLDivElement, DropdownElementProps>(
                 {...props}
             >
                 <span className="flex-shrink-0">{icon}</span>
-                <span className="flex-1">{label}</span>
+                <span className={cn("flex-1")}>{label}</span>
             </div>
         );
     }

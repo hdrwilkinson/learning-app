@@ -1,49 +1,55 @@
-import type { Decorator } from '@storybook/react';
-import { ThemeProvider } from 'next-themes';
-import React, { useEffect, useState } from 'react';
-import { SplitViewDecorator } from './SplitViewDecorator';
+import type { Decorator } from "@storybook/react";
+import React from "react";
+import { ThemeProvider } from "next-themes";
+import { SplitViewDecorator } from "./SplitViewDecorator";
 
 export const useThemeProviderDecorator: Decorator = (Story, context) => {
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const theme = context.globals.theme || "light";
+    const isDocs = context.viewMode === "docs";
 
-    if (!mounted) {
-        // Return a simple placeholder consistent with what SplitViewDecorator would render if !mounted
-        return (
-            <div style={{ display: 'flex', gap: '2rem', height: '100%' }}>
-                <div style={{ flex: 1 }}></div>
-                <div style={{ flex: 1 }}></div>
-            </div>
-        );
-    }
+    // Use viewport units for Canvas, container units for Docs
+    const heightClass = isDocs ? "min-h-[400px]" : "min-h-screen";
 
-    const theme = context.globals.theme;
-
-    if (theme === 'split') {
-        // SplitViewDecorator is now hook-free and relies on this decorator's mounted state.
+    // In Docs mode, we can default to split view to show both variants
+    // or just respect the toolbar. Let's default to split for better docs.
+    if (isDocs && theme !== "dark" && theme !== "light") {
         return SplitViewDecorator(Story, context);
     }
 
-    // Single theme mode - using data-theme for consistency with SplitViewDecorator
+    if (theme === "split") {
+        return SplitViewDecorator(Story, context);
+    }
+
+    // Map storybook theme to next-themes value
+
+    if (theme === "dark") {
+        return (
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                forcedTheme="dark"
+            >
+                <div
+                    className={`dark bg-background text-foreground ${heightClass} w-full flex items-center justify-center p-8`}
+                >
+                    {Story(context)}
+                </div>
+            </ThemeProvider>
+        );
+    }
+
+    // Light theme (default)
     return (
-        <ThemeProvider forcedTheme={theme} attribute="data-theme" enableSystem={false}>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            forcedTheme="light"
+        >
             <div
-                data-theme={theme}
-                style={{
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: '1rem',
-                    background: 'var(--background)',
-                    color: 'var(--foreground)',
-                    borderRadius: '0.5rem',
-                }}
+                className={`bg-background text-foreground ${heightClass} w-full flex items-center justify-center p-8`}
             >
                 {Story(context)}
             </div>
         </ThemeProvider>
     );
-}; 
+};

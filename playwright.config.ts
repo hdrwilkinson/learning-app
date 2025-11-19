@@ -12,7 +12,7 @@ export default defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: "html",
     use: {
-        baseURL: "http://localhost:3000",
+        baseURL: "http://localhost:3002",
         trace: "on-first-retry",
     },
     projects: [
@@ -30,11 +30,11 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: "npm run dev:web",
-        url: "http://localhost:3000",
+        command: "cd apps/web && npm run start",
+        url: "http://localhost:3002",
         reuseExistingServer: !process.env.CI,
         stdout: "pipe",
         stderr: "pipe",
-        timeout: 60000,
+        timeout: 120000,
     },
 });

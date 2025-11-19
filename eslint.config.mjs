@@ -20,6 +20,11 @@ const eslintConfig = [
       }],
       "@typescript-eslint/no-explicit-any": "warn",
       "no-html-link-for-pages": "off", // Disabled for App Router
+    },
+    settings: {
+      next: {
+        rootDir: ["apps/web/"]
+      }
     }
   }
 ];

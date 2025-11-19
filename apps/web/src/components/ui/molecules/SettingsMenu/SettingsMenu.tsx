@@ -11,9 +11,9 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    IconButton,
     DropdownElement,
 } from "@/components/ui";
+import { Button } from "@/components/ui/shadcn/button";
 
 export function SettingsMenu() {
     const { theme, setTheme } = useTheme();
@@ -26,18 +26,18 @@ export function SettingsMenu() {
 
     if (!mounted) {
         return (
-            <IconButton aria-label="Settings" disabled>
+            <Button size="icon" disabled aria-label="Settings">
                 <HiCog className="h-5 w-5" />
-            </IconButton>
+            </Button>
         );
     }
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <IconButton aria-label="Settings">
+                <Button size="icon" aria-label="Settings">
                     <HiCog className="h-5 w-5" />
-                </IconButton>
+                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>Theme</DropdownMenuLabel>

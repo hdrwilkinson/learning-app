@@ -1,8 +1,0 @@
----
-description: Finishing a task and tests need to be written for it
-globs: 
-alwaysApply: false
----
-## Tests for Tasks
-
-Following [testing.mdc](mdc:.cursor/rules/testing.mdc), I want you to read the issue description and comments, and write tests for the tasks undertaken. Ensure that they pass by running `npm test` and `npm run test:e2e`.

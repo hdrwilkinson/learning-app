@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { HiSun } from "react-icons/hi";
 import { DropdownElement } from "./DropdownElement";
 
