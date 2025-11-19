@@ -17,16 +17,10 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/shadcn/form";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/shadcn/card";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { HiCheck, HiX } from "react-icons/hi";
+import { AuthCard } from "@/components/auth/AuthCard";
 
 export default function OnboardingPage() {
     const { data: session, status, update } = useSession();
@@ -130,145 +124,122 @@ export default function OnboardingPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold">
-                        Complete your profile
-                    </CardTitle>
-                    <CardDescription>
-                        We need a few more details to get you started
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-4"
-                        >
-                            <FormField
-                                control={form.control}
-                                name="username"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Username (Optional)
-                                        </FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    placeholder={
-                                                        session?.user
-                                                            ?.username ||
-                                                        "fast-flyer-909"
-                                                    }
-                                                    {...field}
-                                                    className={
-                                                        usernameAvailable ===
-                                                        false
-                                                            ? "border-destructive focus-visible:ring-destructive"
-                                                            : usernameAvailable ===
-                                                                true
-                                                              ? "border-green-500 focus-visible:ring-green-500"
-                                                              : ""
-                                                    }
-                                                />
-                                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                                    {isCheckingUsername ? (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            ...
-                                                        </span>
-                                                    ) : usernameAvailable ===
-                                                      true ? (
-                                                        <HiCheck className="text-green-500" />
-                                                    ) : usernameAvailable ===
-                                                      false ? (
-                                                        <HiX className="text-destructive" />
-                                                    ) : null}
-                                                </div>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="dateOfBirth"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Date of Birth</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="date"
-                                                {...field}
-                                                value={
-                                                    field.value
-                                                        ? new Date(field.value)
-                                                              .toISOString()
-                                                              .split("T")[0]
-                                                        : ""
-                                                }
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="country"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Country</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="USA"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="bio"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Bio (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="Tell us about yourself"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={
-                                    isLoading ||
-                                    isCheckingUsername ||
-                                    usernameAvailable === false
-                                }
-                            >
-                                {isLoading
-                                    ? "Save & Continue"
-                                    : "Complete Profile"}
-                            </Button>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
-        </div>
+        <AuthCard
+            title="Complete your profile"
+            description="We need a few more details to get you started"
+        >
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4"
+                >
+                    <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Username (Optional)</FormLabel>
+                                <FormControl>
+                                    <div className="relative">
+                                        <Input
+                                            placeholder={
+                                                session?.user?.username ||
+                                                "fast-flyer-909"
+                                            }
+                                            {...field}
+                                            className={
+                                                usernameAvailable === false
+                                                    ? "border-destructive focus-visible:ring-destructive"
+                                                    : usernameAvailable === true
+                                                      ? "border-green-500 focus-visible:ring-green-500"
+                                                      : ""
+                                            }
+                                        />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            {isCheckingUsername ? (
+                                                <span className="text-xs text-muted-foreground">
+                                                    ...
+                                                </span>
+                                            ) : usernameAvailable === true ? (
+                                                <HiCheck className="text-green-500" />
+                                            ) : usernameAvailable === false ? (
+                                                <HiX className="text-destructive" />
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="dateOfBirth"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Date of Birth</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="date"
+                                        {...field}
+                                        value={
+                                            field.value
+                                                ? new Date(field.value)
+                                                      .toISOString()
+                                                      .split("T")[0]
+                                                : ""
+                                        }
+                                        onChange={(e) =>
+                                            field.onChange(e.target.value)
+                                        }
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Country</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="USA" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="bio"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Bio (Optional)</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Tell us about yourself"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={
+                            isLoading ||
+                            isCheckingUsername ||
+                            usernameAvailable === false
+                        }
+                    >
+                        {isLoading ? "Save & Continue" : "Complete Profile"}
+                    </Button>
+                </form>
+            </Form>
+        </AuthCard>
     );
 }

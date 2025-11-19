@@ -40,11 +40,3 @@ export interface Module {
     order: number;
     lessons?: Lesson[];
 }
-
-export interface Course {
-    id: string;
-    title: string;
-    description?: string;
-    userId: string;
-    modules?: Module[];
-}
