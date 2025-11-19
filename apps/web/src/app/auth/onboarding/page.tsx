@@ -35,6 +35,7 @@ export default function OnboardingPage() {
     const form = useForm<OnboardingInput>({
         resolver: zodResolver(OnboardingSchema),
         defaultValues: {
+            username: "",
             country: "",
             bio: "",
         },
@@ -48,8 +49,12 @@ export default function OnboardingPage() {
             if (session.user.dateOfBirth && session.user.country) {
                 router.push("/");
             }
+            // Set default username from session if available
+            if (session.user.username) {
+                form.setValue("username", session.user.username);
+            }
         }
-    }, [status, session, router]);
+    }, [status, session, router, form]);
 
     async function onSubmit(data: OnboardingInput) {
         if (!session?.user?.id) return;
@@ -60,6 +65,9 @@ export default function OnboardingPage() {
 
             if (result.error) {
                 toast.error(result.error);
+                if (result.error.includes("Username")) {
+                    form.setError("username", { message: result.error });
+                }
             } else {
                 toast.success("Profile updated successfully");
                 await update(); // Update session
@@ -98,6 +106,27 @@ export default function OnboardingPage() {
                             onSubmit={form.handleSubmit(onSubmit)}
                             className="space-y-4"
                         >
+                            <FormField
+                                control={form.control}
+                                name="username"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Username (Optional)
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder={
+                                                    session?.user?.username ||
+                                                    "fast-flyer-909"
+                                                }
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="dateOfBirth"

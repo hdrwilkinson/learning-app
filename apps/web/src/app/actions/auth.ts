@@ -74,13 +74,40 @@ export async function updateProfile(userId: string, data: OnboardingInput) {
     }
 
     try {
+        const updateData: {
+            dateOfBirth: Date;
+            country: string;
+            bio?: string;
+            username?: string;
+        } = {
+            dateOfBirth: result.data.dateOfBirth,
+            country: result.data.country,
+            bio: result.data.bio,
+        };
+
+        // Handle username update if provided and different
+        if (result.data.username) {
+            const currentUser = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { username: true },
+            });
+
+            if (currentUser?.username !== result.data.username) {
+                // Check uniqueness
+                const existingUser = await prisma.user.findUnique({
+                    where: { username: result.data.username },
+                });
+
+                if (existingUser) {
+                    return { error: "Username is already taken" };
+                }
+                updateData.username = result.data.username;
+            }
+        }
+
         await prisma.user.update({
             where: { id: userId },
-            data: {
-                dateOfBirth: result.data.dateOfBirth,
-                country: result.data.country,
-                bio: result.data.bio,
-            },
+            data: updateData,
         });
         return { success: true };
     } catch (error) {

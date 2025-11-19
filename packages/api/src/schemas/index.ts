@@ -35,6 +35,11 @@ export const LoginSchema = z.object({
 export type LoginInput = z.infer<typeof LoginSchema>;
 
 export const OnboardingSchema = z.object({
+    username: z
+        .string()
+        .min(3, "Username must be at least 3 characters")
+        .optional()
+        .or(z.literal("")),
     dateOfBirth: z.coerce.date(),
     country: z.string().min(2, "Country is required"),
     bio: z.string().optional(),
