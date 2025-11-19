@@ -2,17 +2,15 @@
  * Auth utilities for the web app
  */
 
-import getServerSession from "next-auth";
-import { authOptions } from "../../../../services/db/auth";
+import { auth } from "../auth";
 import type { Session } from "next-auth";
 
 /**
  * Get the current user session (server-side)
  */
 export async function getSession(): Promise<Session | null> {
-    const result = await getServerSession(authOptions);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (result as any)?.session || null;
+    const result = await auth();
+    return result;
 }
 
 /**

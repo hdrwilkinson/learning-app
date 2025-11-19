@@ -1,10 +1,13 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-    const session = await auth();
-    const { pathname } = request.nextUrl;
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+    const { nextUrl } = req;
+    const isLoggedIn = !!req.auth;
+    const pathname = nextUrl.pathname;
 
     // Allow auth routes and public assets
     if (
@@ -19,33 +22,27 @@ export async function middleware(request: NextRequest) {
     }
 
     // Redirect unauthenticated users to login
-    if (!session) {
-        const url = request.nextUrl.clone();
+    if (!isLoggedIn) {
+        const url = nextUrl.clone();
         url.pathname = "/login";
         return NextResponse.redirect(url);
     }
 
     // Check for onboarding completion
-    if (session.user) {
-        const isMissingInfo =
-            !session.user.dateOfBirth || !session.user.country;
-        const isOnboarding = pathname === "/onboarding";
-
-        if (isMissingInfo && !isOnboarding) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/onboarding";
-            return NextResponse.redirect(url);
-        }
-
-        if (!isMissingInfo && isOnboarding) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/";
-            return NextResponse.redirect(url);
-        }
+    if (req.auth?.user) {
+        // Note: In middleware (Edge), we might not have full user details if they aren't in the token.
+        // We rely on the token strategy configured in auth.config.ts.
+        // However, custom fields like dateOfBirth might not be available here unless we add them to the token in auth.config.ts
+        // But auth.config.ts cannot access the DB to fetch them.
+        // So we might need to skip this check in middleware and do it in a Layout or Client Component,
+        // OR we accept that we can't enforce onboarding in middleware without DB access.
+        // For now, let's rely on the client-side OnboardingCheck for the profile completion,
+        // and use middleware mainly for authentication protection.
+        // If we really need it here, we'd need to fetch it from an API, but that's expensive in middleware.
     }
 
     return NextResponse.next();
-}
+});
 
 export const config = {
     matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
