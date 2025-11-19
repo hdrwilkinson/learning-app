@@ -65,7 +65,7 @@ export default function SignupPage() {
                     toast.error(
                         "Login failed after signup. Please log in manually."
                     );
-                    router.push("/login");
+                    router.push("/auth/login");
                 } else {
                     router.push("/");
                     router.refresh();
@@ -243,7 +243,7 @@ export default function SignupPage() {
                     <p className="text-sm text-muted-foreground">
                         Already have an account?{" "}
                         <Link
-                            href="/login"
+                            href="/auth/login"
                             className="text-primary hover:underline"
                         >
                             Login

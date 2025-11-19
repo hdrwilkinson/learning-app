@@ -42,7 +42,7 @@ export default function OnboardingPage() {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push("/login");
+            router.push("/auth/login");
         } else if (status === "authenticated") {
             // Check if user already has required fields
             if (session.user.dateOfBirth && session.user.country) {

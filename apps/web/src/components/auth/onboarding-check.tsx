@@ -13,10 +13,10 @@ export function OnboardingCheck() {
         if (status === "authenticated" && session?.user) {
             const isMissingInfo =
                 !session.user.dateOfBirth || !session.user.country;
-            const isOnboarding = pathname === "/onboarding";
+            const isOnboarding = pathname === "/auth/onboarding";
 
             if (isMissingInfo && !isOnboarding) {
-                router.push("/onboarding");
+                router.push("/auth/onboarding");
             }
         }
     }, [status, session, pathname, router]);

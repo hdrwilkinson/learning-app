@@ -10,12 +10,12 @@ export default auth((req) => {
     const pathname = nextUrl.pathname;
 
     // Allow auth routes and public assets
+    // Note: /auth/* covers login, signup, onboarding, error
     if (
         pathname.startsWith("/api/auth") ||
         pathname.startsWith("/_next") ||
         pathname.startsWith("/static") ||
-        pathname === "/login" ||
-        pathname === "/signup" ||
+        pathname.startsWith("/auth") || // Covers /auth/login, /auth/signup, /auth/onboarding
         pathname === "/favicon.ico"
     ) {
         return NextResponse.next();
@@ -24,21 +24,29 @@ export default auth((req) => {
     // Redirect unauthenticated users to login
     if (!isLoggedIn) {
         const url = nextUrl.clone();
-        url.pathname = "/login";
+        url.pathname = "/auth/login";
         return NextResponse.redirect(url);
     }
 
-    // Check for onboarding completion
-    if (req.auth?.user) {
-        // Note: In middleware (Edge), we might not have full user details if they aren't in the token.
-        // We rely on the token strategy configured in auth.config.ts.
-        // However, custom fields like dateOfBirth might not be available here unless we add them to the token in auth.config.ts
-        // But auth.config.ts cannot access the DB to fetch them.
-        // So we might need to skip this check in middleware and do it in a Layout or Client Component,
-        // OR we accept that we can't enforce onboarding in middleware without DB access.
-        // For now, let's rely on the client-side OnboardingCheck for the profile completion,
-        // and use middleware mainly for authentication protection.
-        // If we really need it here, we'd need to fetch it from an API, but that's expensive in middleware.
+    // Check for onboarding completion (Prevent Homepage Flash)
+    // req.auth.user should contain the session data from the JWT
+    if (isLoggedIn && req.auth?.user) {
+        const user = req.auth.user;
+        const isMissingInfo = !user.dateOfBirth || !user.country;
+
+        // If missing info and NOT already on the onboarding page (or other auth pages), redirect
+        if (isMissingInfo && !pathname.startsWith("/auth/onboarding")) {
+            const url = nextUrl.clone();
+            url.pathname = "/auth/onboarding";
+            return NextResponse.redirect(url);
+        }
+
+        // If has info and IS on onboarding, redirect to home
+        if (!isMissingInfo && pathname.startsWith("/auth/onboarding")) {
+            const url = nextUrl.clone();
+            url.pathname = "/";
+            return NextResponse.redirect(url);
+        }
     }
 
     return NextResponse.next();
