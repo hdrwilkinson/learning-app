@@ -115,3 +115,10 @@ export async function updateProfile(userId: string, data: OnboardingInput) {
         return { error: "Failed to update profile" };
     }
 }
+
+export async function checkUsernameAvailability(username: string) {
+    const user = await prisma.user.findUnique({
+        where: { username },
+    });
+    return { available: !user };
+}

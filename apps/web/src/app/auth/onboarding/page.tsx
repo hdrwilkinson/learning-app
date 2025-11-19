@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OnboardingSchema, OnboardingInput } from "@repo/api";
-import { updateProfile } from "@/app/actions/auth";
+import { updateProfile, checkUsernameAvailability } from "@/app/actions/auth";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -26,11 +26,16 @@ import {
 } from "@/components/ui/shadcn/card";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/shadcn/textarea";
+import { HiCheck, HiX } from "react-icons/hi";
 
 export default function OnboardingPage() {
     const { data: session, status, update } = useSession();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+        null
+    );
 
     const form = useForm<OnboardingInput>({
         resolver: zodResolver(OnboardingSchema),
@@ -41,23 +46,58 @@ export default function OnboardingPage() {
         },
     });
 
+    const username = form.watch("username");
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/auth/login");
         } else if (status === "authenticated") {
-            // Check if user already has required fields
             if (session.user.dateOfBirth && session.user.country) {
                 router.push("/");
             }
-            // Set default username from session if available
-            if (session.user.username) {
+            if (session.user.username && !form.getValues("username")) {
                 form.setValue("username", session.user.username);
             }
         }
     }, [status, session, router, form]);
 
+    // Debounced username check
+    useEffect(() => {
+        if (!username || username === session?.user?.username) {
+            setUsernameAvailable(null);
+            return;
+        }
+
+        if (username.length < 3) {
+            setUsernameAvailable(null);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsCheckingUsername(true);
+            try {
+                const { available } = await checkUsernameAvailability(username);
+                setUsernameAvailable(available);
+                if (!available) {
+                    form.setError("username", {
+                        message: "Username is already taken",
+                    });
+                } else {
+                    form.clearErrors("username");
+                }
+            } catch {
+                // Ignore error
+            } finally {
+                setIsCheckingUsername(false);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [username, session, form]);
+
     async function onSubmit(data: OnboardingInput) {
         if (!session?.user?.id) return;
+        if (usernameAvailable === false) return;
 
         setIsLoading(true);
         try {
@@ -115,13 +155,38 @@ export default function OnboardingPage() {
                                             Username (Optional)
                                         </FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder={
-                                                    session?.user?.username ||
-                                                    "fast-flyer-909"
-                                                }
-                                                {...field}
-                                            />
+                                            <div className="relative">
+                                                <Input
+                                                    placeholder={
+                                                        session?.user
+                                                            ?.username ||
+                                                        "fast-flyer-909"
+                                                    }
+                                                    {...field}
+                                                    className={
+                                                        usernameAvailable ===
+                                                        false
+                                                            ? "border-destructive focus-visible:ring-destructive"
+                                                            : usernameAvailable ===
+                                                                true
+                                                              ? "border-green-500 focus-visible:ring-green-500"
+                                                              : ""
+                                                    }
+                                                />
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                    {isCheckingUsername ? (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            ...
+                                                        </span>
+                                                    ) : usernameAvailable ===
+                                                      true ? (
+                                                        <HiCheck className="text-green-500" />
+                                                    ) : usernameAvailable ===
+                                                      false ? (
+                                                        <HiX className="text-destructive" />
+                                                    ) : null}
+                                                </div>
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -190,7 +255,11 @@ export default function OnboardingPage() {
                             <Button
                                 type="submit"
                                 className="w-full"
-                                disabled={isLoading}
+                                disabled={
+                                    isLoading ||
+                                    isCheckingUsername ||
+                                    usernameAvailable === false
+                                }
                             >
                                 {isLoading
                                     ? "Save & Continue"
