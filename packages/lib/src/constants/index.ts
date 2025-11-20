@@ -5,6 +5,8 @@
 export const APP_NAME = "Learning App";
 export const APP_DESCRIPTION = "GenAI-powered learning platform";
 
+export { COUNTRIES } from "./countries";
+
 // Quiz difficulty levels
 export enum QuizDifficulty {
     EASY = "EASY",

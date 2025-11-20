@@ -30,7 +30,7 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: "cd apps/web && npm run start",
+        command: "npm run start --prefix apps/web",
         url: "http://localhost:3002",
         reuseExistingServer: !process.env.CI,
         stdout: "pipe",
