@@ -17,13 +17,21 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/shadcn/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/shadcn/select";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { HiCheck, HiX } from "react-icons/hi";
 import { AuthCard } from "@/components/auth/AuthCard";
+import { COUNTRIES } from "@repo/lib";
 
 export default function OnboardingPage() {
-    const { data: session, status, update } = useSession();
+    const { data: session, update } = useSession();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -42,18 +50,27 @@ export default function OnboardingPage() {
 
     const username = form.watch("username");
 
+    // Populate form from session data if available
     useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/auth/login");
-        } else if (status === "authenticated") {
-            if (session.user.dateOfBirth && session.user.country) {
-                router.push("/");
-            }
+        if (session?.user) {
             if (session.user.username && !form.getValues("username")) {
                 form.setValue("username", session.user.username);
             }
+            if (session.user.dateOfBirth && !form.getValues("dateOfBirth")) {
+                const dateStr = new Date(session.user.dateOfBirth)
+                    .toISOString()
+                    .split("T")[0];
+                // @ts-expect-error - dateOfBirth expects Date, but we need string for input
+                form.setValue("dateOfBirth", dateStr);
+            }
+            if (session.user.country && !form.getValues("country")) {
+                form.setValue("country", session.user.country);
+            }
+            if (session.user.bio && !form.getValues("bio")) {
+                form.setValue("bio", session.user.bio);
+            }
         }
-    }, [status, session, router, form]);
+    }, [session, form]);
 
     // Debounced username check
     useEffect(() => {
@@ -70,7 +87,10 @@ export default function OnboardingPage() {
         const timer = setTimeout(async () => {
             setIsCheckingUsername(true);
             try {
-                const { available } = await checkUsernameAvailability(username);
+                const { available } = await checkUsernameAvailability(
+                    username,
+                    session?.user?.id
+                );
                 setUsernameAvailable(available);
                 if (!available) {
                     form.setError("username", {
@@ -102,20 +122,27 @@ export default function OnboardingPage() {
                 if (result.error.includes("Username")) {
                     form.setError("username", { message: result.error });
                 }
-            } else {
-                toast.success("Profile updated successfully");
-                await update(); // Update session
-                router.push("/");
-                router.refresh();
+                setIsLoading(false);
+                return;
             }
-        } catch {
+
+            toast.success("Profile updated successfully");
+
+            // Update session - this triggers the JWT callback to refetch from DB
+            await update();
+
+            // Refresh router to ensure server components update with new session
+            router.refresh();
+            router.push("/");
+        } catch (error) {
+            console.error("Onboarding submission error:", error);
             toast.error("Something went wrong");
-        } finally {
             setIsLoading(false);
         }
     }
 
-    if (status === "loading") {
+    // Show loading if session is not ready
+    if (!session) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 Loading...
@@ -169,6 +196,14 @@ export default function OnboardingPage() {
                                     </div>
                                 </FormControl>
                                 <FormMessage />
+                                {session?.user?.username && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Current username:{" "}
+                                        <span className="font-mono">
+                                            {session.user.username}
+                                        </span>
+                                    </p>
+                                )}
                             </FormItem>
                         )}
                     />
@@ -183,11 +218,16 @@ export default function OnboardingPage() {
                                         type="date"
                                         {...field}
                                         value={
-                                            field.value
-                                                ? new Date(field.value)
+                                            field.value instanceof Date
+                                                ? field.value
                                                       .toISOString()
                                                       .split("T")[0]
-                                                : ""
+                                                : typeof field.value ===
+                                                    "string"
+                                                  ? (
+                                                        field.value as string
+                                                    ).split("T")[0]
+                                                  : ""
                                         }
                                         onChange={(e) =>
                                             field.onChange(e.target.value)
@@ -204,9 +244,26 @@ export default function OnboardingPage() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Country</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="USA" {...field} />
-                                </FormControl>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a country" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {COUNTRIES.map((country) => (
+                                            <SelectItem
+                                                key={country}
+                                                value={country}
+                                            >
+                                                {country}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}

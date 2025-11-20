@@ -116,9 +116,16 @@ export async function updateProfile(userId: string, data: OnboardingInput) {
     }
 }
 
-export async function checkUsernameAvailability(username: string) {
+export async function checkUsernameAvailability(
+    username: string,
+    currentUserId?: string
+) {
     const user = await prisma.user.findUnique({
         where: { username },
     });
+    // If a user exists but it's the current user, it's still available
+    if (user && currentUserId && user.id === currentUserId) {
+        return { available: true };
+    }
     return { available: !user };
 }

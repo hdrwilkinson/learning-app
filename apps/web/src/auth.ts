@@ -85,8 +85,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token.bio = dbUser.bio;
                 }
             }
-            if (trigger === "update" && session) {
-                token = { ...token, ...session };
+            // Refetch user data from database when session is updated
+            if (trigger === "update" && token.id) {
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: token.id as string },
+                });
+                if (dbUser) {
+                    token.username = dbUser.username;
+                    token.dateOfBirth = dbUser.dateOfBirth;
+                    token.country = dbUser.country;
+                    token.bio = dbUser.bio;
+                }
+                // Also merge any session data if provided
+                if (session) {
+                    token = { ...token, ...session };
+                }
             }
             return token;
         },

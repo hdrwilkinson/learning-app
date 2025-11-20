@@ -2,7 +2,15 @@
 
 import * as React from "react";
 import { useTheme } from "next-themes";
-import { HiCog, HiSun, HiMoon, HiDesktopComputer } from "react-icons/hi";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import {
+    HiCog,
+    HiSun,
+    HiMoon,
+    HiDesktopComputer,
+    HiLogout,
+} from "react-icons/hi";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,18 +19,26 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownElement,
-} from "@/components/ui";
+    DropdownMenuItem,
+} from "@/components/ui/shadcn/dropdown-menu";
+import { DropdownElement } from "@/components/ui/atoms/DropdownElement/DropdownElement";
 import { Button } from "@/components/ui/shadcn/button";
 
 export function SettingsMenu() {
     const { theme, setTheme } = useTheme();
+    const router = useRouter();
     const [mounted, setMounted] = React.useState(false);
 
     // Avoid hydration mismatch
     React.useEffect(() => {
         setMounted(true);
     }, []);
+
+    const handleLogout = async () => {
+        await signOut({ redirect: false });
+        router.push("/auth/login");
+        router.refresh();
+    };
 
     if (!mounted) {
         return (
@@ -77,6 +93,11 @@ export function SettingsMenu() {
                         />
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="pl-2">
+                    <HiLogout className="h-4 w-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

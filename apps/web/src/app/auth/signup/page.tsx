@@ -17,11 +17,19 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/shadcn/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/shadcn/select";
 import { toast } from "sonner";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { AuthCard } from "@/components/auth/AuthCard";
+import { COUNTRIES } from "@repo/lib";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -172,9 +180,26 @@ export default function SignupPage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Country</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="USA" {...field} />
-                                    </FormControl>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a country" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {COUNTRIES.map((country) => (
+                                                <SelectItem
+                                                    key={country}
+                                                    value={country}
+                                                >
+                                                    {country}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

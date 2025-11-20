@@ -9,46 +9,64 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth;
     const pathname = nextUrl.pathname;
 
-    // Allow auth routes and public assets
-    // Note: /auth/* covers login, signup, onboarding, error
+    // 1. Static/API: Allow pass-through
     if (
         pathname.startsWith("/api/auth") ||
         pathname.startsWith("/_next") ||
         pathname.startsWith("/static") ||
-        pathname.startsWith("/auth") || // Covers /auth/login, /auth/signup, /auth/onboarding
         pathname === "/favicon.ico"
     ) {
         return NextResponse.next();
     }
 
-    // Redirect unauthenticated users to login
+    // 2. Unauthenticated users
     if (!isLoggedIn) {
+        // Allow access to login, signup, and error pages
+        if (
+            pathname.startsWith("/auth/login") ||
+            pathname.startsWith("/auth/signup") ||
+            pathname.startsWith("/auth/error")
+        ) {
+            return NextResponse.next();
+        }
+        // Redirect all other unauthenticated requests to login
         const url = nextUrl.clone();
         url.pathname = "/auth/login";
         return NextResponse.redirect(url);
     }
 
-    // Check for onboarding completion (Prevent Homepage Flash)
-    // req.auth.user should contain the session data from the JWT
-    if (isLoggedIn && req.auth?.user) {
-        const user = req.auth.user;
-        const isMissingInfo = !user.dateOfBirth || !user.country;
+    // 3. Authenticated users
+    const user = req.auth?.user;
+    const isMissingInfo = !user?.dateOfBirth || !user?.country;
 
-        // If missing info and NOT already on the onboarding page (or other auth pages), redirect
-        if (isMissingInfo && !pathname.startsWith("/auth/onboarding")) {
-            const url = nextUrl.clone();
-            url.pathname = "/auth/onboarding";
-            return NextResponse.redirect(url);
+    // Incomplete Profile
+    if (isMissingInfo) {
+        // Allow access to onboarding and signout
+        if (
+            pathname.startsWith("/auth/onboarding") ||
+            pathname.startsWith("/auth/signout")
+        ) {
+            return NextResponse.next();
         }
-
-        // If has info and IS on onboarding, redirect to home
-        if (!isMissingInfo && pathname.startsWith("/auth/onboarding")) {
-            const url = nextUrl.clone();
-            url.pathname = "/";
-            return NextResponse.redirect(url);
-        }
+        // Redirect everything else to onboarding
+        const url = nextUrl.clone();
+        url.pathname = "/auth/onboarding";
+        return NextResponse.redirect(url);
     }
 
+    // Complete Profile
+    // Redirect auth pages (login, signup, onboarding) to home
+    if (
+        pathname.startsWith("/auth/login") ||
+        pathname.startsWith("/auth/signup") ||
+        pathname.startsWith("/auth/onboarding")
+    ) {
+        const url = nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+    }
+
+    // Allow everything else for complete profiles
     return NextResponse.next();
 });
 

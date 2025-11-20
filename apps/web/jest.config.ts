@@ -25,6 +25,9 @@ const config: Config = {
         "!src/**/*.stories.tsx",
         "!src/**/__tests__/**",
     ],
+    transformIgnorePatterns: [
+        "/node_modules/(?!next-auth|@auth/core|@react-aria|@react-stately|@react-types|lucide-react)",
+    ],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
