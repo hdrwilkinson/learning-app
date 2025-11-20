@@ -66,13 +66,13 @@ export default function ProfileSettingsPage() {
         }
     }, [session, params, router]);
 
-    // Populate form from session data
+    // Populate form from session data - match onboarding page exactly
     useEffect(() => {
         if (session?.user) {
             if (session.user.username && !form.getValues("username")) {
                 form.setValue("username", session.user.username);
             }
-            if (session.user.dateOfBirth) {
+            if (session.user.dateOfBirth && !form.getValues("dateOfBirth")) {
                 const dateStr = new Date(session.user.dateOfBirth)
                     .toISOString()
                     .split("T")[0];
@@ -90,6 +90,7 @@ export default function ProfileSettingsPage() {
 
     // Debounced username check
     useEffect(() => {
+        // Don't check if empty or same as current
         if (!username || username === session?.user?.username) {
             setUsernameAvailable(null);
             return;
@@ -157,6 +158,13 @@ export default function ProfileSettingsPage() {
             if (usernameChanged) {
                 router.push(`/u/${newUsername}/settings`);
             } else {
+                // Reset form with new values to reset isDirty
+                form.reset({
+                    username: data.username || session.user.username || "",
+                    country: data.country || "",
+                    bio: data.bio || "",
+                    dateOfBirth: data.dateOfBirth,
+                });
                 setIsLoading(false);
             }
         } catch (error) {
