@@ -32,7 +32,7 @@ export default defineConfig({
     webServer: {
         command: "npm run start --prefix apps/web",
         url: "http://localhost:3002",
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
         stdout: "pipe",
         stderr: "pipe",
         timeout: 120000,

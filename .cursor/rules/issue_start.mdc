@@ -7,5 +7,4 @@ alwaysApply: false
 
 - Read the issue description and comments.
 - Thoroughly search the codebase to better understand the problemm.
-- Create tasks to probe and solve the problem and update the issue description, adding there tasks to the bottom.
 - Follow [branching.mdc](mdc:.cursor/rules/branching.mdc) to create a branch and move to it.

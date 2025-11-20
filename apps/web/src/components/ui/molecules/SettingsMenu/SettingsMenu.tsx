@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTheme } from "next-themes";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
     HiCog,
@@ -10,6 +10,7 @@ import {
     HiMoon,
     HiDesktopComputer,
     HiLogout,
+    HiUser,
 } from "react-icons/hi";
 import {
     DropdownMenu,
@@ -25,6 +26,7 @@ import { DropdownElement } from "@/components/ui/atoms/DropdownElement/DropdownE
 import { Button } from "@/components/ui/shadcn/button";
 
 export function SettingsMenu() {
+    const { data: session } = useSession();
     const { theme, setTheme } = useTheme();
     const router = useRouter();
     const [mounted, setMounted] = React.useState(false);
@@ -94,6 +96,22 @@ export function SettingsMenu() {
                     </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
                 <DropdownMenuSeparator />
+                {session?.user?.username && (
+                    <>
+                        <DropdownMenuItem
+                            onClick={() =>
+                                router.push(
+                                    `/u/${session.user.username}/settings`
+                                )
+                            }
+                            className="pl-2"
+                        >
+                            <HiUser className="h-4 w-4" />
+                            <span>Profile</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                    </>
+                )}
                 <DropdownMenuItem onClick={handleLogout} className="pl-2">
                     <HiLogout className="h-4 w-4" />
                     <span>Log out</span>
