@@ -1,25 +1,26 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Homepage", () => {
-    test("should load and display core content", async ({ page }) => {
-        // Navigate and verify page loads successfully
+    test("should redirect to login when unauthenticated", async ({ page }) => {
+        // Navigate to homepage - should redirect to login
         const response = await page.goto("/");
-        expect(response?.status()).toBe(200);
 
-        // Verify page has a title (without checking specific text)
+        // Should redirect to login page
+        await expect(page).toHaveURL(/\/auth\/login/);
+
+        // Verify login page has required elements
         await expect(page).toHaveTitle(/./);
 
-        // Check that main heading (h1) exists and is visible
-        const mainHeading = page.locator("h1").first();
-        await expect(mainHeading).toBeVisible();
-        await expect(mainHeading).not.toBeEmpty();
+        // Verify login form exists - check for email input
+        const emailInput = page.getByLabel(/email/i);
+        await expect(emailInput).toBeVisible();
+
+        // Verify login title is visible (CardTitle component) - use first() to handle multiple matches
+        const loginTitle = page.getByText("Login").first();
+        await expect(loginTitle).toBeVisible();
 
         // Verify page has interactive elements (buttons)
-        const buttons = page.getByRole("button");
-        await expect(buttons.first()).toBeVisible();
-
-        // Verify page has body content (paragraphs or sections)
-        const hasContent = await page.locator("main, article, section").count();
-        expect(hasContent).toBeGreaterThan(0);
+        const loginButton = page.getByRole("button", { name: "Login" });
+        await expect(loginButton).toBeVisible();
     });
 });
