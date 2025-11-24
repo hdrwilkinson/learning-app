@@ -50,6 +50,7 @@ import { HiCheck, HiX } from "react-icons/hi";
 import { COUNTRIES } from "@repo/lib";
 import { PasswordSettings } from "@/components/auth/PasswordSettings";
 import { OAuthAccountManager } from "@/components/ui/molecules/OAuthAccountManager";
+import { SessionManager } from "@/components/ui/molecules/SessionManager";
 import { Skeleton } from "@/components/ui/shadcn/skeleton";
 
 export default function ProfileSettingsPage() {
@@ -437,6 +438,10 @@ export default function ProfileSettingsPage() {
 
             <div className="mt-6">
                 <OAuthAccountManager />
+            </div>
+
+            <div className="mt-6">
+                <SessionManager />
             </div>
 
             <Card className="mt-6 border-destructive">

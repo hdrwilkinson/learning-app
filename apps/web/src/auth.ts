@@ -5,6 +5,8 @@ import { prisma } from "../../../services/db/db-client";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { generateUsername } from "@repo/lib";
+import { trackLoginEvent } from "./lib/session-tracker";
+import { getCurrentRequestHeaders } from "./lib/request-context";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig,
@@ -89,6 +91,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 });
             }
         },
+        async signIn({ user }) {
+            // Track login event after successful sign-in
+            if (user?.id) {
+                const headers = getCurrentRequestHeaders();
+                if (headers) {
+                    // Track login event with request headers
+                    trackLoginEvent(user.id, headers).catch((error) => {
+                        console.error("Failed to track login event:", error);
+                    });
+                }
+            }
+        },
     },
     callbacks: {
         async jwt({ token, user, trigger, session }) {
@@ -123,8 +137,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
             }
             // Always refetch emailVerified from database to ensure it's up to date
-            // This is important because email verification can happen while user is logged in
-            // Only do this if we have a token.id and we're not in the initial user login flow
             if (token.id && !user) {
                 const dbUser = await prisma.user.findUnique({
                     where: { id: token.id as string },

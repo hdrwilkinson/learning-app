@@ -38,26 +38,35 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress    String?
+  userAgent    String?
+  deviceName   String?
+  location     String?
+  createdAt    DateTime @default(now())
+  lastAccessed DateTime @default(now())
 
   @@index([userId])
+  @@index([userId, lastAccessed])
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  username      String?   @unique
+  username      String?       @unique
   bio           String?
   dateOfBirth   DateTime?
   country       String?
   accounts      Account[]
   sessions      Session[]
   courses       Course[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  loginHistory  LoginHistory[]
+  knownDevices  KnownDevice[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model VerificationToken {
@@ -236,5 +245,32 @@ model CuriosityMessage {
   createdAt DateTime      @default(now())
 
   @@index([chatId])
+}
+
+// Login history and device tracking
+model LoginHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress  String?
+  userAgent  String?
+  deviceName String?
+  location   String?
+  loginAt    DateTime @default(now())
+  sessionId  String?
+
+  @@index([userId, loginAt])
+}
+
+model KnownDevice {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceHash  String
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([userId, deviceHash])
+  @@index([userId])
 }
 
