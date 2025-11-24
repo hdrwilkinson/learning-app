@@ -103,7 +103,7 @@ export function SettingsMenu() {
                         <DropdownMenuItem
                             onClick={() =>
                                 router.push(
-                                    `/u/${session.user.username}/settings`
+                                    `/users/${session.user.username}/settings`
                                 )
                             }
                             className="pl-2"

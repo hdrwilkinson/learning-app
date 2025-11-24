@@ -76,7 +76,7 @@ export default function ProfileSettingsPage() {
     useEffect(() => {
         if (session?.user?.username && params?.username) {
             if (session.user.username !== params.username) {
-                router.replace(`/u/${session.user.username}/settings`);
+                router.replace(`/users/${session.user.username}/settings`);
             }
         }
     }, [session, params, router]);
@@ -171,7 +171,7 @@ export default function ProfileSettingsPage() {
             router.refresh();
 
             if (usernameChanged) {
-                router.push(`/u/${newUsername}/settings`);
+                router.push(`/users/${newUsername}/settings`);
             } else {
                 // Reset form with new values to reset isDirty
                 form.reset({
