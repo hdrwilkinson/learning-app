@@ -12,6 +12,11 @@ import { generatePasswordResetToken } from "@/lib/tokens";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import bcrypt from "bcrypt";
 import { auth } from "@/auth";
+import {
+    passwordResetLimiter,
+    newPasswordLimiter,
+    checkRateLimit,
+} from "@/lib/rate-limit";
 
 export const resetPassword = async (
     values: z.infer<typeof ResetPasswordSchema>
@@ -23,6 +28,19 @@ export const resetPassword = async (
     }
 
     const { email } = validatedFields.data;
+
+    // Rate limiting: Check by email
+    const rateLimitResult = await checkRateLimit(
+        email.toLowerCase(),
+        passwordResetLimiter
+    );
+
+    if (!rateLimitResult.success) {
+        return {
+            error: "Too many requests",
+            message: `Rate limit exceeded. Please try again after ${Math.ceil((rateLimitResult.reset - Date.now()) / 1000)} seconds.`,
+        };
+    }
 
     const existingUser = await prisma.user.findUnique({
         where: { email },
@@ -58,6 +76,16 @@ export const newPassword = async (
 ) => {
     if (!token) {
         return { error: "Missing token!" };
+    }
+
+    // Rate limiting: Check by token to prevent brute-forcing
+    const rateLimitResult = await checkRateLimit(token, newPasswordLimiter);
+
+    if (!rateLimitResult.success) {
+        return {
+            error: "Too many requests",
+            message: `Rate limit exceeded. Please try again after ${Math.ceil((rateLimitResult.reset - Date.now()) / 1000)} seconds.`,
+        };
     }
 
     const validatedFields = NewPasswordSchema.safeParse(values);

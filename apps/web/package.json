@@ -18,6 +18,8 @@
         "@repo/api": "^0.0.0",
         "@repo/lib": "^0.0.0",
         "@tanstack/react-query": "^5.62.18",
+        "@upstash/ratelimit": "^2.0.0",
+        "@upstash/redis": "^1.34.3",
         "bcrypt": "^6.0.0",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",

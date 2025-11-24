@@ -12,8 +12,27 @@ import { generateUsername } from "@repo/lib";
 import { auth } from "@/auth";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import { headers } from "next/headers";
+import {
+    signupLimiter,
+    resendVerificationLimiter,
+    getClientIp,
+    checkRateLimit,
+} from "@/lib/rate-limit";
 
 export async function signup(data: SignupInput) {
+    // Rate limiting: Check by IP
+    const headersList = await headers();
+    const ip = getClientIp(headersList);
+    const rateLimitResult = await checkRateLimit(ip, signupLimiter);
+
+    if (!rateLimitResult.success) {
+        return {
+            error: "Too many signup attempts",
+            message: `Rate limit exceeded. Please try again after ${Math.ceil((rateLimitResult.reset - Date.now()) / 1000)} seconds.`,
+        };
+    }
+
     const result = SignupSchema.safeParse(data);
 
     if (!result.success) {
@@ -201,6 +220,19 @@ export async function verifyEmail(token: string) {
 }
 
 export async function resendVerificationEmail(email: string) {
+    // Rate limiting: Check by email
+    const rateLimitResult = await checkRateLimit(
+        email.toLowerCase(),
+        resendVerificationLimiter
+    );
+
+    if (!rateLimitResult.success) {
+        return {
+            error: "Too many requests",
+            message: `Rate limit exceeded. Please try again after ${Math.ceil((rateLimitResult.reset - Date.now()) / 1000)} seconds.`,
+        };
+    }
+
     try {
         const user = await prisma.user.findUnique({
             where: { email },
