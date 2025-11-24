@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OnboardingSchema, OnboardingInput } from "@repo/api";
@@ -32,7 +31,6 @@ import { COUNTRIES } from "@repo/lib";
 
 export default function OnboardingPage() {
     const { data: session, update } = useSession();
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
@@ -128,12 +126,13 @@ export default function OnboardingPage() {
 
             toast.success("Profile updated successfully");
 
-            // Update session - this triggers the JWT callback to refetch from DB
-            await update();
+            // Update session - passing an object ensures POST request and triggers
+            // the JWT callback with trigger: "update", which refetches user data from DB
+            await update({});
 
-            // Refresh router to ensure server components update with new session
-            router.refresh();
-            router.push("/");
+            // Use window.location for a full page reload to ensure middleware
+            // sees the updated session and redirects complete profiles to home
+            window.location.href = "/";
         } catch (error) {
             console.error("Onboarding submission error:", error);
             toast.error("Something went wrong");
