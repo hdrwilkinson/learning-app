@@ -16,10 +16,12 @@ export function Sidebar() {
         <aside className="fixed left-0 top-0 h-screen w-16 md:w-16 lg:w-64 border-r border-border bg-surface-1 flex flex-col z-30 transition-all duration-200">
             {/* Title */}
             <div className="h-20 px-4 lg:px-8 flex items-center justify-center lg:justify-start">
-                <h1 className="text-xl lg:text-3xl font-display-fun font-bold text-primary">
-                    <span className="hidden lg:inline">{APP_TITLE}</span>
-                    <span className="lg:hidden">C</span>
-                </h1>
+                <Link href="/" className="hover:opacity-80 transition-opacity">
+                    <h1 className="text-xl lg:text-3xl font-display-fun font-bold text-primary">
+                        <span className="hidden lg:inline">{APP_TITLE}</span>
+                        <span className="lg:hidden">C</span>
+                    </h1>
+                </Link>
             </div>
 
             {/* Navigation Items */}

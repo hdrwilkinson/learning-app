@@ -11,13 +11,17 @@ export function MobileNav() {
     return (
         <nav className="w-full h-16 border-t border-border bg-surface-1 flex items-center px-4 safe-area-inset-bottom">
             {/* Logo placeholder - bottom left */}
-            <div className="flex items-center justify-center w-12 h-12 shrink-0">
+            <Link
+                href="/"
+                className="flex items-center justify-center w-12 h-12 shrink-0 hover:opacity-80 transition-opacity"
+                aria-label="Go to home"
+            >
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
                     <span className="text-primary-foreground text-xs font-display font-bold">
                         C
                     </span>
                 </div>
-            </div>
+            </Link>
 
             {/* Navigation Items - Icons only */}
             <div className="flex-1 flex items-center justify-around gap-2">
