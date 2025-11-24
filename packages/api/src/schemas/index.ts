@@ -16,14 +16,35 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 
 // Auth schemas
-export const SignupSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    dateOfBirth: z.coerce.date(),
-    country: z.string().min(2, "Country is required"),
-    bio: z.string().optional(),
-});
+export const SignupSchema = z
+    .object({
+        name: z.string().min(2, "Name must be at least 2 characters"),
+        email: z.string().email("Invalid email address"),
+        password: z
+            .string()
+            .min(8, "Password must be at least 8 characters")
+            .regex(
+                /[A-Z]/,
+                "Password must contain at least one uppercase letter"
+            )
+            .regex(
+                /[a-z]/,
+                "Password must contain at least one lowercase letter"
+            )
+            .regex(/[0-9]/, "Password must contain at least one number")
+            .regex(
+                /[^a-zA-Z0-9]/,
+                "Password must contain at least one special character"
+            ),
+        confirmPassword: z.string(),
+        dateOfBirth: z.coerce.date(),
+        country: z.string().min(2, "Country is required"),
+        bio: z.string().optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });
 
 export type SignupInput = z.infer<typeof SignupSchema>;
 

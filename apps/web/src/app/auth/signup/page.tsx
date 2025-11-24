@@ -41,6 +41,7 @@ export default function SignupPage() {
             name: "",
             email: "",
             password: "",
+            confirmPassword: "",
             country: "",
             bio: "",
         },
@@ -140,6 +141,19 @@ export default function SignupPage() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Confirm Password</FormLabel>
                                 <FormControl>
                                     <Input type="password" {...field} />
                                 </FormControl>
