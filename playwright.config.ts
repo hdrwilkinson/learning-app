@@ -30,10 +30,9 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command:
-            "lsof -ti:3002 | xargs kill -9 || true && npm run start --prefix apps/web",
+        command: "npm run start --prefix apps/web",
         url: "http://localhost:3002",
-        reuseExistingServer: false,
+        reuseExistingServer: !process.env.CI,
         stdout: "pipe",
         stderr: "pipe",
         timeout: 120000,
