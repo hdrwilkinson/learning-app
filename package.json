@@ -58,6 +58,7 @@
         "@types/node": "^20",
         "@types/react": "^19.1.0",
         "@types/react-dom": "~19.0.0",
+        "@types/uuid": "^10.0.0",
         "autoprefixer": "^10.4.22",
         "babel-loader": "^10.0.0",
         "css-loader": "^7.1.2",
@@ -95,7 +96,9 @@
         "ajv": "^8.17.1",
         "bcrypt": "^6.0.0",
         "google-auth-library": "^10.5.0",
-        "semver": "^7.7.3"
+        "resend": "^6.5.2",
+        "semver": "^7.7.3",
+        "uuid": "^13.0.0"
     },
     "overrides": {
         "react": "19.1.0",

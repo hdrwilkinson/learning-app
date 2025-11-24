@@ -21,11 +21,13 @@ export default auth((req) => {
 
     // 2. Unauthenticated users
     if (!isLoggedIn) {
-        // Allow access to login, signup, and error pages
+        // Allow access to login, signup, error, reset-password, and new-password pages
         if (
             pathname.startsWith("/auth/login") ||
             pathname.startsWith("/auth/signup") ||
-            pathname.startsWith("/auth/error")
+            pathname.startsWith("/auth/error") ||
+            pathname.startsWith("/auth/reset-password") ||
+            pathname.startsWith("/auth/new-password")
         ) {
             return NextResponse.next();
         }
@@ -55,11 +57,13 @@ export default auth((req) => {
     }
 
     // Complete Profile
-    // Redirect auth pages (login, signup, onboarding) to home
+    // Redirect auth pages (login, signup, onboarding, reset-password, new-password) to home
     if (
         pathname.startsWith("/auth/login") ||
         pathname.startsWith("/auth/signup") ||
-        pathname.startsWith("/auth/onboarding")
+        pathname.startsWith("/auth/onboarding") ||
+        pathname.startsWith("/auth/reset-password") ||
+        pathname.startsWith("/auth/new-password")
     ) {
         const url = nextUrl.clone();
         url.pathname = "/";

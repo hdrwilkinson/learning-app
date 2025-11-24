@@ -11,6 +11,7 @@ import {
     checkUsernameAvailability,
     deleteAccount,
 } from "@/app/actions/auth";
+import { checkUserHasPassword } from "@/app/actions/user";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -47,6 +48,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { HiCheck, HiX } from "react-icons/hi";
 import { COUNTRIES } from "@repo/lib";
+import { PasswordSettings } from "@/components/auth/PasswordSettings";
 
 export default function ProfileSettingsPage() {
     const { data: session, update } = useSession();
@@ -60,6 +62,17 @@ export default function ProfileSettingsPage() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
+    const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkPassword = async () => {
+            const result = await checkUserHasPassword();
+            setHasPassword(result);
+        };
+        if (session?.user) {
+            checkPassword();
+        }
+    }, [session]);
 
     const form = useForm<OnboardingInput>({
         resolver: zodResolver(OnboardingSchema),
@@ -383,6 +396,12 @@ export default function ProfileSettingsPage() {
                     </Form>
                 </CardContent>
             </Card>
+
+            <div className="mt-6">
+                {hasPassword !== null && (
+                    <PasswordSettings hasPassword={hasPassword} />
+                )}
+            </div>
 
             <Card className="mt-6 border-destructive">
                 <CardHeader>
