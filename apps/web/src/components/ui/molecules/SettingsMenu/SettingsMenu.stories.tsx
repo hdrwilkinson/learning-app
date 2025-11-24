@@ -67,6 +67,7 @@ export const Authenticated: Story = {
         const { defaultTheme } = args;
         const mockSession = {
             user: {
+                id: "123",
                 name: "Test User",
                 email: "test@example.com",
                 username: "testuser",
