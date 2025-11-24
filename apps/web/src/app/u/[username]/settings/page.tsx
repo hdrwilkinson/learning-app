@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OnboardingSchema, OnboardingInput } from "@repo/api";
-import { updateProfile, checkUsernameAvailability } from "@/app/actions/auth";
+import {
+    updateProfile,
+    checkUsernameAvailability,
+    deleteAccount,
+} from "@/app/actions/auth";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -31,6 +35,14 @@ import {
     CardTitle,
     CardDescription,
 } from "@/components/ui/shadcn/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/shadcn/dialog";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { HiCheck, HiX } from "react-icons/hi";
@@ -45,6 +57,9 @@ export default function ProfileSettingsPage() {
     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
         null
     );
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const form = useForm<OnboardingInput>({
         resolver: zodResolver(OnboardingSchema),
@@ -171,6 +186,32 @@ export default function ProfileSettingsPage() {
             console.error("Profile update error:", error);
             toast.error("Something went wrong");
             setIsLoading(false);
+        }
+    }
+
+    async function handleDeleteAccount() {
+        if (!session?.user?.id) return;
+        if (deleteConfirmation !== "delete my account") return;
+
+        setIsDeleting(true);
+        try {
+            const result = await deleteAccount(session.user.id);
+
+            if (result.error) {
+                toast.error(result.error);
+                setIsDeleting(false);
+                return;
+            }
+
+            toast.success("Account deleted successfully");
+            setIsDeleteDialogOpen(false);
+
+            // Sign out and redirect to home
+            await signOut({ callbackUrl: "/" });
+        } catch (error) {
+            console.error("Delete account error:", error);
+            toast.error("Something went wrong");
+            setIsDeleting(false);
         }
     }
 
@@ -342,6 +383,84 @@ export default function ProfileSettingsPage() {
                     </Form>
                 </CardContent>
             </Card>
+
+            <Card className="mt-6 border-destructive">
+                <CardHeader>
+                    <CardTitle className="font-display-grounded text-xl font-bold text-destructive">
+                        Danger Zone
+                    </CardTitle>
+                    <CardDescription>
+                        Once you delete your account, there is no going back.
+                        Please be certain.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                    >
+                        Delete Account
+                    </Button>
+                </CardContent>
+            </Card>
+
+            <Dialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your account and remove all your data from
+                            our servers.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <label
+                            htmlFor="delete-confirmation"
+                            className="text-sm font-medium"
+                        >
+                            Type <strong>delete my account</strong> to confirm:
+                        </label>
+                        <Input
+                            id="delete-confirmation"
+                            type="text"
+                            value={deleteConfirmation}
+                            onChange={(e) =>
+                                setDeleteConfirmation(e.target.value)
+                            }
+                            placeholder="delete my account"
+                            className="mt-2"
+                            disabled={isDeleting}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsDeleteDialogOpen(false);
+                                setDeleteConfirmation("");
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteAccount}
+                            disabled={
+                                deleteConfirmation !== "delete my account" ||
+                                isDeleting
+                            }
+                        >
+                            {isDeleting ? "Deleting..." : "Delete Account"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

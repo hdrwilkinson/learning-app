@@ -9,6 +9,7 @@ import {
 import { prisma } from "../../../../../services/db/db-client";
 import bcrypt from "bcrypt";
 import { generateUsername } from "@repo/lib";
+import { auth } from "@/auth";
 
 export async function signup(data: SignupInput) {
     const result = SignupSchema.safeParse(data);
@@ -128,4 +129,35 @@ export async function checkUsernameAvailability(
         return { available: true };
     }
     return { available: !user };
+}
+
+export async function deleteAccount(userId: string) {
+    // Verify the requesting user matches the target userId
+    const session = await auth();
+    if (!session?.user?.id || session.user.id !== userId) {
+        return { error: "Unauthorized" };
+    }
+
+    try {
+        // Manually delete related records that don't have cascading relations
+        // Delete CuriosityChat (messages will cascade automatically)
+        await prisma.curiosityChat.deleteMany({
+            where: { userId },
+        });
+
+        // Delete QuizResponse
+        await prisma.quizResponse.deleteMany({
+            where: { userId },
+        });
+
+        // Delete the User record (cascades to Account, Session, Course, UserProgress, etc.)
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Delete account error:", error);
+        return { error: "Failed to delete account" };
+    }
 }

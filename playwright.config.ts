@@ -10,7 +10,7 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
     workers: process.env.CI ? 1 : undefined,
-    reporter: "html",
+    reporter: [["html", { open: "never" }]],
     use: {
         baseURL: "http://localhost:3002",
         trace: "on-first-retry",
@@ -30,7 +30,8 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: "npm run start --prefix apps/web",
+        command:
+            "lsof -ti:3002 | xargs kill -9 || true && npm run start --prefix apps/web",
         url: "http://localhost:3002",
         reuseExistingServer: false,
         stdout: "pipe",
