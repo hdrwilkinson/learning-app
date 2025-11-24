@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import { HiCheck, HiX } from "react-icons/hi";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { COUNTRIES } from "@repo/lib";
@@ -46,6 +47,25 @@ export default function SignupPage() {
             bio: "",
         },
     });
+
+    const password = form.watch("password");
+
+    const requirements = [
+        { label: "At least 8 characters", valid: password?.length >= 8 },
+        {
+            label: "At least one uppercase letter",
+            valid: /[A-Z]/.test(password || ""),
+        },
+        {
+            label: "At least one lowercase letter",
+            valid: /[a-z]/.test(password || ""),
+        },
+        { label: "At least one number", valid: /[0-9]/.test(password || "") },
+        {
+            label: "At least one special character",
+            valid: /[^a-zA-Z0-9]/.test(password || ""),
+        },
+    ];
 
     async function onSubmit(data: SignupInput) {
         setIsLoading(true);
@@ -145,6 +165,32 @@ export default function SignupPage() {
                                     <Input type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
+                                <div className="mt-2 space-y-1 rounded-md border p-3 text-sm">
+                                    <p className="mb-2 font-medium">
+                                        Password Requirements:
+                                    </p>
+                                    {requirements.map((req, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                        >
+                                            {req.valid ? (
+                                                <HiCheck className="h-4 w-4 text-green-500" />
+                                            ) : (
+                                                <HiX className="h-4 w-4 text-red-500" />
+                                            )}
+                                            <span
+                                                className={
+                                                    req.valid
+                                                        ? "text-green-500"
+                                                        : "text-muted-foreground"
+                                                }
+                                            >
+                                                {req.label}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </FormItem>
                         )}
                     />
