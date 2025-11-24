@@ -49,7 +49,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }),
     ],
     events: {
-        async createUser({ user }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        async createUser({ user, account }: { user: any; account?: any }) {
+            const updateData: {
+                username?: string;
+                emailVerified?: Date;
+            } = {};
+
+            // Generate username if not present
             if (!user.username) {
                 let username = generateUsername();
                 let exists = await prisma.user.findUnique({
@@ -63,10 +70,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     });
                     retries++;
                 }
+                updateData.username = username;
+            }
 
+            // Auto-verify email for OAuth providers (Google, GitHub)
+            // These providers verify emails before allowing OAuth
+            if (
+                account &&
+                (account.provider === "google" || account.provider === "github")
+            ) {
+                updateData.emailVerified = new Date();
+            }
+
+            if (Object.keys(updateData).length > 0) {
                 await prisma.user.update({
                     where: { id: user.id },
-                    data: { username },
+                    data: updateData,
                 });
             }
         },
@@ -83,6 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token.dateOfBirth = dbUser.dateOfBirth;
                     token.country = dbUser.country;
                     token.bio = dbUser.bio;
+                    token.emailVerified = dbUser.emailVerified;
                 }
             }
             // Refetch user data from database when session is updated
@@ -95,10 +115,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token.dateOfBirth = dbUser.dateOfBirth;
                     token.country = dbUser.country;
                     token.bio = dbUser.bio;
+                    token.emailVerified = dbUser.emailVerified;
                 }
                 // Also merge any session data if provided
                 if (session) {
                     token = { ...token, ...session };
+                }
+            }
+            // Always refetch emailVerified from database to ensure it's up to date
+            // This is important because email verification can happen while user is logged in
+            // Only do this if we have a token.id and we're not in the initial user login flow
+            if (token.id && !user) {
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: token.id as string },
+                    select: { emailVerified: true },
+                });
+                if (dbUser) {
+                    token.emailVerified = dbUser.emailVerified;
                 }
             }
             return token;
@@ -110,6 +143,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.dateOfBirth = token.dateOfBirth as Date;
                 session.user.country = token.country as string;
                 session.user.bio = token.bio as string;
+                session.user.emailVerified = token.emailVerified as Date | null;
             }
             return session;
         },

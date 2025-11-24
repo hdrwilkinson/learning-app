@@ -34,6 +34,7 @@ export const authConfig = {
                 session.user.dateOfBirth = token.dateOfBirth as Date;
                 session.user.country = token.country as string;
                 session.user.bio = token.bio as string;
+                session.user.emailVerified = token.emailVerified as Date | null;
             }
             return session;
         },

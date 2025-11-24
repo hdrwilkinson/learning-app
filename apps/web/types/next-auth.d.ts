@@ -8,6 +8,7 @@ declare module "next-auth" {
             dateOfBirth?: Date;
             country?: string;
             bio?: string;
+            emailVerified?: Date | null;
         } & DefaultSession["user"];
     }
 
@@ -17,6 +18,7 @@ declare module "next-auth" {
         country?: string;
         bio?: string;
         password?: string;
+        emailVerified?: Date | null;
     }
 }
 
@@ -27,5 +29,6 @@ declare module "next-auth/jwt" {
         dateOfBirth?: Date;
         country?: string;
         bio?: string;
+        emailVerified?: Date | null;
     }
 }

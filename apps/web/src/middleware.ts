@@ -21,13 +21,15 @@ export default auth((req) => {
 
     // 2. Unauthenticated users
     if (!isLoggedIn) {
-        // Allow access to login, signup, error, reset-password, and new-password pages
+        // Allow access to login, signup, error, reset-password, new-password, verify-email, and resend-verification pages
         if (
             pathname.startsWith("/auth/login") ||
             pathname.startsWith("/auth/signup") ||
             pathname.startsWith("/auth/error") ||
             pathname.startsWith("/auth/reset-password") ||
-            pathname.startsWith("/auth/new-password")
+            pathname.startsWith("/auth/new-password") ||
+            pathname.startsWith("/auth/verify-email") ||
+            pathname.startsWith("/auth/resend-verification")
         ) {
             return NextResponse.next();
         }
@@ -40,13 +42,16 @@ export default auth((req) => {
     // 3. Authenticated users
     const user = req.auth?.user;
     const isMissingInfo = !user?.dateOfBirth || !user?.country;
+    const isEmailNotVerified = !user?.emailVerified;
 
     // Incomplete Profile
     if (isMissingInfo) {
-        // Allow access to onboarding and signout
+        // Allow access to onboarding, signout, verify-email, and resend-verification
         if (
             pathname.startsWith("/auth/onboarding") ||
-            pathname.startsWith("/auth/signout")
+            pathname.startsWith("/auth/signout") ||
+            pathname.startsWith("/auth/verify-email") ||
+            pathname.startsWith("/auth/resend-verification")
         ) {
             return NextResponse.next();
         }
@@ -54,6 +59,20 @@ export default auth((req) => {
         const url = nextUrl.clone();
         url.pathname = "/auth/onboarding";
         return NextResponse.redirect(url);
+    }
+
+    // Email not verified - allow access but show banner (handled by component)
+    // Allow access to verification pages
+    if (isEmailNotVerified) {
+        if (
+            pathname.startsWith("/auth/verify-email") ||
+            pathname.startsWith("/auth/resend-verification") ||
+            pathname.startsWith("/auth/signout")
+        ) {
+            return NextResponse.next();
+        }
+        // Allow access to other pages but banner will prompt verification
+        // Don't redirect to avoid blocking user from seeing the banner
     }
 
     // Complete Profile

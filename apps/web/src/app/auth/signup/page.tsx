@@ -75,23 +75,14 @@ export default function SignupPage() {
             if (result.error) {
                 toast.error(result.error);
             } else {
-                toast.success("Account created successfully");
-                // Auto login
-                const loginResult = await signIn("credentials", {
-                    email: data.email,
-                    password: data.password,
-                    redirect: false,
-                });
-
-                if (loginResult?.error) {
-                    toast.error(
-                        "Login failed after signup. Please log in manually."
-                    );
-                    router.push("/auth/login");
-                } else {
-                    router.push("/");
-                    router.refresh();
-                }
+                toast.success(
+                    result.message ||
+                        "Account created successfully. Please check your email to verify your account."
+                );
+                // Redirect to login with verification message
+                router.push(
+                    "/auth/login?message=Please check your email to verify your account before logging in."
+                );
             }
         } catch {
             toast.error("Something went wrong");

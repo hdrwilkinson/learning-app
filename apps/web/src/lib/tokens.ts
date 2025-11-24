@@ -25,3 +25,22 @@ export const generatePasswordResetToken = async (email: string) => {
 
     return passwordResetToken;
 };
+export const generateVerificationToken = async (email: string) => {
+    const token = uuidv4();
+    const expires = new Date(new Date().getTime() + 24 * 3600 * 1000); // 24 hours
+
+    // Delete existing tokens for this email
+    await prisma.verificationToken.deleteMany({
+        where: { identifier: email },
+    });
+
+    const verificationToken = await prisma.verificationToken.create({
+        data: {
+            identifier: email,
+            token,
+            expires,
+        },
+    });
+
+    return verificationToken;
+};

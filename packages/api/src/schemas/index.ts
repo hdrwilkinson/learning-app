@@ -157,6 +157,12 @@ export const OnboardingSchema = z.object({
 
 export type OnboardingInput = z.infer<typeof OnboardingSchema>;
 
+export const ResendVerificationSchema = z.object({
+    email: z.string().email("Invalid email address"),
+});
+
+export type ResendVerificationInput = z.infer<typeof ResendVerificationSchema>;
+
 // Course schemas
 export const CourseSchema = z.object({
     id: z.string(),

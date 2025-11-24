@@ -10,6 +10,8 @@ import { prisma } from "../../../../../services/db/db-client";
 import bcrypt from "bcrypt";
 import { generateUsername } from "@repo/lib";
 import { auth } from "@/auth";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export async function signup(data: SignupInput) {
     const result = SignupSchema.safeParse(data);
@@ -61,7 +63,21 @@ export async function signup(data: SignupInput) {
                 bio,
             },
         });
-        return { success: true };
+
+        // Generate verification token and send email
+        try {
+            const verificationToken = await generateVerificationToken(email);
+            await sendVerificationEmail(email, verificationToken.token);
+        } catch (emailError) {
+            console.error("Failed to send verification email:", emailError);
+            // Don't fail signup if email fails, but log it
+        }
+
+        return {
+            success: true,
+            message:
+                "Account created successfully. Please check your email to verify your account.",
+        };
     } catch (error) {
         console.error("Signup error:", error);
         return { error: "Failed to create account" };
@@ -129,6 +145,97 @@ export async function checkUsernameAvailability(
         return { available: true };
     }
     return { available: !user };
+}
+
+export async function verifyEmail(token: string) {
+    try {
+        const verificationToken = await prisma.verificationToken.findUnique({
+            where: { token },
+        });
+
+        if (!verificationToken) {
+            return { error: "Invalid verification token" };
+        }
+
+        if (verificationToken.expires < new Date()) {
+            // Delete expired token
+            await prisma.verificationToken.delete({
+                where: { token },
+            });
+            return { error: "Verification token has expired" };
+        }
+
+        // Find user by email (identifier)
+        const user = await prisma.user.findUnique({
+            where: { email: verificationToken.identifier },
+        });
+
+        if (!user) {
+            return { error: "User not found" };
+        }
+
+        if (user.emailVerified) {
+            // Already verified, delete token and return success
+            await prisma.verificationToken.delete({
+                where: { token },
+            });
+            return { success: true, message: "Email already verified" };
+        }
+
+        // Update user emailVerified field
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { emailVerified: new Date() },
+        });
+
+        // Delete verification token
+        await prisma.verificationToken.delete({
+            where: { token },
+        });
+
+        return { success: true, message: "Email verified successfully" };
+    } catch (error) {
+        console.error("Verify email error:", error);
+        return { error: "Failed to verify email" };
+    }
+}
+
+export async function resendVerificationEmail(email: string) {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            // Don't reveal if email exists or not for security
+            return {
+                success: true,
+                message:
+                    "If an account exists with this email, a verification link has been sent.",
+            };
+        }
+
+        if (user.emailVerified) {
+            return { error: "Email is already verified" };
+        }
+
+        // Generate new verification token and send email
+        const verificationToken = await generateVerificationToken(email);
+        await sendVerificationEmail(email, verificationToken.token);
+
+        return {
+            success: true,
+            message: "Verification email sent. Please check your inbox.",
+        };
+    } catch (error) {
+        console.error("Resend verification email error:", error);
+        // Return the actual error message if it's an Error instance, otherwise generic message
+        const errorMessage =
+            error instanceof Error
+                ? error.message
+                : "Failed to send verification email";
+        return { error: errorMessage };
+    }
 }
 
 export async function deleteAccount(userId: string) {
