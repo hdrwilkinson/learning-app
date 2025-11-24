@@ -9,7 +9,7 @@ export function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 h-16 border-t border-border bg-surface-1 flex items-center px-4 z-50 safe-area-inset-bottom">
+        <nav className="w-full h-16 border-t border-border bg-surface-1 flex items-center px-4 safe-area-inset-bottom">
             {/* Logo placeholder - bottom left */}
             <div className="flex items-center justify-center w-12 h-12 shrink-0">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">

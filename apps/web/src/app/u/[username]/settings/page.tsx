@@ -224,7 +224,7 @@ export default function ProfileSettingsPage() {
     }
 
     return (
-        <div className="container max-w-2xl py-10">
+        <div className="w-full">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-display-grounded text-2xl font-bold">
