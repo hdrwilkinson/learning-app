@@ -33,7 +33,8 @@ export default auth((req) => {
         ) {
             return NextResponse.next();
         }
-        // Redirect all other unauthenticated requests to login
+        // Redirect all other unauthenticated requests (including homepage "/") to login
+        // This ensures homepage and all non-auth pages require authentication
         const url = nextUrl.clone();
         url.pathname = "/auth/login";
         return NextResponse.redirect(url);

@@ -32,9 +32,13 @@ import { useRouter } from "next/navigation";
 
 interface PasswordSettingsProps {
     hasPassword: boolean;
+    onPasswordSet?: () => void;
 }
 
-export function PasswordSettings({ hasPassword }: PasswordSettingsProps) {
+export function PasswordSettings({
+    hasPassword,
+    onPasswordSet,
+}: PasswordSettingsProps) {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
@@ -83,6 +87,7 @@ export function PasswordSettings({ hasPassword }: PasswordSettingsProps) {
                 toast.success(result.success);
                 setPasswordForm.reset();
                 router.refresh();
+                onPasswordSet?.();
             }
         } catch {
             toast.error("Something went wrong");

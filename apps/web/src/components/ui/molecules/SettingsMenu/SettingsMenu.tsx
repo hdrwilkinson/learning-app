@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import {
     HiCog,
     HiSun,
@@ -28,7 +28,6 @@ import { Button } from "@/components/ui/shadcn/button";
 export function SettingsMenu() {
     const { data: session } = useSession();
     const { theme, setTheme } = useTheme();
-    const router = useRouter();
     const [mounted, setMounted] = React.useState(false);
 
     // Avoid hydration mismatch
@@ -37,9 +36,7 @@ export function SettingsMenu() {
     }, []);
 
     const handleLogout = async () => {
-        await signOut({ redirect: false });
-        router.push("/auth/login");
-        router.refresh();
+        await signOut({ callbackUrl: "/auth/login" });
     };
 
     if (!mounted) {
@@ -100,18 +97,16 @@ export function SettingsMenu() {
                 <DropdownMenuSeparator />
                 {session?.user?.username && (
                     <>
-                        <DropdownMenuItem
-                            onClick={() =>
-                                router.push(
-                                    `/users/${session.user.username}/settings`
-                                )
-                            }
-                            className="pl-2"
-                        >
-                            <DropdownElement
-                                icon={<HiUser className="h-4 w-4" />}
-                                label="Profile"
-                            />
+                        <DropdownMenuItem asChild>
+                            <Link
+                                href={`/users/${session.user.username}/settings`}
+                                className="pl-2"
+                            >
+                                <DropdownElement
+                                    icon={<HiUser className="h-4 w-4" />}
+                                    label="Profile"
+                                />
+                            </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                     </>

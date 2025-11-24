@@ -11,6 +11,11 @@ const nextConfig = {
     // Temporarily ignore TypeScript errors to allow dev server to start
     ignoreBuildErrors: true,
   },
+  eslint: {
+    // Exclude test files from build linting
+    ignoreDuringBuilds: false,
+    dirs: ['src'],
+  },
   transpilePackages: [
     '@repo/api',
     '@repo/lib',

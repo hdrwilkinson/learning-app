@@ -49,6 +49,8 @@ import { Textarea } from "@/components/ui/shadcn/textarea";
 import { HiCheck, HiX } from "react-icons/hi";
 import { COUNTRIES } from "@repo/lib";
 import { PasswordSettings } from "@/components/auth/PasswordSettings";
+import { OAuthAccountManager } from "@/components/ui/molecules/OAuthAccountManager";
+import { Skeleton } from "@/components/ui/shadcn/skeleton";
 
 export default function ProfileSettingsPage() {
     const { data: session, update } = useSession();
@@ -73,6 +75,11 @@ export default function ProfileSettingsPage() {
             checkPassword();
         }
     }, [session]);
+
+    const refreshPasswordStatus = async () => {
+        const result = await checkUserHasPassword();
+        setHasPassword(result);
+    };
 
     const form = useForm<OnboardingInput>({
         resolver: zodResolver(OnboardingSchema),
@@ -398,9 +405,38 @@ export default function ProfileSettingsPage() {
             </Card>
 
             <div className="mt-6">
-                {hasPassword !== null && (
-                    <PasswordSettings hasPassword={hasPassword} />
+                {hasPassword === null ? (
+                    <Card>
+                        <CardHeader>
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-4 w-96 mt-2" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-32" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-40" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                                <div className="flex justify-end">
+                                    <Skeleton className="h-10 w-32" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <PasswordSettings
+                        hasPassword={hasPassword}
+                        onPasswordSet={refreshPasswordStatus}
+                    />
                 )}
+            </div>
+
+            <div className="mt-6">
+                <OAuthAccountManager />
             </div>
 
             <Card className="mt-6 border-destructive">

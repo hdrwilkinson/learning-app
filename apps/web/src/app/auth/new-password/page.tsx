@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 import { NewPasswordSchema, NewPasswordInput } from "@repo/api";
 import { newPassword } from "@/app/actions/password";
 import { Button } from "@/components/ui/shadcn/button";
@@ -94,7 +95,14 @@ function NewPasswordForm() {
                     <FormField
                         control={form.control}
                         name="password"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                NewPasswordInput,
+                                "password"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>New Password</FormLabel>
                                 <FormControl>
@@ -158,7 +166,14 @@ function NewPasswordForm() {
                     <FormField
                         control={form.control}
                         name="confirmPassword"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                NewPasswordInput,
+                                "confirmPassword"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Confirm Password</FormLabel>
                                 <FormControl>

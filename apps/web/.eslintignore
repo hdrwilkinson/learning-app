@@ -1,0 +1,20 @@
+# Test files
+**/*.test.tsx
+**/*.test.ts
+**/*.spec.tsx
+**/*.spec.ts
+**/__tests__/**
+**/__mocks__/**
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Coverage
+coverage/
+

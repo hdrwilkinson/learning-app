@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 import { ResetPasswordSchema, ResetPasswordInput } from "@repo/api";
 import { resetPassword } from "@/app/actions/password";
 import { Button } from "@/components/ui/shadcn/button";
@@ -66,7 +67,14 @@ export default function ResetPasswordPage() {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                ResetPasswordInput,
+                                "email"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>

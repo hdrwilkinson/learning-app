@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 import { OnboardingSchema, OnboardingInput } from "@repo/api";
 import { updateProfile, checkUsernameAvailability } from "@/app/actions/auth";
 import { Button } from "@/components/ui/shadcn/button";
@@ -162,7 +163,14 @@ export default function OnboardingPage() {
                     <FormField
                         control={form.control}
                         name="username"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                OnboardingInput,
+                                "username"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Username (Optional)</FormLabel>
                                 <FormControl>
@@ -209,7 +217,14 @@ export default function OnboardingPage() {
                     <FormField
                         control={form.control}
                         name="dateOfBirth"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                OnboardingInput,
+                                "dateOfBirth"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Date of Birth</FormLabel>
                                 <FormControl>
@@ -228,9 +243,9 @@ export default function OnboardingPage() {
                                                     ).split("T")[0]
                                                   : ""
                                         }
-                                        onChange={(e) =>
-                                            field.onChange(e.target.value)
-                                        }
+                                        onChange={(
+                                            e: React.ChangeEvent<HTMLInputElement>
+                                        ) => field.onChange(e.target.value)}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -240,7 +255,14 @@ export default function OnboardingPage() {
                     <FormField
                         control={form.control}
                         name="country"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                OnboardingInput,
+                                "country"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Country</FormLabel>
                                 <Select
@@ -270,7 +292,14 @@ export default function OnboardingPage() {
                     <FormField
                         control={form.control}
                         name="bio"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                OnboardingInput,
+                                "bio"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Bio (Optional)</FormLabel>
                                 <FormControl>

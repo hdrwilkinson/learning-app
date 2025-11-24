@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 import { SignupSchema, SignupInput } from "@repo/api";
 import { signup } from "@/app/actions/auth";
 import { Button } from "@/components/ui/shadcn/button";
@@ -27,6 +28,7 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import { HiCheck, HiX } from "react-icons/hi";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { AuthCard } from "@/components/auth/AuthCard";
@@ -96,6 +98,11 @@ export default function SignupPage() {
         signIn("google", { callbackUrl: "/" });
     };
 
+    const handleGitHubSignup = () => {
+        setIsLoading(true);
+        signIn("github", { callbackUrl: "/" });
+    };
+
     return (
         <AuthCard
             title="Create an account"
@@ -120,7 +127,11 @@ export default function SignupPage() {
                     <FormField
                         control={form.control}
                         name="name"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<SignupInput, "name">;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Name</FormLabel>
                                 <FormControl>
@@ -133,7 +144,11 @@ export default function SignupPage() {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<SignupInput, "email">;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
@@ -149,7 +164,14 @@ export default function SignupPage() {
                     <FormField
                         control={form.control}
                         name="password"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                SignupInput,
+                                "password"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
@@ -188,7 +210,14 @@ export default function SignupPage() {
                     <FormField
                         control={form.control}
                         name="confirmPassword"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                SignupInput,
+                                "confirmPassword"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Confirm Password</FormLabel>
                                 <FormControl>
@@ -202,7 +231,14 @@ export default function SignupPage() {
                         <FormField
                             control={form.control}
                             name="dateOfBirth"
-                            render={({ field }) => (
+                            render={({
+                                field,
+                            }: {
+                                field: ControllerRenderProps<
+                                    SignupInput,
+                                    "dateOfBirth"
+                                >;
+                            }) => (
                                 <FormItem>
                                     <FormLabel>Date of Birth</FormLabel>
                                     <FormControl>
@@ -228,7 +264,14 @@ export default function SignupPage() {
                         <FormField
                             control={form.control}
                             name="country"
-                            render={({ field }) => (
+                            render={({
+                                field,
+                            }: {
+                                field: ControllerRenderProps<
+                                    SignupInput,
+                                    "country"
+                                >;
+                            }) => (
                                 <FormItem>
                                     <FormLabel>Country</FormLabel>
                                     <Select
@@ -259,7 +302,11 @@ export default function SignupPage() {
                     <FormField
                         control={form.control}
                         name="bio"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<SignupInput, "bio">;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Bio (Optional)</FormLabel>
                                 <FormControl>
@@ -300,6 +347,16 @@ export default function SignupPage() {
             >
                 <FcGoogle className="mr-2 h-4 w-4" />
                 Google
+            </Button>
+            <Button
+                variant="outline"
+                type="button"
+                className="w-full"
+                onClick={handleGitHubSignup}
+                disabled={isLoading}
+            >
+                <FaGithub className="mr-2 h-4 w-4" />
+                GitHub
             </Button>
         </AuthCard>
     );

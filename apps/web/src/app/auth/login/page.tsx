@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import type { ControllerRenderProps } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema, LoginInput } from "@repo/api";
 import { Button } from "@/components/ui/shadcn/button";
@@ -19,6 +20,7 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import { AuthCard } from "@/components/auth/AuthCard";
 
 export default function LoginPage() {
@@ -61,6 +63,11 @@ export default function LoginPage() {
         signIn("google", { callbackUrl: "/" });
     };
 
+    const handleGitHubLogin = () => {
+        setIsLoading(true);
+        signIn("github", { callbackUrl: "/" });
+    };
+
     return (
         <AuthCard
             title="Login"
@@ -85,7 +92,11 @@ export default function LoginPage() {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<LoginInput, "email">;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
@@ -101,7 +112,14 @@ export default function LoginPage() {
                     <FormField
                         control={form.control}
                         name="password"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                LoginInput,
+                                "password"
+                            >;
+                        }) => (
                             <FormItem>
                                 <div className="flex items-center justify-between">
                                     <FormLabel>Password</FormLabel>
@@ -147,6 +165,16 @@ export default function LoginPage() {
             >
                 <FcGoogle className="mr-2 h-4 w-4" />
                 Google
+            </Button>
+            <Button
+                variant="outline"
+                type="button"
+                className="w-full"
+                onClick={handleGitHubLogin}
+                disabled={isLoading}
+            >
+                <FaGithub className="mr-2 h-4 w-4" />
+                GitHub
             </Button>
         </AuthCard>
     );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
 import { ResendVerificationSchema, ResendVerificationInput } from "@repo/api";
 import { resendVerificationEmail } from "@/app/actions/auth";
 import { Button } from "@/components/ui/shadcn/button";
@@ -72,7 +73,14 @@ export default function ResendVerificationPage() {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }) => (
+                        render={({
+                            field,
+                        }: {
+                            field: ControllerRenderProps<
+                                ResendVerificationInput,
+                                "email"
+                            >;
+                        }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>

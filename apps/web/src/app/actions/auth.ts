@@ -268,3 +268,84 @@ export async function deleteAccount(userId: string) {
         return { error: "Failed to delete account" };
     }
 }
+
+export async function getConnectedAccounts(userId: string) {
+    // Verify the requesting user matches the target userId
+    const session = await auth();
+    if (!session?.user?.id || session.user.id !== userId) {
+        return { error: "Unauthorized" };
+    }
+
+    try {
+        const accounts = await prisma.account.findMany({
+            where: { userId },
+            select: {
+                id: true,
+                provider: true,
+                providerAccountId: true,
+                type: true,
+            },
+        });
+
+        return { success: true, accounts };
+    } catch (error) {
+        console.error("Get connected accounts error:", error);
+        return { error: "Failed to fetch connected accounts" };
+    }
+}
+
+export async function disconnectAccount(userId: string, accountId: string) {
+    // Verify the requesting user matches the target userId
+    const session = await auth();
+    if (!session?.user?.id || session.user.id !== userId) {
+        return { error: "Unauthorized" };
+    }
+
+    try {
+        // Verify the account belongs to the user
+        const account = await prisma.account.findUnique({
+            where: { id: accountId },
+            select: { userId: true },
+        });
+
+        if (!account || account.userId !== userId) {
+            return { error: "Account not found" };
+        }
+
+        // Check if user has password or other OAuth accounts
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                password: true,
+                accounts: {
+                    select: { id: true },
+                },
+            },
+        });
+
+        if (!user) {
+            return { error: "User not found" };
+        }
+
+        // Prevent disconnecting if it's the last authentication method
+        const hasPassword = !!user.password;
+        const oauthAccountCount = user.accounts.length;
+        const isLastOAuthAccount = oauthAccountCount === 1;
+
+        if (!hasPassword && isLastOAuthAccount) {
+            return {
+                error: "Cannot disconnect last authentication method. Please set a password first or connect another account.",
+            };
+        }
+
+        // Delete the account
+        await prisma.account.delete({
+            where: { id: accountId },
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Disconnect account error:", error);
+        return { error: "Failed to disconnect account" };
+    }
+}
