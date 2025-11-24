@@ -136,14 +136,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token = { ...token, ...session };
                 }
             }
-            // Always refetch emailVerified from database to ensure it's up to date
+            // Always refetch user profile fields from database to ensure they're up to date
             if (token.id && !user) {
                 const dbUser = await prisma.user.findUnique({
                     where: { id: token.id as string },
-                    select: { emailVerified: true },
+                    select: {
+                        emailVerified: true,
+                        username: true,
+                        dateOfBirth: true,
+                        country: true,
+                        bio: true,
+                    },
                 });
                 if (dbUser) {
                     token.emailVerified = dbUser.emailVerified;
+                    token.username = dbUser.username;
+                    token.dateOfBirth = dbUser.dateOfBirth;
+                    token.country = dbUser.country;
+                    token.bio = dbUser.bio;
                 }
             }
             return token;
