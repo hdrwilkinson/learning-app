@@ -62,7 +62,9 @@ export function SettingsMenu() {
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup
                     value={theme}
-                    onValueChange={(value) => setTheme(value)}
+                    onValueChange={(value: string) =>
+                        setTheme(value as "light" | "dark" | "system")
+                    }
                 >
                     <DropdownMenuRadioItem
                         value="light"
@@ -106,15 +108,19 @@ export function SettingsMenu() {
                             }
                             className="pl-2"
                         >
-                            <HiUser className="h-4 w-4" />
-                            <span>Profile</span>
+                            <DropdownElement
+                                icon={<HiUser className="h-4 w-4" />}
+                                label="Profile"
+                            />
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                     </>
                 )}
                 <DropdownMenuItem onClick={handleLogout} className="pl-2">
-                    <HiLogout className="h-4 w-4" />
-                    <span>Log out</span>
+                    <DropdownElement
+                        icon={<HiLogout className="h-4 w-4" />}
+                        label="Log out"
+                    />
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

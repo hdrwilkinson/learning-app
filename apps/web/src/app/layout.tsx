@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, Space_Grotesk, Fira_Code } from "next/font/google";
 import "@/styles/globals.css";
-import { SettingsMenu } from "@/components/ui/molecules/SettingsMenu/SettingsMenu";
+import { AppShell } from "@/components/ui/layout";
 import { Providers } from "@/components/providers";
 
 const inter = Inter({
@@ -45,10 +45,7 @@ export default function RootLayout({
                 className={`${inter.variable} ${interTight.variable} ${spaceGrotesk.variable} ${firaCode.variable} font-sans antialiased`}
             >
                 <Providers>
-                    <div className="fixed right-4 top-4 z-50">
-                        <SettingsMenu />
-                    </div>
-                    {children}
+                    <AppShell>{children}</AppShell>
                 </Providers>
             </body>
         </html>

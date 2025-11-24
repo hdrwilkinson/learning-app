@@ -31,23 +31,23 @@ import { Skeleton } from "@/components/ui/shadcn/skeleton";
 
 export default function HomePage() {
     return (
-        <main className="min-h-screen bg-background">
+        <div className="w-full bg-background">
             {/* Hero Section */}
-            <section className="container mx-auto px-4 py-16 lg:py-24">
-                <div className="max-w-4xl mx-auto text-center space-y-8">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+                <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
                     <div className="space-y-2">
-                        <h1 className="text-5xl md:text-7xl font-display-fun font-bold tracking-tight text-foreground">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display-fun font-bold tracking-tight text-foreground">
                             Cognia
                         </h1>
-                        <p className="text-2xl md:text-3xl font-display font-semibold text-primary tracking-tight">
+                        <p className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-primary tracking-tight">
                             Master anything, on schedule.
                         </p>
                     </div>
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-sans">
+                    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto font-sans px-4 sm:px-0">
                         Turn consistent effort into lasting understanding. Your
                         personal path to mastery, backed by science.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-4 px-4 sm:px-0">
                         <Button
                             size="lg"
                             className="font-semibold text-lg px-8 shadow-lg shadow-primary/20"
@@ -67,15 +67,15 @@ export default function HomePage() {
             </section>
 
             {/* Typography System */}
-            <section className="container mx-auto px-4 py-16 border-t">
-                <div className="flex items-center gap-2 mb-8">
-                    <span className="text-4xl">Aa</span>
-                    <h2 className="text-3xl font-display font-bold">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                <div className="flex items-center gap-2 mb-6 sm:mb-8">
+                    <span className="text-3xl sm:text-4xl">Aa</span>
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold">
                         Typography System
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <div className="space-y-8">
                         <h3 className="text-xl font-semibold border-b pb-2">
                             Font Families
@@ -225,7 +225,7 @@ export default function HomePage() {
                                     Essential for data tables and timers to
                                     prevent layout jitter.
                                 </p>
-                                <div className="grid grid-cols-2 gap-8 bg-surface-1 p-6 rounded-lg border">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 bg-surface-1 p-4 sm:p-6 rounded-lg border">
                                     <div>
                                         <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
                                             Default
@@ -272,15 +272,15 @@ export default function HomePage() {
             </section>
 
             {/* Color System */}
-            <section className="container mx-auto px-4 py-16 border-t">
-                <div className="flex items-center gap-2 mb-8">
-                    <HiSparkles className="h-8 w-8 text-primary" />
-                    <h2 className="text-3xl font-display font-bold">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                <div className="flex items-center gap-2 mb-6 sm:mb-8">
+                    <HiSparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold">
                         Color System
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12">
                     {/* Primary - Purple */}
                     <Card className="border-primary/20">
                         <CardHeader>
@@ -462,7 +462,7 @@ export default function HomePage() {
                     </Card>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div className="p-4 rounded-lg border bg-background">
                         <h4 className="font-semibold mb-2 flex items-center gap-2">
                             <HiCheckCircle className="text-green-600" /> Success
@@ -492,14 +492,14 @@ export default function HomePage() {
             </section>
 
             {/* Depth & Surfaces */}
-            <section className="container mx-auto px-4 py-16 border-t">
-                <div className="flex items-center gap-2 mb-8">
-                    <HiCube className="h-8 w-8 text-primary" />
-                    <h2 className="text-3xl font-display font-bold">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                <div className="flex items-center gap-2 mb-6 sm:mb-8">
+                    <HiCube className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold">
                         Depth & Surfaces
                     </h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     <div className="bg-background p-8 rounded-lg border flex flex-col items-center justify-center text-center">
                         <p className="font-bold mb-2">Base Background</p>
                         <p className="text-sm text-muted-foreground">
@@ -522,14 +522,14 @@ export default function HomePage() {
             </section>
 
             {/* Data Visualization */}
-            <section className="container mx-auto px-4 py-16 border-t">
-                <div className="flex items-center gap-2 mb-8">
-                    <HiChartBar className="h-8 w-8 text-primary" />
-                    <h2 className="text-3xl font-display font-bold">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                <div className="flex items-center gap-2 mb-6 sm:mb-8">
+                    <HiChartBar className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold">
                         Data Visualization
                     </h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                     <div className="space-y-2">
                         <div className="h-24 rounded-lg bg-chart-1 w-full"></div>
                         <p className="text-sm font-medium text-center">
@@ -579,12 +579,12 @@ export default function HomePage() {
             </section>
 
             {/* Component Showcase */}
-            <section className="container mx-auto px-4 py-16 border-t">
-                <h2 className="text-3xl font-display font-bold mb-8">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+                <h2 className="text-2xl sm:text-3xl font-display font-bold mb-6 sm:mb-8">
                     Component Design
                 </h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                     {/* Buttons */}
                     <div className="space-y-6">
                         <h3 className="text-xl font-semibold">
@@ -613,7 +613,7 @@ export default function HomePage() {
                         <h3 className="text-xl font-semibold">
                             Inputs & Forms
                         </h3>
-                        <div className="space-y-4 p-6 border rounded-xl bg-surface-1 max-w-md">
+                        <div className="space-y-4 p-4 sm:p-6 border rounded-xl bg-surface-1 max-w-md">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">
                                     Email Address
@@ -640,7 +640,7 @@ export default function HomePage() {
                         <h3 className="text-xl font-semibold">
                             Cards & Feedback
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                             <Card className="shadow-md hover:shadow-lg transition-all">
                                 <CardHeader>
                                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-2 text-primary">
@@ -706,13 +706,13 @@ export default function HomePage() {
             </section>
 
             {/* Shape & Spacing */}
-            <section className="container mx-auto px-4 py-16 border-t pb-24">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <section className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 pb-16 sm:pb-24">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <div>
                         <h2 className="text-2xl font-display font-bold mb-6">
                             Shape Language
                         </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                             <div className="aspect-square bg-primary rounded-sm flex items-center justify-center text-primary-foreground text-xs">
                                 sm (4)
                             </div>
@@ -760,6 +760,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
-        </main>
+        </div>
     );
 }
