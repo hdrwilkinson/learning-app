@@ -1,0 +1,453 @@
+---
+description: Skills discovery and usage guide. Teaches the AI how to find and use skills from the skills/ directory.
+globs:
+alwaysApply: true
+---
+
+# Skills Registry
+
+Skills are modular, self-contained instruction sets that extend capabilities for specific tasks. They follow Anthropic's progressive disclosure pattern for context efficiency.
+
+## How Skills Work
+
+**Progressive Disclosure (3 levels)**:
+
+1. **Metadata** (~100 words, always visible via this registry)
+2. **SKILL.md** (<500 lines, loaded when triggered)
+3. **Resources** (loaded as-needed: steps/, references/, scripts/)
+
+**When a skill triggers**: Read only the `SKILL.md` file first. Load additional resources (steps, references) only when MANDATORY directives instruct you to.
+
+## Hub Skills
+
+Hub skills organize related skills into categories. When unsure which specific skill to use, start with the relevant hub.
+
+### _hub-organization
+
+**Trigger**: When working on planning, Git workflow, or project organization
+
+**Conditions**: Need help with branches, issues, commits, or PR reviews
+
+**Path**: `skills/_hub-organization/SKILL.md`
+
+**Routes to**: branching, issue-management, pushing-code, code-review
+
+---
+
+### _hub-quality
+
+**Trigger**: When working on code quality, testing, or debugging
+
+**Conditions**: Fixing bugs, writing tests, lint errors, or refactoring
+
+**Path**: `skills/_hub-quality/SKILL.md`
+
+**Routes to**: debugging, testing, linting, refactoring
+
+---
+
+### _hub-frontend
+
+**Trigger**: When working on UI, components, or visual design
+
+**Conditions**: Building components, styling, accessibility, animations
+
+**Path**: `skills/_hub-frontend/SKILL.md`
+
+**Routes to**: branding, components, accessibility, animations
+
+---
+
+### _hub-backend
+
+**Trigger**: When working on APIs, database, or server-side code
+
+**Conditions**: Creating endpoints, database operations, auth, validation
+
+**Path**: `skills/_hub-backend/SKILL.md`
+
+**Routes to**: api-design, database, authentication, validation
+
+---
+
+### _hub-infrastructure
+
+**Trigger**: When working on deployment or performance
+
+**Conditions**: Deploying to Vercel, optimizing performance
+
+**Path**: `skills/_hub-infrastructure/SKILL.md`
+
+**Routes to**: deployment, performance
+
+---
+
+## Meta Skills
+
+### add-skill
+
+**Trigger**: When creating a new skill to extend project capabilities
+
+**Conditions**:
+
+- User says "create a skill for [X]" or "add [X] skill"
+- Planning new workflow automation
+- Need systematic skill creation approach
+
+**Path**: `skills/add-skill/SKILL.md`
+
+**What it does**: 6-step workflow for creating effective skills. Ensures proper progressive disclosure, MANDATORY directives, and verification patterns.
+
+**Key principle**: Progressive disclosure + mandatory loading = efficient, reliable skills
+
+---
+
+## Organization Skills
+
+### branching
+
+**Trigger**: When creating or switching git branches
+
+**Conditions**:
+
+- User asks to create a new branch
+- User mentions branch naming conventions
+- Starting work on an issue or feature
+
+**Path**: `skills/branching/SKILL.md`
+
+**What it does**: Git branching workflow with naming conventions and best practices.
+
+**Key principle**: Consistent branch naming enables clear project history
+
+---
+
+### issue-management
+
+**Trigger**: When creating or starting work on GitHub issues
+
+**Conditions**:
+
+- User wants to create a new issue
+- Starting work on an existing issue
+- Need issue structure guidance
+
+**Path**: `skills/issue-management/SKILL.md`
+
+**What it does**: Issue creation and workflow initiation with proper structure and labels.
+
+**Key principle**: Well-defined issues enable efficient development
+
+---
+
+### pushing-code
+
+**Trigger**: When committing and pushing code to remote
+
+**Conditions**:
+
+- Ready to commit changes
+- Need commit message guidance
+- Pushing to remote repository
+
+**Path**: `skills/pushing-code/SKILL.md`
+
+**What it does**: Git commit and push workflow with conventional commit standards.
+
+**Key principle**: Clear commit messages enable project history understanding
+
+---
+
+### code-review
+
+**Trigger**: When reviewing pull requests
+
+**Conditions**:
+
+- Reviewing someone else's PR
+- Self-review before requesting review
+- Need feedback guidelines
+
+**Path**: `skills/code-review/SKILL.md`
+
+**What it does**: PR review patterns, feedback guidelines, and code review best practices.
+
+**Key principle**: Constructive reviews improve code quality and team knowledge
+
+---
+
+## Quality Skills
+
+### debugging
+
+**Trigger**: When fixing bugs or errors in code
+
+**Conditions**:
+
+- Error occurs and needs resolution
+- Test failures need investigation
+- User asks to debug an issue
+
+**Path**: `skills/debugging/SKILL.md`
+
+**What it does**: Systematic debugging approach - isolate, understand, fix one issue at a time.
+
+**Key principle**: Understand the root cause before attempting fixes
+
+---
+
+### testing
+
+**Trigger**: When writing or modifying tests
+
+**Conditions**:
+
+- User asks to add tests
+- Test implementation needed
+- Jest or Playwright usage required
+
+**Path**: `skills/testing/SKILL.md`
+
+**What it does**: Testing guidelines for Jest (unit/integration) and Playwright (E2E).
+
+**Key principle**: Test functionality, not implementation details
+
+---
+
+### linting
+
+**Trigger**: When fixing lint or TypeScript errors
+
+**Conditions**:
+
+- ESLint errors to fix
+- TypeScript type errors
+- Prettier formatting issues
+
+**Path**: `skills/linting/SKILL.md`
+
+**What it does**: ESLint, TypeScript, and Prettier configuration and patterns.
+
+**Key principle**: Consistent code style reduces cognitive load
+
+---
+
+### refactoring
+
+**Trigger**: When improving code structure
+
+**Conditions**:
+
+- Code needs restructuring
+- Extract function/component needed
+- Clean up code without changing behavior
+
+**Path**: `skills/refactoring/SKILL.md`
+
+**What it does**: Safe code restructuring patterns and extract methods.
+
+**Key principle**: Small, verified changes maintain stability
+
+---
+
+## Frontend Skills
+
+### branding
+
+**Trigger**: When building UI components or making design decisions
+
+**Conditions**:
+
+- User asks about colors, typography, or design tokens
+- Building new UI components
+- Need brand consistency guidance
+
+**Path**: `skills/branding/SKILL.md`
+
+**What it does**: Complete brand guidelines including colors, typography, spacing, and component patterns.
+
+**Key principle**: Design tokens are the single source of truth across platforms
+
+---
+
+### components
+
+**Trigger**: When creating UI components
+
+**Conditions**:
+
+- Building new React components
+- Using shadcn/ui patterns
+- Following atomic design
+
+**Path**: `skills/components/SKILL.md`
+
+**What it does**: UI component patterns using shadcn/ui and atomic design.
+
+**Key principle**: Composable, accessible components from atoms to organisms
+
+---
+
+### accessibility
+
+**Trigger**: When ensuring accessibility
+
+**Conditions**:
+
+- Adding ARIA labels
+- Keyboard navigation needed
+- Screen reader support
+
+**Path**: `skills/accessibility/SKILL.md`
+
+**What it does**: WCAG compliance, ARIA patterns, and keyboard navigation.
+
+**Key principle**: Accessible by default, not as an afterthought
+
+---
+
+### animations
+
+**Trigger**: When adding motion or transitions
+
+**Conditions**:
+
+- Adding animations
+- Transition effects needed
+- Micro-interactions
+
+**Path**: `skills/animations/SKILL.md`
+
+**What it does**: Motion design with Tailwind transitions and animation patterns.
+
+**Key principle**: Purposeful motion enhances UX without distraction
+
+---
+
+## Backend Skills
+
+### api-design
+
+**Trigger**: When creating API endpoints
+
+**Conditions**:
+
+- Creating route handlers
+- Implementing server actions
+- API structure decisions
+
+**Path**: `skills/api-design/SKILL.md`
+
+**What it does**: Route handlers, server actions, and REST API patterns for Next.js.
+
+**Key principle**: Predictable APIs with proper error handling and validation
+
+---
+
+### database
+
+**Trigger**: When working with Prisma or database
+
+**Conditions**:
+
+- Schema changes needed
+- Creating migrations
+- Complex queries
+
+**Path**: `skills/database/SKILL.md`
+
+**What it does**: Prisma schema design, migrations, queries, and relations.
+
+**Key principle**: Schema-first design with type-safe queries
+
+---
+
+### authentication
+
+**Trigger**: When implementing auth
+
+**Conditions**:
+
+- Login/logout implementation
+- Session management
+- OAuth providers
+
+**Path**: `skills/authentication/SKILL.md`
+
+**What it does**: Auth.js patterns, sessions, OAuth, and credentials.
+
+**Key principle**: Secure authentication with proper session handling
+
+---
+
+### validation
+
+**Trigger**: When validating input
+
+**Conditions**:
+
+- Form validation needed
+- API request validation
+- Zod schema creation
+
+**Path**: `skills/validation/SKILL.md`
+
+**What it does**: Zod schemas for form validation and API validation.
+
+**Key principle**: Validate at boundaries, trust internal code
+
+---
+
+## Infrastructure Skills
+
+### deployment
+
+**Trigger**: When deploying to production
+
+**Conditions**:
+
+- Deploying to Vercel
+- Environment variable setup
+- Build issues
+
+**Path**: `skills/deployment/SKILL.md`
+
+**What it does**: Vercel deployment, environment variables, and build optimization.
+
+**Key principle**: Reproducible deployments with proper environment isolation
+
+---
+
+### performance
+
+**Trigger**: When optimizing performance
+
+**Conditions**:
+
+- Slow page loads
+- Bundle size issues
+- Caching strategies
+
+**Path**: `skills/performance/SKILL.md`
+
+**What it does**: Performance optimization, caching, lazy loading, and bundle size.
+
+**Key principle**: Measure first, optimize where it matters
+
+---
+
+## Using Skills
+
+**When you recognize a trigger condition**:
+
+1. Load the skill's `SKILL.md` file
+2. Follow the skill's workflow and TODO structure
+3. Load additional resources only when MANDATORY directives require
+
+**CRITICAL FILE READING RULE**: When skill instructions reference template files, reference files, or any skill documentation, you MUST read the ENTIRE file (not partial reads). Never use offset/limit parameters when reading skill files.
+
+**Do NOT**:
+
+- Load all skills speculatively
+- Read all step files at once
+- Skip MANDATORY loading directives

@@ -188,7 +188,7 @@ Follow this structure for file organization, using a **monorepo** with workspace
 
 ## UI (Tailwind + shadcn/ui)
 
-> **Brand Guidelines:** All UI components, colors, typography, and design decisions must follow the [branding guidelines](./branding.mdc). Reference it when building components or making design choices.
+> **Brand Guidelines:** All UI components, colors, typography, and design decisions must follow the branding skill (`skills/branding/SKILL.md`). Reference it when building components or making design choices.
 
 - **Web UI Structure:** Organize components in `apps/web/src/components/ui` using atomic design principles:
   - **`atoms/`** - Fundamental building blocks (e.g., `DropdownElement`, `IconButton`). Each atom lives in its own PascalCase folder with:
@@ -225,11 +225,7 @@ Follow this structure for file organization, using a **monorepo** with workspace
 
 ## Debugging & Issue Resolution
 
-- Reproduce, isolate, and fix one issue at a time.
-- Minimal, precise changes; verify via tests/manual checks.
-- Avoid unrelated refactors in bug-fix commits.
-- For DB: inspect Prisma logs, check migration drift, confirm schema alignment.
-- For web UI: test components in isolation, verify Tailwind classes, check shadcn component props/docs.
+See the debugging skill (`skills/debugging/SKILL.md`) for detailed debugging workflows.
 
 # Notes
 - Use **shadcn/ui** components as the foundation for web UI—they're maintainable, accessible, and Tailwind-first.
