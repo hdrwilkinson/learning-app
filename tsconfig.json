@@ -22,5 +22,13 @@
         }
     },
     "include": ["**/*.ts", "**/*.tsx"],
-    "exclude": ["node_modules"]
+    "exclude": [
+        "node_modules",
+        "apps",
+        "packages",
+        "e2e",
+        ".next",
+        "dist",
+        "coverage"
+    ]
 }
