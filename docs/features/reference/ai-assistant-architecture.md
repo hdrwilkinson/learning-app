@@ -1,5 +1,13 @@
 # AI Assistant Architecture: A Complete Reference Guide
 
+<!--
+Status: Reference
+Created: 2025-11-30
+Source: External reference implementation
+Owner: Harry
+Note: This is a reference document for future AI assistant features (Curiosity Mode, etc.)
+-->
+
 This document provides a comprehensive blueprint for building an agentic AI assistant with multi-step tool execution, human-in-the-loop confirmation, and robust safeguards. It is framework-agnostic in principle while drawing from a production implementation using Vercel AI SDK v5 and React.
 
 ---

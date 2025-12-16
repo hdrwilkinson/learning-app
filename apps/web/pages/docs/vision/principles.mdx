@@ -1,0 +1,192 @@
+# Core Principles
+
+**The design philosophy behind every Cognia decision.**
+
+---
+
+These principles guide how we build Cognia. When facing trade-offs, we use these to decide.
+
+---
+
+## 1. Retention Over Completion
+
+> **We optimize for what you remember, not what you've seen.**
+
+It's easy to measure completion. It feels good to finish a course. But completion without retention is theater.
+
+**This means:**
+- Success = recall ability, not checkmarks
+- Progress metrics reflect actual mastery, not exposure
+- The system will make you revisit things (that's the point)
+- "Finishing" a course means *retaining* it, which takes time
+
+**Trade-off accepted:** Users can't rush through. The system enforces the pace that learning science demands.
+
+---
+
+## 2. Active Engagement Required
+
+> **You can't passively consume your way to understanding.**
+
+Reading and watching feel productive but don't create durable memory. Real learning requires effort: retrieval, application, struggle.
+
+**This means:**
+- Every concept requires active recall (quizzes)
+- AI explanations lead to verification questions
+- No "mark as complete" button—you prove understanding
+- Struggle is expected and valuable
+
+**Trade-off accepted:** Cognia is more demanding than video courses. That's why it works.
+
+---
+
+## 3. Granular Tracking
+
+> **We track at the smallest useful level: the Information Point.**
+
+Coarse tracking ("you're 60% through Chapter 3") hides crucial detail. Which specific concepts are weak? Where are the gaps?
+
+**This means:**
+- Every atomic concept has its own mastery score
+- Quiz questions map to specific IPs
+- Review targets exactly what's fading
+- No redundant review of already-solid concepts
+
+**Trade-off accepted:** More complexity under the hood. But users see clarity: "You need to review these 5 concepts."
+
+---
+
+## 4. AI as Infrastructure
+
+> **AI isn't a feature—it's the foundation.**
+
+Cognia couldn't exist without AI. It's not a traditional app with "AI features bolted on." The architecture assumes AI throughout.
+
+**This means:**
+- Courses are generated, not pre-written
+- Tutoring is conversational and contextual
+- Grading handles free-form responses
+- Content adapts to individual learners
+
+**Trade-off accepted:** Dependence on AI models. Quality tied to model capabilities. Cost per user higher than static content.
+
+---
+
+## 5. Prescribed, Not Chosen
+
+> **The system decides what you study. You decide whether to show up.**
+
+Decision fatigue kills learning habits. "What should I study?" leads to procrastination. Cognia removes that question.
+
+**This means:**
+- Daily queue is algorithmically generated
+- Spaced repetition determines timing
+- Question difficulty is selected, not chosen
+- Users focus on *engaging*, not *planning*
+
+**Trade-off accepted:** Less user control. Some will find this frustrating. But for most, removing decisions increases consistency.
+
+---
+
+## 6. Pedagogical Sequencing
+
+> **Knowledge has structure. We respect it.**
+
+Concepts build on other concepts. You can't understand recursion without understanding functions. You can't understand functions without understanding variables.
+
+**This means:**
+- Courses are sequenced for logical progression
+- Prerequisites are enforced (but can be skipped by proving competency)
+- IPs declare dependencies explicitly
+- You can't skip ahead without demonstrating knowledge
+
+**Trade-off accepted:** Less freedom to jump around. But prevents the confusion of encountering concepts without foundation.
+
+---
+
+## 7. Honest Progress
+
+> **We show you where you actually are, not where you want to be.**
+
+Many learning apps inflate progress to feel good. "You're doing great!" when you're actually struggling. This optimizes for short-term engagement at the cost of actual learning.
+
+**This means:**
+- Mastery scores reflect reality (including declines)
+- Wrong answers are learning opportunities, not failures
+- The system admits when you're forgetting
+- Progress predictions are realistic, not optimistic
+
+**Trade-off accepted:** Can feel demotivating when mastery drops. But honest feedback enables real improvement.
+
+---
+
+## 8. Multiple Entry Points
+
+> **Different contexts need different interactions.**
+
+Sometimes you want to study what's scheduled. Sometimes you want to explore. Sometimes you need to understand a mistake. One mode doesn't fit all needs.
+
+**This means:**
+- **Learn Mode**: Structured introduction to new concepts
+- **Quiz Mode**: Active recall and testing
+- **Reflection Mode**: Deep understanding after mistakes
+- **Curiosity Mode**: Free exploration and discovery
+
+**Trade-off accepted:** More complex product. But each mode serves a distinct, valuable purpose.
+
+---
+
+## 9. Just Enough Structure
+
+> **Enough structure to guide, not so much it constrains.**
+
+Too little structure: users flounder, don't know what to do, quit.
+Too much structure: feels rigid, doesn't accommodate individual needs.
+
+**This means:**
+- Clear course hierarchy (Course → Module → Lesson → IP)
+- Flexible within that structure (skip-ahead quizzes, curiosity exploration)
+- Daily queue as suggestion, not requirement
+- Multiple ways to engage with content
+
+**Trade-off accepted:** Harder to implement. Have to balance guidance with flexibility case by case.
+
+---
+
+## 10. Start Simple, Prove Value
+
+> **Better to do one thing well than many things poorly.**
+
+It's tempting to build everything: social features, gamification, achievements, streaks, leaderboards. But each addition dilutes focus.
+
+**This means:**
+- Core loop first: learn, quiz, retain
+- Additional features only when core is solid
+- Saying no to good ideas that don't serve retention
+- Measuring success by learning outcomes, not engagement metrics
+
+**Trade-off accepted:** Slower feature velocity. Potentially less "sticky" than gamified alternatives. But sustainable learning over viral growth.
+
+---
+
+## Summary Table
+
+| Principle | We Optimize For | We Accept Trade-off |
+|-----------|-----------------|---------------------|
+| Retention Over Completion | Long-term memory | Can't rush through |
+| Active Engagement | Durable learning | More demanding |
+| Granular Tracking | Precise understanding | System complexity |
+| AI as Infrastructure | Personalization | Model dependence |
+| Prescribed, Not Chosen | Consistency | Less user control |
+| Pedagogical Sequencing | Proper foundation | Less freedom |
+| Honest Progress | Real improvement | Occasional demotivation |
+| Multiple Entry Points | Context-appropriate interaction | Product complexity |
+| Just Enough Structure | Guided flexibility | Implementation difficulty |
+| Start Simple | Core quality | Slower feature growth |
+
+---
+
+*These principles aren't arbitrary preferences. They emerge from asking: "What actually makes learning work?"*
+
+*Continue to [Core Concepts](/docs/concepts) →*
+

@@ -1,0 +1,290 @@
+# AI Integration
+
+**How AI powers the Cognia learning experience.**
+
+---
+
+## Overview
+
+AI isn't a feature in Cognia—it's infrastructure. The platform couldn't exist without it.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  WHERE AI IS USED                                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  GENERATION                    INTERACTION                       │
+│  ────────────                  ───────────                       │
+│  • Course structure            • Learn Mode tutoring             │
+│  • Module/lesson content       • Reflection guidance             │
+│  • Information Points          • Curiosity conversation          │
+│  • Quiz questions              • Free-form Q&A grading           │
+│  • Baseline quiz               • Adaptive explanations           │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## AI in Course Generation
+
+When you create a course, AI does the heavy lifting:
+
+### Stage 1: Structure Generation
+```
+Input: "Python for data science" + your goals + level assessment
+
+AI Output:
+├── Module 1: Setup & Fundamentals
+│   ├── Lesson 1.1: Environment Setup
+│   ├── Lesson 1.2: Python Basics Review
+│   └── ...
+├── Module 2: Data Structures
+│   ├── Lesson 2.1: Lists and Tuples
+│   └── ...
+└── Module 3: Pandas Fundamentals
+    └── ...
+```
+
+### Stage 2: Content Generation
+For each IP, AI generates:
+- Clear explanation (Markdown with code blocks, examples)
+- Prerequisites (which IPs must come before)
+- Related points (connected concepts)
+- Applicable quiz types
+
+**Key feature:** IPs are generated *sequentially*. When creating IP #47, the AI has access to all 46 previous IPs. This enables:
+- Consistent voice ("As we saw in [previous IP]...")
+- Accurate prerequisites
+- No orphan concepts
+
+### Stage 3: Question Generation
+For each IP, AI creates questions:
+- True/false statements
+- Multiple choice (4 options, 1 correct)
+- Q&A prompts with expected answers
+
+Questions are generated ahead of time and cached—not created during quizzes.
+
+---
+
+## AI in Learn Mode
+
+When you encounter a new IP:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  System Prompt (Learn Mode)                                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  BASE PROMPT                                                     │
+│  ──────────                                                      │
+│  "You are a patient, encouraging tutor introducing new concepts.│
+│   Your goal is to help the student understand this information  │
+│   point clearly..."                                             │
+│                                                                  │
+│  CONTEXT INJECTION                                               │
+│  ─────────────────                                               │
+│  Information Point: {ip.title}                                   │
+│  Content: {ip.content}                                           │
+│  Prerequisites: {ip.prerequisites}                               │
+│  Lesson Context: {lesson.title}                                  │
+│  What user has already learned: {previousIPs}                   │
+│                                                                  │
+│  CONSTRAINTS                                                     │
+│  ───────────                                                     │
+│  - Stay focused on this specific IP                             │
+│  - Reference prerequisites when relevant                         │
+│  - Don't jump ahead to later topics                             │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Behaviors:**
+- Explains concept clearly with examples
+- Answers follow-up questions
+- Checks understanding with verification questions
+- Adapts explanations if user struggles
+
+---
+
+## AI in Reflection Mode
+
+After a wrong answer:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  System Prompt (Reflection Mode)                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  BASE PROMPT                                                     │
+│  ──────────                                                      │
+│  "You are helping a student understand a concept they struggled │
+│   with in a quiz. Acknowledge what they got right, gently       │
+│   identify the misconception, re-explain from different angle..." │
+│                                                                  │
+│  CONTEXT                                                         │
+│  ───────                                                         │
+│  Question: {question.text}                                       │
+│  User's Answer: {userAnswer}                                     │
+│  Correct Answer: {correctAnswer}                                 │
+│  IP Content: {ip.content}                                        │
+│                                                                  │
+│  CONSTRAINTS                                                     │
+│  ───────────                                                     │
+│  - Stay focused on THIS question and IP                         │
+│  - If user wants to explore other topics, offer to exit quiz    │
+│  - Don't reveal answers to other questions                      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Behaviors:**
+- Identifies likely misconception
+- Re-explains from different angle
+- Uses analogies and examples
+- Confirms understanding before returning to quiz
+
+---
+
+## AI in Quiz Mode (Q&A Grading)
+
+For free-form answers, AI evaluates correctness:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Grading Prompt                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Question: "Explain the difference between = and == in Python"  │
+│                                                                  │
+│  Expected Answer Criteria:                                       │
+│  - = is assignment (stores value)                               │
+│  - == is comparison (returns True/False)                        │
+│  - Should mention both operators                                │
+│                                                                  │
+│  User's Answer: "= puts a value in a variable, == checks if     │
+│  two things are equal"                                          │
+│                                                                  │
+│  → Evaluate: Does answer demonstrate understanding?             │
+│  → Output: correct / incorrect                                  │
+│  → If incorrect: What's missing or wrong?                       │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Note:** Binary and multiple choice questions are auto-graded (no AI needed). AI is only used for free-form responses.
+
+---
+
+## AI in Curiosity Mode
+
+Free exploration with optional course context:
+
+### In-Course Curiosity
+```
+System knows: What course you're in, what you've learned, your progress
+
+User: "What's the deal with generators vs. lists?"
+
+AI: "Great question! This connects to what you learned about
+    memory in the Data Structures module. A list stores all
+    items in memory at once, while a generator produces items
+    on demand..."
+```
+
+### General Curiosity
+```
+System knows: Nothing specific (broad knowledge base)
+
+User: "Tell me about machine learning"
+
+AI: [Rich, unconstrained explanation]
+    "Would you like to create a course on this topic?"
+```
+
+**Key feature:** Discoveries can be saved—either as new IPs in an existing course or as a prompt to create a new course.
+
+---
+
+## AI Model Considerations
+
+### What Model(s)?
+
+Cognia uses large language models (currently Gemini). The specific model matters for:
+- **Quality** of explanations and content
+- **Speed** of responses in interactive modes
+- **Cost** per user session
+
+### Prompt Engineering
+
+All AI interactions use structured prompts with:
+- **Base prompt**: Mode-specific instructions
+- **Context injection**: Course, lesson, IP, user history
+- **Constraints**: What to do and not do
+
+### Caching and Pre-generation
+
+Not everything is real-time:
+- Course structure: generated once, stored
+- IP content: generated once, stored
+- Quiz questions: generated ahead, cached
+- Tutoring/reflection: real-time conversation
+
+This balances quality (time for generation) with responsiveness (instant for interactions).
+
+---
+
+## What AI Doesn't Do
+
+AI handles content and conversation. It doesn't:
+
+| Not AI | How It's Handled |
+|--------|------------------|
+| Mastery calculations | Deterministic algorithm |
+| Review scheduling | Spaced repetition formula |
+| Progress tracking | Database operations |
+| Quiz type selection | Rule-based logic |
+| Daily queue building | Algorithmic sorting |
+
+The learning *science* is coded, not generated. AI provides the *content and interaction* within that scientific framework.
+
+---
+
+## Quality Assurance
+
+Generated content goes through validation:
+
+### Structure Validation
+- Modules build logically
+- Lessons sequence properly
+- No orphan concepts
+
+### Content Validation
+- Prerequisites are from the same course
+- Difficulty matches declared level
+- Quiz types are appropriate for content type
+
+### Iteration Loops
+If validation fails, AI adjusts and re-validates (up to 5 times).
+
+---
+
+## Summary
+
+| AI Use | When | Type |
+|--------|------|------|
+| Course generation | Course creation | Batch, background |
+| Content generation | Course creation | Sequential, cached |
+| Question generation | Course creation | Batch, cached |
+| Learn Mode tutoring | Study sessions | Real-time |
+| Reflection guidance | After wrong answers | Real-time |
+| Curiosity exploration | Any time | Real-time |
+| Q&A grading | Quiz Mode | Real-time |
+
+AI is the engine that makes personalized, adaptive learning possible. Everything else—scheduling, progress, mastery—is deterministic code that leverages what AI produces.
+
+---
+
+*This completes the "How It Works" section. For implementation details, see [Specifications](/docs/specifications).*
+

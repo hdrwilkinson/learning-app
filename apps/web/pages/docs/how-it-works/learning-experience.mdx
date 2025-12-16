@@ -1,0 +1,379 @@
+# The Learning Experience
+
+**What using Cognia actually feels like day-to-day.**
+
+---
+
+## A Typical Session
+
+Here's what a 30-minute study session looks like—with the [learning science principles](/docs/concepts/learning-science) annotated:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  DAILY SESSION                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. OPEN APP                                                     │
+│     └── See dashboard with today's queue                        │
+│         ↳ SPACED REPETITION: Items due based on your memory     │
+│                                                                  │
+│  2. START STUDYING                                               │
+│     └── Mix of review items + new items                         │
+│         ↳ INTERLEAVING: Topics mixed, not blocked               │
+│                                                                  │
+│  3. FOR EACH ITEM:                                              │
+│     ├── New IP → Learn Mode (AI explains)                       │
+│     │   ├── ↳ ELABORATION: Connect to prior knowledge           │
+│     │   └── Verification questions confirm understanding        │
+│     │       ↳ RETRIEVAL PRACTICE: Test, don't just explain      │
+│     └── Review IP → Quiz Mode (you're tested)                   │
+│         ├── ↳ RETRIEVAL PRACTICE: Active recall                 │
+│         ├── Correct → mastery up, interval grows                │
+│         │   ↳ SPACED REPETITION: Earn longer intervals          │
+│         └── Wrong → mastery down, option to reflect             │
+│             ↳ ELABORATION: Understand the gap                   │
+│                                                                  │
+│  4. SESSION COMPLETE                                             │
+│     └── See progress summary, tomorrow's preview                │
+│         ↳ SPACED REPETITION: Tomorrow's queue calculated        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## The Dashboard
+
+When you open Cognia, you see your learning state at a glance:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Good morning, Harry                                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  TODAY'S FOCUS                                                   │
+│  ───────────────────────────────────────────────────────────    │
+│  📖 Python for Data Science                                      │
+│     14 items ready   •   ~25 minutes                            │
+│     ↳ SPACED REPETITION: Algorithmically selected               │
+│                                                                  │
+│     [Start Studying]                                            │
+│                                                                  │
+│  ───────────────────────────────────────────────────────────    │
+│                                                                  │
+│  YOUR COURSES                                                    │
+│  ┌───────────────────┐  ┌───────────────────┐                   │
+│  │ Python for DS     │  │ Spanish Basics    │                   │
+│  │ ████████░░ 67%    │  │ ███░░░░░░░ 25%    │                   │
+│  │ 14 due today      │  │ 0 due today       │                   │
+│  └───────────────────┘  └───────────────────┘                   │
+│                                                                  │
+│  QUICK ACTIONS                                                   │
+│  [+ Create Course]  [🔮 Explore]  [📊 Progress]                 │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Queue Composition
+
+Your daily queue is algorithmically built using multiple principles:
+
+### Priority 1: Due Reviews (70%) — *Spaced Repetition*
+Items where `nextReviewAt ≤ today`, sorted by how overdue they are.
+These are concepts scheduled for review at the optimal time for retention.
+
+### Priority 2: New Items (30%) — *Elaboration*
+Next IPs from your current lesson, capped to prevent overload.
+New items enter through Learn Mode where they're connected to prior knowledge.
+
+### Interleaving — *Interleaving*
+Items are mixed together (not all reviews then all new):
+```
+Review (Lesson 1) → New (Lesson 2) → Review (Lesson 3) → Review (Lesson 1) → ...
+```
+
+This isn't random—**interleaving forces you to discriminate between concepts** from different lessons, improving your ability to recognize which approach applies in a given situation.
+
+---
+
+## Learn Mode Flow
+
+> **Primary Principle: Elaboration**
+> 
+> The AI doesn't just define concepts—it connects them to what you already know, uses analogies, and encourages you to ask questions.
+
+When encountering a new IP:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  LEARN MODE                                    New Item 1/3      │
+│  📖 Data Structures > "What is a list?"                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  🤖 A list in Python is an ordered collection that can hold     │
+│     multiple items. Think of it like a numbered container:       │  ← ELABORATION:
+│                                                                  │    Connecting to
+│     fruits = ["apple", "banana", "cherry"]                       │    familiar concept
+│                                                                  │
+│     Key properties:                                              │
+│     • Ordered (items have positions: 0, 1, 2...)                │
+│     • Mutable (you can add, remove, change items)               │
+│     • Can hold any type (even mixed types)                      │
+│                                                                  │
+│     Does this make sense so far?                                │
+│                                                                  │
+│  You: What if I want the second item?                           │  ← ELABORATION:
+│                                                                  │    Asking "how?"
+│  🤖 Great question! You access items by their index:            │    deepens processing
+│     fruits[1]  →  "banana"                                      │
+│                                                                  │
+│     Remember: indexing starts at 0, not 1.                      │
+│     So fruits[0] is "apple", fruits[1] is "banana".             │
+│                                                                  │
+│  You: Got it!                                                   │
+│                                                                  │
+│  🤖 Quick check: If I have nums = [10, 20, 30],                │  ← RETRIEVAL PRACTICE:
+│     what does nums[2] return?                                   │    Verify understanding
+│                                                                  │    through active recall
+│  You: 30                                                        │
+│                                                                  │
+│  🤖 Perfect! ✓ Moving on...                                     │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Type a message...]                                   [Next →] │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**What happens after:**
+- IP marked as "introduced"
+- Initial mastery set (~20%)
+- First review scheduled (soon, to reinforce) ← *Spaced Repetition begins*
+
+---
+
+## Quiz Mode Flow
+
+> **Primary Principles: Retrieval Practice + Spaced Repetition**
+> 
+> You're not re-reading or recognizing—you're actively retrieving from memory. The timing of when this question appears is calculated for optimal retention.
+
+When reviewing a previously-learned IP:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  QUIZ MODE                                    Review Item 3/14   │
+│  ❓ Data Structures                                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  What will this code output?                   ← RETRIEVAL       │
+│                                                  PRACTICE:       │
+│  nums = [10, 20, 30, 40]                         You must        │
+│  print(nums[1:3])                                recall from     │
+│                                                  memory          │
+│  ○ [10, 20, 30]                                                 │
+│  ○ [20, 30]                                     ← SPACED         │
+│  ○ [20, 30, 40]                                   REPETITION:    │
+│  ○ [10, 20]                                       This appeared  │
+│                                                   today because  │
+│                                                   it was due     │
+├─────────────────────────────────────────────────────────────────┤
+│  [Submit Answer]                              [Reflect First?]  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### On Correct Answer:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ✓ Correct!                                                      │
+│                                                                  │
+│  nums[1:3] returns elements at index 1 and 2                    │
+│  (the end index is exclusive).                                  │
+│                                                                  │
+│  Mastery: 72% → 82% (+10%)                    ← RETRIEVAL        │
+│  Next review: 5 days                            PRACTICE:        │
+│                                                 Successful recall│
+│                                                 strengthens      │
+│                                                 memory           │
+│                                                                  │
+│                                               ← SPACED           │
+│                                                 REPETITION:      │
+│                                                 Interval grows   │
+│  [Continue]                                                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### On Wrong Answer:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ✗ Not quite                                                     │
+│                                                                  │
+│  You answered: [10, 20, 30]                                     │
+│  Correct answer: [20, 30]                                       │
+│                                                                  │
+│  Mastery: 72% → 57% (-15%)                    ← SPACED           │
+│  Next review: Tomorrow                          REPETITION:      │
+│                                                 Interval shrinks │
+│                                                                  │
+│  [Reflect Now]  [Continue to Next]            ← ELABORATION:     │
+│                                                 Option to        │
+│                                                 understand why   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Reflection Flow
+
+> **Primary Principle: Elaboration**
+> 
+> Shallow correction ("the answer was B") doesn't help. Reflection Mode uses deep processing—understanding *why* you were wrong, identifying the misconception, and connecting to the correct concept.
+
+If you choose to reflect:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  REFLECTION MODE                                                 │
+│  💡 Let's understand list slicing better                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  🤖 I think I see the confusion. In nums[1:3]:   ← ELABORATION: │
+│                                                    Identifying   │
+│     • 1 is the START index (inclusive)            misconception │
+│     • 3 is the END index (exclusive)                            │
+│                                                                  │
+│     So we get elements at index 1 and 2, but NOT 3.             │
+│                                                                  │
+│     nums = [10, 20, 30, 40]                      ← ELABORATION:  │
+│             0   1   2   3   ← indices              Visual       │
+│                 ↑───↑                              representation│
+│             [1:3] selects these                    aids deep     │
+│                                                    processing    │
+│     Result: [20, 30]                                            │
+│                                                                  │
+│     It's like a range: range(1, 3) gives 1, 2—not 3.           │
+│     ↑ ELABORATION: Connecting to similar concept                │
+│                                                                  │
+│  You: So [0:3] would give [10, 20, 30]?          ← ELABORATION: │
+│                                                    Asking to     │
+│  🤖 Exactly! The slice includes indices 0, 1, 2—  confirm       │
+│     everything up to but not including 3.         understanding │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Return to Quiz]                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Session Complete
+
+When you've worked through your queue:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Session Complete! 🎉                                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  TODAY'S RESULTS                                                 │
+│  ───────────────────────────────────────────────────────────    │
+│                                                                  │
+│  Items completed:     14        ← RETRIEVAL PRACTICE:            │
+│  Time spent:          28 min      14 acts of active recall       │
+│  Accuracy:            11/14 (79%)                               │
+│                                                                  │
+│  PROGRESS                                                        │
+│  ───────────────────────────────────────────────────────────    │
+│                                                                  │
+│  Python for Data Science                                         │
+│  Overall: 67% → 69% mastered                                    │
+│                                                                  │
+│  Current lesson: "List Operations"                              │
+│  4/6 IPs mastered                                               │
+│                                                                  │
+│  TOMORROW                                      ← SPACED          │
+│  ───────────────────────────────────────────     REPETITION:    │
+│                                                  Algorithm       │
+│  12 items scheduled   •   ~25 minutes            calculated     │
+│                                                  optimal queue  │
+│                                                                  │
+│  [Done]  [Keep Studying]                                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## The Course Path
+
+You can always view your overall progress on the course path:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Python for Data Science                                         │
+├─────────────────────────────────────────────────────────────────┤
+│  MODULE 1: Fundamentals                              [▼ Collapse]│
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ●━━━━━━━●━━━━━━━●━━━━━━━●                                      │
+│  L1      L2      L3      L4                                     │
+│  ✓       ✓       ◐       ○                                      │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  MODULE 2: Data Structures                         [▼ Collapse] │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ●━━━━━━━●━━━━━━━●━━━━━━━●                                      │
+│  L1      L2      L3      L4                                     │
+│  ✓       ◐       ○       ○                                      │
+│          ↑ You are here                                         │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  MODULE 3: Working with Data                      [▶ Collapsed] │
+│  (5 lessons, locked)                                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Click any lesson to see its IPs and your mastery for each.
+
+---
+
+## Principles Summary by Session Phase
+
+| Phase | What Happens | Principles Applied |
+|-------|--------------|-------------------|
+| **Queue Building** | Algorithm selects items | Spaced Repetition, Interleaving |
+| **New Concepts** | AI tutoring in Learn Mode | Elaboration, Retrieval Practice (verification) |
+| **Reviews** | Quiz questions | Retrieval Practice, Spaced Repetition |
+| **Wrong Answers** | Reflection offered | Elaboration |
+| **Progress** | Mastery updates, scheduling | Spaced Repetition |
+
+---
+
+## Key Experience Principles
+
+### No Decision Fatigue
+You don't choose what to study—the algorithm does. Your job is to show up and engage.
+
+### Clear Sessions
+Queue is finite. You know when you're done. No endless scroll.
+
+### Immediate Feedback
+Every response shows impact on mastery and scheduling.
+
+### Multiple Entry Points
+- "Study Now" → daily queue
+- Click a lesson → that lesson's IPs
+- "Explore" → curiosity mode ← *Elaboration: free exploration*
+
+### Progressive Challenge (Desirable Difficulty)
+As mastery grows, questions get harder. The system pushes you just beyond comfort.
+
+---
+
+*For the science behind these principles, see [The Learning Science](/docs/concepts/learning-science).*
+
+*For technical details on modes, see [Learning & Interaction Modes Specification](/docs/specifications/learning-interaction-modes).*
+
+*Continue to [Spaced Repetition](/docs/how-it-works/spaced-repetition) →*

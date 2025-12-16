@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: After completing a task or before commiting to github.
+alwaysApply: false
 ---
 ## Pre-Commit Steps
 

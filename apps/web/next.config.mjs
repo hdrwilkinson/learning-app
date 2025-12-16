@@ -1,9 +1,15 @@
 /** @type {import('next').NextConfig} */
+import nextra from 'nextra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const withNextra = nextra({
+  theme: 'nextra-theme-docs',
+  themeConfig: './theme.config.tsx',
+});
 
 const nextConfig = {
   reactStrictMode: true,
@@ -28,6 +34,8 @@ const nextConfig = {
     };
     return config;
   },
+  // Allow pages directory to coexist with app directory
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
 };
 
-export default nextConfig;
+export default withNextra(nextConfig);

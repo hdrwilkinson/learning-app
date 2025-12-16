@@ -1,0 +1,304 @@
+# Course Creation
+
+**How Cognia transforms your goals into a personalized learning pathway.**
+
+---
+
+## Overview
+
+Course creation is a conversation followed by AI generation:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     COURSE CREATION FLOW                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. INPUT GATHERING (conversation)                               │
+│     ├── Topic: "What do you want to learn?"                     │
+│     ├── Goal: "What's your objective?"                          │
+│     ├── Level: Baseline quiz (or "complete beginner")           │
+│     └── Schedule: Days per week, minutes per day                │
+│                                                                  │
+│  2. COURSE GENERATION (background)                              │
+│     ├── AI creates module structure                             │
+│     ├── AI creates lesson structure                             │
+│     ├── AI creates IP outlines                                  │
+│     ├── AI generates IP content (sequential)                    │
+│     └── Validation at each stage                                │
+│                                                                  │
+│  3. NOTIFICATION                                                 │
+│     └── "Your course is ready!" (email + in-app)               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Phase 1: Input Gathering
+
+### Topic & Goals (Conversational)
+
+The AI chats with you to understand:
+- **What** you want to learn ("Python for data science")
+- **Why** you want to learn it ("Analyze sales data at work")
+
+```
+AI: What would you like to learn about?
+
+You: Python for data science
+
+AI: Great choice! What's your goal with Python?
+    - Analyze datasets at work
+    - Switch careers into data science
+    - Build ML models
+    - General data literacy
+
+You: I want to analyze sales data at my job
+
+AI: Perfect—Python for workplace data analysis!
+    Let me see what you already know...
+```
+
+The goal shapes the course content. "Python for data science" aimed at ML researchers would be different from the same topic aimed at business analysts.
+
+### Baseline Assessment
+
+A quick quiz determines your starting level (1-10 scale):
+
+| Level | Description | Course Starts At |
+|-------|-------------|------------------|
+| 1-2 | Complete beginner | Very basics |
+| 3-4 | Basic familiarity | Skip fundamentals |
+| 5-6 | Intermediate | Working concepts |
+| 7-8 | Advanced | Deep topics |
+| 9-10 | Expert | Specialized content |
+
+**Quiz mechanics:**
+- 5-10 questions, progressive difficulty
+- Three strikes (wrong answers) ends the quiz
+- Your level = highest difficulty you answered correctly
+- Can skip: "I'm a complete beginner" → Level 1
+
+**Why this matters:** A Level 5 learner doesn't need IPs on "What is a variable?" The AI generates content starting from *their* level.
+
+### Schedule Selection
+
+Interactive components (not just chat) for:
+
+**Days per week:**
+```
+┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+│ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ Sun │
+│  ✓  │  ✓  │  ✓  │  ✓  │  ✓  │     │     │
+└─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+```
+
+**Time per day:**
+```
+5 min ├────────●────────────────────┤ 2 hours
+                   30 minutes
+```
+
+This determines:
+- How many IPs the course should have (budget)
+- How many IPs per lesson (session fit)
+- Estimated course duration
+
+---
+
+## Phase 2: Course Generation
+
+### The Pipeline
+
+Course generation happens in stages, each with validation:
+
+```
+Stage 1: MODULE OUTLINES
+    ↓ (validate: pedagogically sound?)
+Stage 2: LESSON OUTLINES  
+    ↓ (validate: proper sequencing?)
+Stage 3: IP OUTLINES
+    ↓ (validate: no gaps, correct dependencies?)
+Stage 4: IP CONTENT (sequential)
+    ↓ (validate: each IP before moving on)
+Stage 5: FINAL VALIDATION
+    ↓
+COMPLETE COURSE
+```
+
+### Why Sequential IP Generation?
+
+IP content is generated *one at a time*, in order. Each IP has access to all previous IPs' content.
+
+This enables:
+- **Accurate prerequisites**: "This builds on what we covered in [previous IP]"
+- **Consistent voice**: References feel natural
+- **No orphan concepts**: Everything connects to what came before
+
+### Validation Loops
+
+Each stage follows create → validate → adjust:
+
+```
+         ┌──────────────────┐
+         │  A. CREATE       │
+         │  (AI generates)  │
+         └────────┬─────────┘
+                  │
+                  ▼
+    ┌──────────────────────────────────────┐
+    │  B. VALIDATE                         │
+    │  (AI reviews for quality/sequencing) │
+    └────────────────┬─────────────────────┘
+                     │
+               Issues found?
+                ╱         ╲
+              No           Yes
+              ╱             ╲
+             ▼               ▼
+  ┌────────────────┐   ┌─────────────────────────┐
+  │  D. CONFIRM    │   │  C. ADJUST              │
+  │  (lock & next) │   │  (fix issues, re-validate)
+  └────────────────┘   └─────────────────────────┘
+```
+
+**Change log prevents loops:** The validator sees what's been tried before, avoiding circular changes.
+
+### IP Budget Calculation
+
+Your schedule determines how many IPs the course can have:
+
+```
+minutesPerWeek = daysPerWeek × minutesPerDay
+totalMinutes = minutesPerWeek × maxWeeks (16)
+avgMinutesPerIP = 6 + (userLevel × 0.4)  // 6-10 min range
+
+maxIPs = totalMinutes / avgMinutesPerIP
+targetIPs = maxIPs × 0.70  // Buffer for realistic sizing
+```
+
+**Example budgets:**
+
+| Schedule | Minutes/Week | Target IPs | Est. Duration |
+|----------|--------------|------------|---------------|
+| 5 days × 30 min | 150 | ~105 | 8-10 weeks |
+| 7 days × 15 min | 105 | ~75 | 8-10 weeks |
+| 5 days × 60 min | 300 | ~210 | 8-10 weeks |
+
+---
+
+## Phase 3: Notification
+
+Generation takes a few minutes. Users don't wait—they get notified:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  🔄 Creating your course...                                      │
+│                                                                  │
+│  You'll receive:                                                 │
+│  • 📧 Email when ready                                           │
+│  • 🔔 In-app notification                                        │
+│                                                                  │
+│  Feel free to explore other areas while you wait!               │
+│                                                                  │
+│  [Browse Public Courses]  [Start Curiosity Chat]                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+When complete:
+
+```
+Email: "Your course 'Python for Data Science' is ready!"
+
+        📚 4 modules
+        📖 24 lessons
+        ⏱️ Estimated 8 weeks at your pace
+
+        [Start Learning]
+```
+
+---
+
+## Alternative Entry: From Curiosity Mode
+
+You can also create courses from exploration:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  CURIOSITY MODE                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  You: "Tell me about machine learning"                          │
+│                                                                  │
+│  AI: [Rich explanation of ML concepts]                          │
+│                                                                  │
+│  You: "This is fascinating, I want to learn this properly"      │
+│                                                                  │
+│  AI: "Would you like me to create a course on this topic?"      │
+│                                                                  │
+│  [Create Course from This Topic]                                │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+This funnels into the same course creation flow, but with the topic already known and some context from the conversation.
+
+---
+
+## What Gets Generated
+
+A complete course includes:
+
+```typescript
+Course {
+  title: "Python for Data Science"
+  description: "..."
+  topic: "Python"
+  learningGoal: "Analyze sales data at work"
+  userStartingLevel: 5
+  schedule: { days: ['mon','tue','wed','thu','fri'], minutes: 30 }
+  estimatedWeeks: 8
+
+  modules: [
+    Module {
+      title: "Review & Setup"
+      description: "Quick refresher and environment setup"
+      lessons: [
+        Lesson {
+          title: "Python Environment Setup"
+          informationPoints: [
+            IP { title: "Installing Python", type: "procedure", ... }
+            IP { title: "Using pip", type: "procedure", ... }
+            IP { title: "Virtual environments", type: "concept", ... }
+          ]
+        },
+        // ... more lessons
+      ]
+    },
+    Module {
+      title: "Data Structures for Analysis"
+      // ...
+    },
+    // ... more modules
+  ]
+}
+```
+
+---
+
+## Summary
+
+1. **Conversation** gathers topic, goal, level, schedule
+2. **Baseline quiz** determines starting point
+3. **AI pipeline** generates structure → content (validated at each stage)
+4. **Background processing** means no waiting
+5. **Result**: Personalized course sized to your time, starting from your level
+
+The course is yours—generated specifically for you, not a generic curriculum.
+
+---
+
+*For full technical details, see [Course Creation Specification](/docs/specifications/course-creation).*
+
+*Continue to [The Learning Experience](/docs/how-it-works/learning-experience) →*
+

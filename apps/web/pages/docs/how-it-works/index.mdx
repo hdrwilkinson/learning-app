@@ -1,0 +1,79 @@
+# How It Works
+
+**The mechanisms that power Cognia.**
+
+---
+
+Now that you understand the [core concepts](/docs/concepts), this section explains *how* the system actually functions. Think of this as the "behind the scenes" tour—detailed enough to understand the system, but not at implementation level (that's in [Specifications](/docs/specifications)).
+
+---
+
+## The Four Key Systems
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   1. COURSE CREATION                                             │
+│      How topics become personalized courses                      │
+│      Input → AI Pipeline → Structured Course                     │
+│                                                                  │
+│   2. THE LEARNING EXPERIENCE                                     │
+│      How daily study sessions work                               │
+│      Queue → Modes → Progress → Repeat                           │
+│                                                                  │
+│   3. SPACED REPETITION                                          │
+│      How the algorithm schedules optimal review                  │
+│      Performance → Mastery → Stability → Schedule                │
+│                                                                  │
+│   4. AI INTEGRATION                                             │
+│      How AI powers different parts of the system                 │
+│      Generation, Tutoring, Grading, Adaptation                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## In This Section
+
+| Page | What You'll Learn |
+|------|-------------------|
+| [Course Creation](/docs/how-it-works/course-creation) | How AI generates personalized courses from your goals |
+| [The Learning Experience](/docs/how-it-works/learning-experience) | What a typical study session looks like |
+| [Spaced Repetition](/docs/how-it-works/spaced-repetition) | How the algorithm decides what you study when |
+| [AI Integration](/docs/how-it-works/ai-integration) | Where AI is used and how it behaves |
+
+---
+
+## Quick Overview
+
+### Course Creation
+1. You provide: topic, goals, available time
+2. System assesses: your current level (baseline quiz)
+3. AI generates: complete course structure sized for your schedule
+4. Result: personalized pathway from where you are to where you want to be
+
+### Daily Learning
+1. Open app → see your daily queue (algorithmically selected)
+2. Learn Mode for new concepts, Quiz Mode for review
+3. Wrong answers trigger Reflection Mode
+4. System updates your mastery model after each response
+5. Done when queue is complete (or you choose to stop)
+
+### Spaced Repetition
+1. Each response updates mastery and stability
+2. Algorithm calculates optimal next review time
+3. Items enter your daily queue when due
+4. Correctly remembered → interval grows; forgotten → interval shrinks
+
+### AI Role
+- **Generates** courses, content, and questions
+- **Tutors** in Learn Mode (explains concepts)
+- **Grades** free-form answers in Quiz Mode
+- **Reflects** in Reflection Mode (helps understand mistakes)
+- **Explores** in Curiosity Mode (answers any question)
+
+---
+
+*Continue to [Course Creation](/docs/how-it-works/course-creation) →*
+

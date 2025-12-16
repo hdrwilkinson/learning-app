@@ -1,0 +1,340 @@
+# Understanding Mastery
+
+**How Cognia tracks what you know and schedules review.**
+
+---
+
+## The Core Problem
+
+You learned something yesterday. Do you know it today?
+
+This question has no simple answer. Memory isn't binary (known/unknown). It's probabilistic—the more time since review, the lower your probability of recall.
+
+Cognia's mastery system models this reality.
+
+---
+
+## The Science Behind Mastery Tracking
+
+Mastery tracking implements two key [learning science principles](/docs/concepts/learning-science):
+
+| Principle | How Mastery Tracking Applies It |
+|-----------|--------------------------------|
+| **Retrieval Practice** | Mastery only changes through active recall (quiz responses), not passive review |
+| **Spaced Repetition** | The scheduling algorithm calculates optimal review intervals based on your performance |
+
+> **Critical insight:** You cannot increase your mastery by re-reading. You can only increase it by successfully retrieving information from memory. This is why Quiz Mode is the core mechanic, not an optional test.
+
+---
+
+## Two Measures, Not One
+
+For every Information Point, Cognia tracks two numbers:
+
+### 1. Current Mastery (Volatile)
+Your *right now* ability to recall this concept.
+
+- Goes up when you answer correctly ← *Retrieval Practice: successful recall*
+- Goes down when you answer wrong ← *Retrieval Practice: failed recall*
+- Decays over time without review
+- Range: 0.0 to 1.0
+
+### 2. Baseline Mastery (Stable)
+Your *underlying* understanding over time.
+
+- Moves very slowly (exponential average)
+- Represents proven, durable knowledge
+- Buffers against temporary slips
+- Range: 0.0 to 1.0
+
+### Why Two?
+
+Single-measure systems are fragile:
+
+```
+Single Measure Problem:
+─────────────────────────────────────────────────────────
+Day 1: Study, get 5 right      → Mastery: 0.85 ✓
+Day 2: Bad day, get 2 wrong    → Mastery: 0.55 ✗
+Day 3: Recover, get 3 right    → Mastery: 0.75
+─────────────────────────────────────────────────────────
+You "know" this, but one bad day tanks your score.
+```
+
+The dual-track system handles this:
+
+```
+Dual-Track System:
+─────────────────────────────────────────────────────────
+Day 1: Study, get 5 right      
+  Current: 0.85  Baseline: 0.30 (still building)
+  
+Day 2: Bad day, get 2 wrong    
+  Current: 0.55  Baseline: 0.35 (barely moved)
+  
+Day 3: Recover, get 3 right    
+  Current: 0.80  Baseline: 0.40 (slowly climbing)
+  
+Day 10: Many correct answers
+  Current: 0.90  Baseline: 0.75 (stable foundation)
+  
+Day 11: Temporary slip, 1 wrong
+  Current: 0.75  Baseline: 0.74 (protected!)
+─────────────────────────────────────────────────────────
+Baseline protects proven knowledge from temporary slips.
+```
+
+---
+
+## How Mastery Changes
+
+> **Retrieval Practice in action:** Every mastery update comes from a quiz response—an act of active recall. There's no "I read it" button that increases mastery.
+
+### On Correct Answer
+
+```
+boost = quizType.masteryBoost  // 0.05 to 0.15
+
+// Recovery boost: if current is below baseline, recover faster
+if (currentMastery < baselineMastery) {
+  gap = baselineMastery - currentMastery
+  recoveryBoost = gap * baselineConfidence * 0.5
+  boost = boost + recoveryBoost
+}
+
+currentMastery = min(1.0, currentMastery + boost)
+```
+
+**What this means:**
+- Harder quiz types give bigger boosts ← *Desirable Difficulty: harder retrieval = stronger memory*
+- If you're below your baseline, you recover faster
+- You can't go above 1.0
+
+### On Wrong Answer
+
+```
+penalty = 0.15  // Fixed penalty regardless of quiz type
+
+currentMastery = max(0.0, currentMastery - penalty)
+```
+
+**What this means:**
+- Every wrong answer costs 0.15 (same penalty regardless of question difficulty)
+- You can't go below 0.0
+
+### Baseline Update (Every Response)
+
+```
+momentum = 0.95  // How slowly baseline moves
+
+baselineMastery = (baselineMastery * 0.95) + (currentMastery * 0.05)
+```
+
+**What this means:**
+- Baseline moves 5% toward current mastery after each response
+- Takes many responses to significantly shift baseline
+- Protects against both rapid drops AND artificial inflation
+
+---
+
+## Mastery States
+
+IPs exist in one of four states based on current mastery:
+
+```
+┌────────┐    Learn Mode    ┌──────────┐    Quiz    ┌───────────┐
+│ UNSEEN │ ───────────────▶ │ LEARNING │ ────────▶ │ REVIEWING │
+└────────┘                  └──────────┘           └─────┬─────┘
+                                 ▲                       │
+                                 │                       │ ≥ 80% mastery
+                                 │                       ▼
+                                 │                 ┌──────────┐
+                                 │                 │ MASTERED │
+                                 │                 └────┬─────┘
+                                 │                      │
+                                 │     drops < 80%      │
+                                 └──────────────────────┘
+```
+
+| State | Criteria | What Happens |
+|-------|----------|--------------|
+| **Unseen** | Never introduced | Not quiz-eligible |
+| **Learning** | Introduced, mastery > 0 | Begin quizzing ← *Retrieval Practice starts* |
+| **Reviewing** | Mastery between 0 and 0.80 | Active reinforcement |
+| **Mastered** | Mastery ≥ 0.80 | Maintenance mode ← *Spaced Repetition: longer intervals* |
+
+**Lapse tracking:** If an IP drops from Mastered back to Reviewing, that's a "lapse." The system tracks lapses to identify fragile knowledge.
+
+---
+
+## Stability & Scheduling
+
+> **Spaced Repetition in action:** Stability determines when you'll next see this concept. The goal is to review just before you'd forget—maximizing retention with minimum reviews.
+
+Beyond mastery, the system tracks **stability**: how long until you'll likely forget.
+
+```
+Stability = estimated days until ~90% forgetting probability
+```
+
+### How Stability Changes
+
+**On correct answer:**
+```
+stability = stability * quizType.stabilityMultiplier
+```
+- Binary (T/F): ×1.0 (no change)
+- Multiple choice: ×1.5
+- Q&A: ×2.0
+
+Harder questions prove stronger memory → longer before next review.
+
+**On wrong answer:**
+```
+stability = stability * 0.5
+```
+Memory is weaker than thought → schedule sooner.
+
+### Next Review Calculation
+
+```
+baseInterval = stability
+
+// Lower mastery = review sooner
+masteryFactor = 0.5 + (currentMastery * 0.5)  // Range: 0.5 - 1.0
+interval = baseInterval * masteryFactor
+
+// Minimum intervals by state
+if (state == 'learning')  interval = max(interval, 0)   // Same day OK
+if (state == 'reviewing') interval = max(interval, 1)   // 1 day min
+if (state == 'mastered')  interval = max(interval, 3)   // 3 days min
+
+nextReviewAt = now + interval
+```
+
+---
+
+## The Daily Queue
+
+> **Interleaving in action:** The queue mixes items from different lessons rather than blocking by topic. This forces discrimination between concepts and improves transfer.
+
+Each day, the system builds your study queue:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  YOUR DAILY QUEUE                                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Due for Review (70% of session)         ← Spaced Repetition    │
+│  ─────────────────────────────────                              │
+│  Items where nextReviewAt ≤ today                               │
+│  Sorted by how overdue they are                                 │
+│                                                                  │
+│  New Items (30% of session)              ← Elaboration          │
+│  ──────────────────────────                (new concepts)       │
+│  Next IPs from your current lesson                              │
+│  Capped to prevent overload                                     │
+│                                                                  │
+│  Interleaved                             ← Interleaving         │
+│  ───────────                                                    │
+│  Mixed together so you're not doing all reviews then all new    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**The algorithm decides:**
+- What items to include ← *Spaced Repetition*
+- What order to present them ← *Interleaving*
+- What quiz types to use ← *Desirable Difficulty*
+- When to introduce new material
+
+**You decide:**
+- Whether to show up
+- How engaged to be
+
+---
+
+## Quiz Type Progression
+
+> **Desirable Difficulty:** Harder question types feel more effortful but create stronger memories. As you prove understanding, the system challenges you with harder retrieval tasks.
+
+As mastery increases, harder quiz types become available:
+
+| Quiz Type | Unlocks At | Mastery Boost | Stability Mult |
+|-----------|------------|---------------|----------------|
+| Binary (T/F) | 0% | +0.05 | ×1.0 |
+| Multiple Choice | 15% | +0.10 | ×1.5 |
+| Question & Answer | 40% | +0.15 | ×2.0 |
+
+**Strategy:**
+- Early on: easy questions to build confidence
+- As you progress: harder questions to prove deeper understanding
+- Higher-difficulty questions accelerate toward mastery
+
+---
+
+## Mastery Visualization
+
+In the UI, you'll see mastery represented as:
+
+### Per-IP View
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Variables in Python                                             │
+│  ═══════════════════════════════════════░░░░░░░  72%            │
+│                                                                  │
+│  Status: Reviewing                                               │
+│  Next review: Tomorrow                   ← Spaced Repetition     │
+│  Stability: 4 days                                               │
+│  Quiz types: Binary, Multiple Choice                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Per-Lesson View
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Lesson 1.2: Variables and Types                                 │
+│                                                                  │
+│  5/7 IPs mastered (71%)                                          │
+│  ●  What is a variable?              92%  Mastered              │
+│  ●  Integer type                     88%  Mastered              │
+│  ●  String type                      85%  Mastered              │
+│  ●  Type conversion                  81%  Mastered              │
+│  ●  Variable naming rules            80%  Mastered              │
+│  ◐  Float type                       65%  Reviewing             │
+│  ◐  Boolean type                     45%  Reviewing             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Per-Course View
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Python for Data Science                                         │
+│                                                                  │
+│  Overall Progress: 67% mastered                                  │
+│                                                                  │
+│  Module 1: Fundamentals      ████████████████░░░░  85%          │
+│  Module 2: Data Structures   ████████████░░░░░░░░  60%          │
+│  Module 3: File I/O          ████████░░░░░░░░░░░░  40%          │
+│  Module 4: Pandas            ░░░░░░░░░░░░░░░░░░░░   0%          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Key Takeaways
+
+1. **Mastery comes from retrieval, not review** — you must actively recall to increase mastery
+2. **Mastery is tracked per-IP** — granular precision, not vague progress
+3. **Two tracks protect against volatility** — baseline buffers temporary slips
+4. **The algorithm does the scheduling** — spaced repetition optimizes review timing
+5. **Harder questions = faster progress** — desirable difficulty strengthens memory
+6. **Honesty over encouragement** — real numbers, not inflated progress
+
+The system is designed to be accurate, not flattering. That accuracy is what makes it effective.
+
+---
+
+*For more on the learning science principles behind these mechanics, see [The Learning Science](/docs/concepts/learning-science).*
+
+*This completes the Core Concepts section. Continue to [How It Works](/docs/how-it-works) for system mechanics, or jump to [Specifications](/docs/specifications) for technical details.*

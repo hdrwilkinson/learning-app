@@ -1,0 +1,318 @@
+# Spaced Repetition
+
+**How the algorithm decides what you study and when.**
+
+---
+
+## The Core Insight
+
+Memory decays predictably. If you review at the right time—just before you'd forget—you strengthen the memory with minimal effort.
+
+```
+Memory
+Retention
+  100% ┤●
+       │  ╲     Review here!
+   80% ┤   ╲    ↓
+       │    ╲──●
+   60% ┤        ╲
+       │         ╲    Review here!
+   40% ┤          ╲   ↓
+       │           ╲──●
+   20% ┤               ╲      And here!
+       │                ╲─────●
+    0% ┼──────────────────────────────────────
+       0              Time →
+```
+
+Each successful review makes the memory stronger. The intervals grow: 1 day → 3 days → 1 week → 2 weeks → 1 month...
+
+---
+
+## All Four Principles in Action
+
+While this page focuses on **spaced repetition**, the scheduling system implements all [four learning science principles](/docs/concepts/learning-science):
+
+| Principle | How the Algorithm Applies It |
+|-----------|------------------------------|
+| **Spaced Repetition** | Calculates optimal review intervals based on stability and mastery |
+| **Retrieval Practice** | Mastery only updates through quiz responses (active recall) |
+| **Interleaving** | Queue mixes items from different lessons, varies question types |
+| **Elaboration** | Triggers Reflection Mode after wrong answers for deep processing |
+
+A daily session might look like this:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  YOUR DAILY QUEUE                                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Item 1: Review "Variables" (Lesson 1)                          │
+│  ├── SPACED REPETITION: Due today (scheduled 3 days ago)        │
+│  ├── RETRIEVAL PRACTICE: Multiple choice question               │
+│  └── INTERLEAVING: Different lesson than next item              │
+│                                                                  │
+│  Item 2: Review "Functions" (Lesson 3)                          │
+│  ├── SPACED REPETITION: 1 day overdue (higher priority)         │
+│  ├── RETRIEVAL PRACTICE: Q&A question (harder type)             │
+│  └── INTERLEAVING: Mixed with Lesson 1 and 2 items              │
+│                                                                  │
+│  Item 3: New concept "Classes" (Lesson 4)                       │
+│  ├── ELABORATION: AI connects to functions you already know     │
+│  ├── RETRIEVAL PRACTICE: Verification question to confirm       │
+│  └── INTERLEAVING: New item mixed with reviews                  │
+│                                                                  │
+│  Item 4: Review "Data Types" (Lesson 2)                         │
+│  ├── You get it wrong...                                        │
+│  └── ELABORATION: Reflection Mode helps understand the gap      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## How Cognia's Algorithm Works
+
+### Three Key Numbers
+
+For every Information Point, the system tracks:
+
+| Metric | What It Is | How It Changes |
+|--------|------------|----------------|
+| **Mastery** | Current recall ability (0-1) | Up on correct, down on wrong |
+| **Stability** | Days until likely forgetting | Grows with harder correct answers |
+| **Next Review** | Scheduled review date | Calculated from mastery + stability |
+
+### On Correct Answer
+
+```
+boost = quizType.masteryBoost     // +0.05 to +0.15
+
+// If below baseline, recover faster
+if (mastery < baseline) {
+  boost += recoveryBoost
+}
+
+mastery = min(1.0, mastery + boost)
+stability = stability × quizType.stabilityMultiplier
+```
+
+**Quiz types and their rewards:**
+
+| Type | Mastery Boost | Stability Multiplier | Principle |
+|------|---------------|---------------------|-----------|
+| Binary (T/F) | +0.05 | ×1.0 | Retrieval Practice |
+| Multiple Choice | +0.10 | ×1.5 | Retrieval Practice + Desirable Difficulty |
+| Q&A | +0.15 | ×2.0 | Retrieval Practice + Desirable Difficulty |
+
+Harder questions prove stronger memory → bigger rewards. This is **desirable difficulty** in action.
+
+### On Wrong Answer
+
+```
+mastery = max(0, mastery - 0.15)  // Fixed penalty
+stability = stability × 0.5       // Memory weaker than thought
+```
+
+Same penalty regardless of question type. You either knew it or didn't.
+
+After a wrong answer, the system offers **Reflection Mode**—this is where **elaboration** happens, helping you understand *why* you were wrong.
+
+### Scheduling Next Review
+
+```
+baseInterval = stability
+
+// Lower mastery = sooner review
+masteryFactor = 0.5 + (mastery × 0.5)  // Range: 0.5 - 1.0
+interval = baseInterval × masteryFactor
+
+// Minimum intervals by state
+if (state == 'learning')  interval = max(interval, 0)   // Same day
+if (state == 'reviewing') interval = max(interval, 1)   // 1 day
+if (state == 'mastered')  interval = max(interval, 3)   // 3 days
+
+nextReview = now + interval
+```
+
+---
+
+## Example Progression
+
+Here's how an IP might progress:
+
+| Day | Event | Mastery | Stability | Next Review | Principle |
+|-----|-------|---------|-----------|-------------|-----------|
+| 1 | Introduced (Learn Mode) | 0.20 | 1 day | Day 2 | Elaboration |
+| 2 | MC correct | 0.30 | 1.5 days | Day 3 | Retrieval Practice |
+| 3 | MC correct | 0.40 | 2.3 days | Day 5 | Retrieval Practice |
+| 5 | MC wrong → Reflect | 0.25 | 1.1 days | Day 6 | Elaboration |
+| 6 | Binary correct | 0.30 | 1.1 days | Day 7 | Retrieval Practice |
+| 7 | MC correct | 0.40 | 1.7 days | Day 9 | Retrieval Practice |
+| 9 | MC correct | 0.50 | 2.5 days | Day 11 | Retrieval Practice |
+| ... | (consistent correct) | ... | ... | ... | ... |
+| 30 | Q&A correct | 0.85 | 14 days | Day 44 | Retrieval + Desirable Difficulty |
+
+Notice:
+- Wrong answers set you back but don't reset completely
+- Intervals grow as you prove retention ← *Spaced Repetition*
+- After mastery, reviews become infrequent
+- Wrong answers trigger reflection ← *Elaboration*
+
+---
+
+## The Daily Queue Builder
+
+Each day, the algorithm builds your study queue using **interleaving**:
+
+### Step 1: Gather Due Items (Spaced Repetition)
+All IPs where `nextReviewAt ≤ today`, sorted by how overdue:
+
+```
+overdueness = min(30, daysSinceScheduled)
+```
+
+Most overdue items come first.
+
+### Step 2: Add New Items (Elaboration)
+If queue isn't full, add next IPs from your current lesson.
+New items will be introduced via Learn Mode with AI tutoring.
+
+### Step 3: Cap and Balance (Interleaving)
+- Target: ~20 items
+- Maximum 30% new items (prevent overload)
+- **Interleave by lesson** (variety) ← *This is interleaving in action*
+
+```
+// Round-robin from each lesson
+result = []
+while (anyRemaining(byLesson)) {
+  for (lessonId in byLesson) {
+    result.push(byLesson[lessonId].shift())
+  }
+}
+```
+
+Instead of: `A, A, A, B, B, B, C, C`
+You get: `A, B, C, A, B, A, C, B`
+
+### Step 4: Select Quiz Types (Desirable Difficulty)
+For each IP, pick appropriate question type based on current mastery and unlocked types. Higher mastery → harder question types.
+
+---
+
+## Quiz Type Unlocking
+
+As mastery grows, harder types become available—implementing **desirable difficulty**:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  QUIZ TYPE PROGRESSION (Desirable Difficulty)                   │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Mastery: 0%        15%        40%        80%                  │
+│           │          │          │          │                   │
+│           ▼          ▼          ▼          ▼                   │
+│        ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐                 │
+│        │Binary│  │ MC   │  │ Q&A  │  │Expert│                 │
+│        │unlock│  │unlock│  │unlock│  │ quiz │                 │
+│        └──────┘  └──────┘  └──────┘  │types │                 │
+│                                      └──────┘                 │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+The algorithm prefers questions that challenge you at your current level—not too easy, not too hard.
+
+---
+
+## Baseline Protection
+
+The **baseline mastery** provides protection against temporary slips:
+
+```
+Response processing:
+  baseline = (baseline × 0.95) + (currentMastery × 0.05)
+```
+
+Baseline moves very slowly. This means:
+
+**Temporary bad day:**
+```
+Day 1: Current 0.82, Baseline 0.75
+Day 2: Get 2 wrong, Current drops to 0.52
+        Baseline only drops to 0.74
+Day 3: Correct answers, Current recovers faster
+        because it pulls toward stable baseline
+```
+
+**The system "remembers" your proven understanding** even when current performance fluctuates.
+
+---
+
+## Skip-Ahead Mechanism
+
+Want to skip content you already know? Take a skip quiz:
+
+1. Select a locked lesson you want to unlock
+2. Quiz samples IPs from all preceding content ← *Retrieval Practice*
+3. Score ≥80% to pass
+4. All skipped IPs get moderate initial mastery
+
+**Skip quiz settings:**
+- 20 questions
+- Weighted toward harder types (MC, Q&A) ← *Desirable Difficulty*
+- Random sample from prerequisite content ← *Interleaving*
+
+**On pass:**
+```
+Skipped IPs initialized to:
+  mastery: 0.60
+  baseline: 0.50
+  stability: 7 days
+  state: 'reviewing'
+```
+
+You've proven knowledge but haven't built long-term stability yet. The system will still review these items, just less urgently.
+
+---
+
+## Why This Approach?
+
+### Compared to SM-2 (Anki)
+SM-2 is excellent but treats each card independently. Cognia adds:
+- **Baseline protection** (dual-track mastery)
+- **Contextual quiz types** (not just flashcards) ← *Desirable Difficulty*
+- **Course-aware sequencing** (pedagogical order)
+- **Interleaving** across topics
+
+### Compared to Duolingo
+Duolingo uses spaced repetition but doesn't expose the model. Cognia:
+- Shows you exactly where you stand
+- Explains why items are scheduled
+- Gives granular control when needed
+- Implements all four learning principles explicitly
+
+### Compared to Coursera/MOOCs
+Most courses have no spaced repetition at all. You "complete" and forget. Cognia ensures retention is the outcome, not just completion.
+
+---
+
+## Key Takeaways
+
+1. **The algorithm decides timing** — you just show up ← *Spaced Repetition*
+2. **Mastery comes from testing, not reading** — active recall builds memory ← *Retrieval Practice*
+3. **Items are mixed, not blocked** — variety improves discrimination ← *Interleaving*
+4. **Wrong answers trigger reflection** — deep processing fixes misconceptions ← *Elaboration*
+5. **Harder questions = faster progress** — prove understanding, earn longer intervals ← *Desirable Difficulty*
+6. **Consistency beats cramming** — daily sessions outperform marathon sessions
+
+The goal: **minimum necessary review for maximum retention**, using all four learning science principles together.
+
+---
+
+*For the science behind these principles, see [The Learning Science](/docs/concepts/learning-science).*
+
+*For full technical details, see [Spaced Repetition Algorithm Specification](/docs/specifications/spaced-repetition-algorithm).*
+
+*Continue to [AI Integration](/docs/how-it-works/ai-integration) →*

@@ -1,0 +1,225 @@
+# Information Points
+
+**The atomic unit of knowledge in Cognia.**
+
+---
+
+## What is an Information Point?
+
+An **Information Point (IP)** is a single, testable concept—the smallest meaningful unit of knowledge.
+
+Everything in Cognia ultimately comes down to IPs:
+- Courses are collections of IPs (organized into lessons and modules)
+- Mastery is tracked per IP
+- Quizzes test specific IPs
+- The spaced repetition algorithm schedules IPs for review
+
+**Think of IPs like vocabulary flashcards, but for any kind of knowledge.** Each card has one concept. You either know it or you don't. The system tracks each independently.
+
+---
+
+## Examples
+
+Here are IPs from different subjects:
+
+### Programming (Python Basics)
+| IP Title | IP Type |
+|----------|---------|
+| "What is a variable?" | Definition |
+| "Integer type in Python" | Concept |
+| "How to convert string to int" | Procedure |
+| "Variables vs. constants example" | Example |
+
+### Economics (Supply and Demand)
+| IP Title | IP Type |
+|----------|---------|
+| "Definition of demand" | Definition |
+| "Law of demand" | Concept |
+| "How to read a supply curve" | Procedure |
+| "Coffee price increase example" | Example |
+
+### Language (Spanish)
+| IP Title | IP Type |
+|----------|---------|
+| "Verb 'ser' meaning" | Definition |
+| "Ser vs. estar distinction" | Concept |
+| "Conjugating 'ser' in present tense" | Procedure |
+| "Using 'ser' for professions" | Example |
+
+---
+
+## IP Types
+
+Each IP has a **type** that determines how it's taught and tested:
+
+| Type | What It Is | Quiz Styles |
+|------|------------|-------------|
+| **Definition** | What something means | True/false, fill-in-blank |
+| **Concept** | How something works or relates | Multiple choice, explain |
+| **Procedure** | Steps to accomplish something | Sequence, code execution |
+| **Example** | Concrete instance of a concept | Recognition, comparison |
+
+The AI assigns types during generation, and quiz questions are selected to match.
+
+---
+
+## What Makes a Good IP?
+
+Information Points should be:
+
+### 1. Atomic
+One concept per IP. If it has "and" in the title, it might be two IPs.
+
+```
+❌ "Variables and functions"      → Too broad
+✅ "What is a variable?"          → One concept
+✅ "What is a function?"          → One concept
+```
+
+### 2. Testable
+You should be able to ask a question where the answer proves understanding.
+
+```
+❌ "Python is popular"            → Can't really test this
+✅ "What is Python's typing style?" → Testable (dynamically typed)
+```
+
+### 3. Sized Right
+About 5-10 minutes of content. If explaining it takes 30 minutes, break it into multiple IPs.
+
+### 4. Clear Dependencies
+What must you know before this? Each IP declares its prerequisites.
+
+```
+IP: "List comprehension syntax"
+Prerequisites: ["For loops", "Lists"]
+```
+
+---
+
+## IP Content Structure
+
+Each IP contains:
+
+```typescript
+interface InformationPoint {
+  // Identity
+  id: string;
+  title: string;           // "What is a variable?"
+  type: 'definition' | 'concept' | 'procedure' | 'example';
+  
+  // Content
+  content: string;         // Markdown explanation
+  difficultyLevel: number; // 1-10
+  
+  // Relationships
+  lessonId: string;
+  order: number;           // Position in lesson
+  
+  // Dependencies
+  prerequisites: string[]; // IPs that must come before
+  relatedPoints: string[]; // IPs that connect conceptually
+  
+  // Quiz configuration
+  applicableQuizTypes: string[]; // What kinds of questions work
+}
+```
+
+---
+
+## Prerequisites vs. Related Points
+
+Two kinds of relationships between IPs:
+
+### Prerequisites
+**Must** be understood first. Enforced by the system.
+- "Integer type" → prerequisite for "Type conversion"
+- "For loops" → prerequisite for "List comprehension"
+
+### Related Points
+Conceptually connected, but not required.
+- "Integer type" ↔ "Float type" (similar concepts)
+- "For loops" ↔ "While loops" (alternative approaches)
+
+Related points enable "comparison" quiz types and "see also" suggestions.
+
+---
+
+## IP Lifecycle
+
+An IP progresses through states as you learn it:
+
+```
+                    ┌─────────────────────────────────────────┐
+                    │                                         │
+                    ▼                                         │
+┌────────┐    Learn Mode    ┌──────────┐    Quiz    ┌─────────┴──┐
+│ UNSEEN │ ───────────────▶ │ LEARNING │ ────────▶ │  REVIEWING │
+└────────┘                  └──────────┘           └─────┬──────┘
+     │                           ▲                       │
+     │                           │                       │ mastery ≥ 80%
+     │                           │                       ▼
+     │                           │                 ┌──────────┐
+     │                           │                 │ MASTERED │
+     │                           │                 └────┬─────┘
+     │                           │                      │
+     │                           │   mastery drops      │
+     │                           └──────────────────────┘
+     │
+     └── (Skip quiz can jump directly to REVIEWING)
+```
+
+| State | Meaning |
+|-------|---------|
+| **Unseen** | Not yet introduced |
+| **Learning** | Introduced via Learn Mode, now quiz-eligible |
+| **Reviewing** | Being actively tested and reinforced |
+| **Mastered** | ≥80% mastery, stable recall |
+
+---
+
+## Why IPs Matter
+
+The granularity of Information Points is what enables Cognia's precision:
+
+### Precise Tracking
+"You know 80% of this course" is vague.
+"You're solid on loops and functions but struggling with recursion" is actionable.
+
+With IP-level tracking, we know *exactly* where your gaps are.
+
+### Targeted Review
+Spaced repetition works on individual items. When the algorithm schedules review, it picks *specific IPs* that are due—not vague "review Chapter 3."
+
+### Clear Dependencies
+By declaring prerequisites at the IP level, the system can:
+- Ensure proper sequencing
+- Explain *why* you need to learn A before B
+- Suggest remediation when you struggle with advanced concepts
+
+### Measurable Progress
+Progress isn't "you've watched 70% of videos."
+It's "you've demonstrated recall of 70% of IPs to mastery level."
+
+---
+
+## IPs in Practice
+
+When you study, you're always working with IPs:
+
+**In Learn Mode:**
+> AI introduces one IP at a time, explaining and checking understanding
+
+**In Quiz Mode:**
+> Each question tests a specific IP (you can see which one)
+
+**In Your Daily Queue:**
+> "10 items due today" = 10 IPs scheduled for review
+
+**In Progress Views:**
+> "85% mastered" = 85% of IPs at ≥80% mastery
+
+---
+
+*Continue to [The Four Modes](/docs/concepts/learning-modes) →*
+

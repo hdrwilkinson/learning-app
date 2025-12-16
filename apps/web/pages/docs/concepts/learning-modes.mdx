@@ -1,0 +1,349 @@
+# The Four Learning Modes
+
+**How you interact with content in Cognia.**
+
+---
+
+## Overview
+
+Cognia has four distinct interaction modes, each serving a specific learning purpose:
+
+| Mode | Purpose | When to Use |
+|------|---------|-------------|
+| **Learn** | Introduction to new concepts | Meeting an IP for the first time |
+| **Quiz** | Active recall testing | Daily review, reinforcement |
+| **Reflection** | Understanding mistakes | After wrong answers |
+| **Curiosity** | Free exploration | Following your interests |
+
+All modes share a **common chat interface**—they feel similar but have different goals and constraints.
+
+---
+
+## The Science Behind Each Mode
+
+Each mode is designed around specific [learning science principles](/docs/concepts/learning-science):
+
+| Mode | Primary Principles | How They're Applied |
+|------|-------------------|---------------------|
+| **Learn** | **Elaboration** | Connecting new concepts to prior knowledge, explaining in your own words |
+| **Quiz** | **Retrieval Practice**, **Spaced Repetition** | Active recall (not re-reading), optimally timed review |
+| **Reflection** | **Elaboration** | Deep processing of mistakes, understanding *why* you were wrong |
+| **Curiosity** | **Elaboration** | Asking questions, exploring connections, generating explanations |
+
+**Interleaving** appears across modes—your daily queue mixes items from different lessons, and question types vary within Quiz Mode.
+
+---
+
+## Mode 1: Learn Mode
+
+**Purpose:** Introduce new Information Points with AI-guided explanation.
+
+> **Primary Principle: Elaboration**
+> 
+> Learn Mode creates rich memory traces by connecting new information to what you already know, encouraging you to ask "why?" and explain concepts in your own words.
+
+### What Happens
+
+1. AI presents an IP's content (explanation, examples)
+2. You can ask questions, request examples, or say "I got it"
+3. Periodically, AI asks verification questions to confirm understanding ← *Retrieval Practice*
+4. Once verified, you move to the next IP
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  LEARN MODE                                                      │
+│  📖 Variables and Types > "What is a variable?"                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  🤖 AI: A variable is like a labeled container that holds data. │
+│         In Python, you create one like this:                     │  ← Elaboration:
+│                                                                  │    connecting to
+│         name = "Alice"                                           │    familiar concepts
+│         age = 30                                                 │
+│                                                                  │
+│         The label (name, age) lets you retrieve the value later.│
+│                                                                  │
+│  👤 You: Can I change what's in the container?                   │  ← Elaboration:
+│                                                                  │    asking why/how
+│  🤖 AI: Yes! Variables are reassignable. You can do:             │
+│         age = 31                                                 │
+│         And now `age` contains 31 instead of 30.                 │
+│                                                                  │
+│  👤 You: Got it!                                                 │
+│                                                                  │
+│  🤖 AI: Quick check—if I write `x = 5` and then `x = 10`,       │  ← Retrieval Practice:
+│         what value does x hold?                                  │    verify understanding
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Type a message...]                                    [Next →] │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Entry Points
+- Click an "Available" lesson on the course path
+- Click "Continue Learning" on an in-progress lesson
+- Dashboard: "Continue Learning" button
+
+### What It Does to Your Data
+- Marks IPs as `introduced` (now quiz-eligible)
+- Sets initial mastery to ~20%
+- Schedules first review ← *Spaced Repetition begins*
+
+### Key Behaviors
+- AI is patient and encouraging
+- Stays focused on the current IP
+- Won't move on until you demonstrate understanding
+- References prerequisites when relevant ← *Elaboration: connecting knowledge*
+
+---
+
+## Mode 2: Quiz Mode
+
+**Purpose:** Test recall through varied question types.
+
+> **Primary Principles: Retrieval Practice + Spaced Repetition**
+> 
+> Quiz Mode is the core learning mechanic. You're not re-reading—you're actively retrieving information from memory, which strengthens learning far more than passive review. Questions appear at optimally spaced intervals.
+
+### What Happens
+
+1. System selects IPs that are due for review ← *Spaced Repetition: optimal timing*
+2. Questions are presented one at a time
+3. You answer; system evaluates ← *Retrieval Practice: active recall*
+4. Correct → mastery increases, stability grows
+5. Wrong → mastery decreases, option to reflect
+
+### Question Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **Binary (T/F)** | True or false statement | "Variables in Python are statically typed. T/F?" |
+| **Multiple Choice** | 4 options, 1 correct | "What does `len()` return for a string?" |
+| **Question & Answer** | Free-form response | "Explain the difference between `=` and `==`." |
+
+Question type is selected based on your current mastery:
+- Low mastery → easier types (binary, multiple choice)
+- High mastery → harder types (Q&A, comparisons) ← *Desirable Difficulty*
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  QUIZ MODE                                    Progress: 3/10     │
+│  ❓ Variables and Types                                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  In Python, what is the output of:              ← Retrieval      │
+│                                                   Practice:      │
+│  x = "5"                                          you must       │
+│  y = 3                                            recall, not    │
+│  print(x + y)                                     recognize      │
+│                                                                  │
+│  ○ "8"                                                           │
+│  ○ "53"                                                          │
+│  ○ Error                                                         │
+│  ○ 8                                                             │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Submit Answer]                               [Reflect First?]  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Entry Points
+- Click a "Learning" or "Mastered" lesson
+- Dashboard: "Daily Review" or "Study Now"
+- End of a Learn Mode session
+
+### What It Does to Your Data
+- Updates mastery (up for correct, down for wrong)
+- Adjusts stability (how long until next review) ← *Spaced Repetition*
+- Schedules next review date
+- Unlocks harder quiz types as mastery grows
+
+### Timed vs. Untimed
+- **Timed:** Questions have time limits; reflection can be queued for later
+- **Untimed:** Take your time; reflect immediately on wrong answers
+
+---
+
+## Mode 3: Reflection Mode
+
+**Purpose:** Help you understand concepts you got wrong.
+
+> **Primary Principle: Elaboration**
+> 
+> When you get something wrong, shallow correction ("the answer was B") doesn't help. Reflection Mode uses deep processing—understanding *why* you were wrong, connecting your misconception to the correct concept, and generating new understanding.
+
+### What Happens
+
+1. Triggered after a wrong answer (or before answering if you choose)
+2. AI explains the concept from a different angle ← *Elaboration: multiple perspectives*
+3. Identifies where understanding broke down ← *Elaboration: connecting gaps*
+4. Verifies correction before returning to quiz ← *Retrieval Practice*
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  REFLECTION MODE                                                 │
+│  💡 Let's understand this better                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  You answered: "53"                                              │
+│  The correct answer: Error                                       │
+│                                                                  │
+│  🤖 AI: I see what happened. You thought Python would           │  ← Elaboration:
+│         concatenate the string and convert the number.           │    identifying
+│                                                                  │    misconception
+│         But Python is "strongly typed"—it won't automatically   │
+│         convert between types. Since `x` is a string and `y`    │  ← Elaboration:
+│         is an integer, Python raises a TypeError.                │    explaining why
+│                                                                  │
+│         To make it work, you'd need:                             │
+│         print(x + str(y))  →  "53"                               │  ← Elaboration:
+│         print(int(x) + y)  →  8                                  │    connecting to
+│                                                                  │    correct concept
+│         Does that make sense?                                    │
+│                                                                  │
+│  👤 You: So Python never does implicit type conversion?          │  ← Elaboration:
+│                                                                  │    asking why
+│  🤖 AI: Not between strings and numbers. It will between        │
+│         int and float though (5 + 3.0 = 8.0).                   │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Return to Quiz]                                  [Exit Quiz]   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Entry Points
+- Automatic: After wrong answer in Quiz Mode
+- Manual: "Reflect First?" before answering
+- Queued: At end of timed quiz (for all wrong answers)
+
+### What It Does to Your Data
+- Doesn't directly change mastery (that happened when you got it wrong)
+- But reflection engagement is tracked for analytics
+- May affect how the next question is selected
+
+### Key Behaviors
+- Stays focused on the specific IP you struggled with
+- Won't let you wander to other topics (unlike Curiosity Mode)
+- If you want to explore elsewhere: "Exit Quiz" → Curiosity Mode
+
+---
+
+## Mode 4: Curiosity Mode
+
+**Purpose:** Free exploration and discovery.
+
+> **Primary Principle: Elaboration**
+> 
+> Curiosity Mode is elaboration without constraints. You ask questions, explore connections, and generate understanding by following your interests. This creates rich, interconnected knowledge that transfers to new situations.
+
+### What Happens
+
+1. You can ask anything
+2. AI responds with rich information
+3. Optionally connects to course content ← *Elaboration: building connections*
+4. Discoveries can be saved as new course content
+
+Curiosity Mode comes in two flavors:
+
+### In-Course Curiosity
+You're exploring within the context of a course. The AI knows what you've learned and can make connections.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  CURIOSITY MODE                                                  │
+│  🔮 Exploring: Python for Data Science                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  👤 You: What's the deal with generators vs. lists?             │  ← Elaboration:
+│                                                                  │    asking why
+│  🤖 AI: Great question! This connects to what you learned       │
+│         about memory in the Data Structures module.              │  ← Elaboration:
+│                                                                  │    connecting to
+│         A list stores all items in memory at once:               │    prior knowledge
+│         [x*2 for x in range(1000000)]  →  ~8MB memory           │
+│                                                                  │
+│         A generator produces items on demand:                    │
+│         (x*2 for x in range(1000000))  →  ~100 bytes            │
+│                                                                  │
+│         This matters hugely when processing big datasets,        │
+│         which ties into your learning goal!                      │
+│                                                                  │
+│  [Save to Course]                                                │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  [Type a message...]                           [New Topic]       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### General Curiosity
+No course context. You're exploring freely. Discoveries can become new courses.
+
+### Entry Points
+- Dashboard: "Explore" or "Ask Anything"
+- Within a course: "Curiosity" tab
+- From Reflection Mode: "Exit Quiz" → "Explore freely"
+
+### What It Does to Your Data
+- Conversations are saved for reference
+- Can trigger course creation (from interesting discoveries)
+- Can add IPs to existing courses
+
+### Key Behaviors
+- No constraints on topics
+- Encourages tangents and exploration
+- Offers to save/structure valuable discoveries
+
+---
+
+## Mode Transitions
+
+```
+                     MODE TRANSITION MAP
+─────────────────────────────────────────────────────────────
+
+  LEARN MODE ─────────────────────────────────────┐
+       │              (Elaboration)               │
+       │ (Lesson complete)                        │
+       ▼                                          │
+  ┌─────────┐                                     │
+  │  QUIZ   │◄──────── "Daily Review"            │
+  │  MODE   │◄──────── "Study Now"               │
+  └────┬────┘  (Retrieval + Spacing)              │
+       │                                          │
+       │ (Wrong answer)                           │
+       ▼                                          │
+  ┌────────────┐                                  │
+  │ REFLECTION │──── "Return to Quiz" ───► QUIZ  │
+  │   MODE     │     (Elaboration)                │
+  └────┬───────┘                                  │
+       │                                          │
+       │ (Want to explore)                        │
+       ▼                                          │
+  ┌────────────┐                                  │
+  │ CURIOSITY  │◄──────── "Explore" from anywhere│
+  │   MODE     │     (Elaboration)                │
+  └────────────┘                                  │
+       │                                          │
+       │ (Save discovery)                         │
+       ▼                                          │
+  New course or IP ─── enter LEARN MODE ──────────┘
+```
+
+---
+
+## Summary
+
+| Mode | Feel | Purpose | Primary Principles |
+|------|------|---------|-------------------|
+| **Learn** | Patient tutor | Introduction | Elaboration |
+| **Quiz** | Testing booth | Recall practice | Retrieval Practice, Spaced Repetition |
+| **Reflection** | Study buddy | Understand mistakes | Elaboration |
+| **Curiosity** | Knowledgeable friend | Explore freely | Elaboration |
+
+All modes use the same chat interface—the difference is context, purpose, and which learning science principles are emphasized.
+
+---
+
+*For more on the learning science principles, see [The Learning Science](/docs/concepts/learning-science).*
+
+*Continue to [Understanding Mastery](/docs/concepts/mastery) →*

@@ -1,0 +1,193 @@
+# The Learning Hierarchy
+
+**How content is organized in Cognia.**
+
+---
+
+## The Four Levels
+
+Every piece of content in Cognia exists within a hierarchical structure:
+
+```
+Course
+├── Module 1 (foundation)
+│   ├── Lesson 1.1
+│   │   ├── Information Point 1
+│   │   ├── Information Point 2
+│   │   └── Information Point 3
+│   ├── Lesson 1.2
+│   │   └── ...
+│   └── Lesson 1.3
+│       └── ...
+├── Module 2 (builds on Module 1)
+│   ├── Lesson 2.1
+│   └── ...
+└── Module 3 (builds on Module 2)
+    └── ...
+```
+
+Each level has a distinct purpose:
+
+| Level | Purpose | Typical Size |
+|-------|---------|--------------|
+| **Course** | Complete learning journey for a topic | 1-16 weeks |
+| **Module** | Major thematic section | 3-10 lessons |
+| **Lesson** | Single study session | 3-7 Information Points |
+| **Information Point** | One testable concept | ~5-10 minutes |
+
+---
+
+## Course
+
+A **Course** is the top-level container—a complete learning pathway for a topic.
+
+**Examples:**
+- "Python for Data Science"
+- "Introduction to Microeconomics"
+- "Spanish for Travel"
+
+A course contains:
+- **Title and description**
+- **Learning goal** (what you'll be able to do)
+- **Your starting level** (determined by baseline quiz)
+- **Study schedule** (days/week, minutes/day)
+- **Modules** (the actual content)
+
+**Key insight:** Courses are *generated for you*. The AI creates a course structure based on your topic, goals, and starting level. Two people learning "Python" might get different courses based on their backgrounds and objectives.
+
+---
+
+## Module
+
+A **Module** is a major section of a course—a coherent unit of related concepts.
+
+**Examples (within a Python course):**
+- Module 1: "Python Fundamentals"
+- Module 2: "Data Structures"
+- Module 3: "Working with Files"
+- Module 4: "Data Analysis with Pandas"
+
+Modules have an **order** and **dependencies**:
+- Module 2 builds on concepts from Module 1
+- You can't truly understand Module 4 without Module 2 and 3
+
+**In the UI:** Modules appear as collapsible sections on the course path. You can expand to see lessons or collapse to see a summary.
+
+---
+
+## Lesson
+
+A **Lesson** is designed to fit in a single study session.
+
+**Examples (within "Python Fundamentals"):**
+- Lesson 1.1: "Variables and Types"
+- Lesson 1.2: "Basic Operations"
+- Lesson 1.3: "Control Flow"
+
+Lessons are sized based on your schedule:
+- 30-minute sessions → 4-5 IPs per lesson
+- 60-minute sessions → 6-8 IPs per lesson
+
+**Key insight:** Lessons are the primary unit you interact with. You click a lesson to enter it, study its Information Points, and move on.
+
+---
+
+## Information Point
+
+An **Information Point (IP)** is the atomic unit—a single, testable concept.
+
+**Examples (within "Variables and Types"):**
+- "What is a variable?"
+- "Integer type in Python"
+- "String type in Python"
+- "Type conversion"
+- "Variable naming rules"
+
+This is where learning actually happens. [Learn more about Information Points →](/docs/concepts/information-points)
+
+---
+
+## Why This Structure?
+
+The hierarchy serves specific purposes:
+
+### 1. Pedagogical Sequencing
+Knowledge builds on prior knowledge. The hierarchy makes dependencies explicit:
+- IP 5 requires understanding IPs 1-4
+- Lesson 2 assumes Lesson 1 content
+- Module 3 builds on Modules 1 and 2
+
+### 2. Flexible Scope
+Not all topics need the same depth:
+- A 2-week course might have 1-2 modules
+- A 16-week course might have 8 modules
+- The structure adapts to content size
+
+### 3. Progress Tracking at Multiple Levels
+You can see progress at any zoom level:
+- "You've mastered 80% of this course"
+- "This module is 60% complete"
+- "3 more IPs in this lesson"
+
+### 4. Manageable Sessions
+Lessons are sized for single sessions, so you always have clear start and stop points.
+
+---
+
+## Navigation in the UI
+
+The course path shows your progress visually:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  MODULE 1: Python Fundamentals                       [▼ Expand] │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ●━━━━━━━●━━━━━━━●━━━━━━━●                                      │
+│  L1      L2      L3      L4                                     │
+│  ✓       ✓       ◐       ○                                      │
+│  done    done    60%     locked                                 │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  MODULE 2: Data Structures                          [▶ Collapsed]│
+│  (8 lessons, 45% complete)                                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Lesson states:**
+- **Locked** (○): Previous lesson not completed
+- **Available** (○): Ready to start
+- **In Progress** (◐): Some IPs introduced
+- **Learning** (●): All IPs introduced, actively quizzing
+- **Mastered** (✓): All IPs at ≥80% mastery
+
+---
+
+## Skip-Ahead System
+
+The hierarchy is sequential by default, but you can prove competency to skip ahead:
+
+1. Click a locked lesson
+2. Take a "skip quiz" covering prerequisite content
+3. Score ≥80% to unlock
+
+This respects the pedagogical sequence while not forcing you through content you already know.
+
+---
+
+## Scale Adaptation
+
+The UI adapts based on course size:
+
+| Course Size | Display |
+|-------------|---------|
+| 1 module, 1 lesson | Direct list of IPs (no module/lesson headers) |
+| 1 module, multiple lessons | Lesson path only |
+| Multiple modules | Full path with collapsible modules |
+
+Small courses don't need unnecessary hierarchy chrome.
+
+---
+
+*Continue to [Information Points](/docs/concepts/information-points) →*
+

@@ -1,0 +1,406 @@
+# Course Structure & Navigation
+
+<!--
+Status: Draft
+Created: 2025-11-30
+Issue: #15
+Owner: Harry
+-->
+
+> Design specification for course hierarchy, navigation patterns, and progress visualization.
+
+## Related Specifications
+
+| Spec                                                            | Relationship                                        |
+| --------------------------------------------------------------- | --------------------------------------------------- |
+| [Spaced Repetition Algorithm](./spaced-repetition-algorithm.md) | Provides mastery data that determines lesson states |
+| [Progress Prediction](./progress-prediction.md)                 | Uses course structure for completion estimates      |
+
+## Overview
+
+Courses are **pedagogically sequenced**—each element builds on what came before. The system enforces this progression while allowing users to skip ahead by proving competency.
+
+---
+
+## Content Hierarchy
+
+```
+Course
+├── Module 1 (foundation)
+│   ├── Lesson 1.1
+│   │   ├── Information Point 1
+│   │   ├── Information Point 2
+│   │   └── Information Point 3
+│   ├── Lesson 1.2
+│   │   └── ...
+│   └── Lesson 1.3
+│       └── ...
+├── Module 2 (builds on Module 1)
+│   ├── Lesson 2.1
+│   └── ...
+└── Module 3 (builds on Module 2)
+    └── ...
+```
+
+### Hierarchy Rules
+
+1. **Modules** build on previous modules
+2. **Lessons** build on previous lessons (within and across modules)
+3. **Information Points** build on previous information points
+4. Everything is ordered for pedagogical progression
+
+---
+
+## Flexible Display (Scale Adaptation)
+
+Courses can range from comprehensive multi-module structures to single-concept learning. The UI adapts automatically.
+
+### Detection Logic
+
+```typescript
+interface CourseDisplayMode {
+    showModules: boolean; // Multiple modules exist
+    showLessons: boolean; // Multiple lessons exist (across all modules)
+    showPathView: boolean; // Enough content for path visualization
+}
+
+function determineDisplayMode(course: Course): CourseDisplayMode {
+    const totalModules = course.modules.length;
+    const totalLessons = course.modules.reduce(
+        (sum, m) => sum + m.lessons.length,
+        0
+    );
+
+    return {
+        showModules: totalModules > 1,
+        showLessons: totalLessons > 1,
+        showPathView: totalLessons >= 3, // Minimum for meaningful path
+    };
+}
+```
+
+### Display Modes
+
+| Structure                   | Display                                              |
+| --------------------------- | ---------------------------------------------------- |
+| 1 module, 1 lesson, few IPs | Direct list of Information Points under course title |
+| 1 module, multiple lessons  | Lesson path (no module header)                       |
+| Multiple modules            | Full path with collapsible module sections           |
+
+---
+
+## Path Navigation
+
+The learning path provides a visual map of progress through the course.
+
+### Snake Layout
+
+Lessons flow in a snake pattern to maximize vertical space efficiency:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  MODULE 1: Fundamentals                              [▼ Collapse]│
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ●━━━━━━━●━━━━━━━●━━━━━━━●                                      │
+│  L1      L2      L3      L4                                     │
+│                          │                                      │
+│                          ▼                                      │
+│  ●━━━━━━━●━━━━━━━●━━━━━━━●                                      │
+│  L8      L7      L6      L5                                     │
+│  │                                                              │
+│  ▼                                                              │
+│  ●━━━━━━━●                                                      │
+│  L9      L10                                                    │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  MODULE 2: Advanced Topics                           [▶ Expand] │
+├─────────────────────────────────────────────────────────────────┤
+│  (collapsed - shows summary: 8 lessons, 45% complete)           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Layout Algorithm
+
+```typescript
+const LESSONS_PER_ROW = 4; // Configurable based on viewport
+
+function calculateLessonPositions(lessons: Lesson[]): LessonPosition[] {
+    return lessons.map((lesson, index) => {
+        const row = Math.floor(index / LESSONS_PER_ROW);
+        const colInRow = index % LESSONS_PER_ROW;
+
+        // Alternate direction each row (snake pattern)
+        const isReversedRow = row % 2 === 1;
+        const col = isReversedRow ? LESSONS_PER_ROW - 1 - colInRow : colInRow;
+
+        return {
+            lessonId: lesson.id,
+            row,
+            col,
+            isRowEnd: colInRow === LESSONS_PER_ROW - 1,
+            isRowStart: colInRow === 0,
+        };
+    });
+}
+```
+
+---
+
+## Module Behavior
+
+### Collapsible Modules
+
+- Modules are **collapsible** to manage visual complexity
+- Default state: Current module expanded, others collapsed
+- Collapsed view shows: Module name, lesson count, completion percentage
+
+### Module Header
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  📚 MODULE 2: Data Structures                                   │
+│  ────────────────────────────────────────────────────────────── │
+│  12 lessons  •  34 information points  •  67% complete          │
+│                                                        [▼ ▶]    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Lesson Node States
+
+Each lesson node on the path reflects the aggregate state of its information points.
+
+### State Definitions
+
+| State           | Criteria                                   | Visual                     |
+| --------------- | ------------------------------------------ | -------------------------- |
+| **Locked**      | Previous lesson not completed              | Greyed out, no interaction |
+| **Available**   | Previous lesson done, this one not started | Outlined, ready to start   |
+| **In Progress** | Some IPs introduced (Learn mode done)      | Partially filled           |
+| **Learning**    | All IPs introduced, actively being quizzed | Filled, accent color       |
+| **Mastered**    | All IPs at ≥80% mastery                    | Filled, success color      |
+
+### State Calculation
+
+```typescript
+type LessonState =
+    | "locked"
+    | "available"
+    | "in_progress"
+    | "learning"
+    | "mastered";
+
+function calculateLessonState(
+    lesson: Lesson,
+    progressMap: Map<string, InformationPointProgress>
+): LessonState {
+    const ipStates = lesson.informationPoints.map(
+        (ip) => progressMap.get(ip.id)?.state ?? "unseen"
+    );
+
+    const allUnseen = ipStates.every((s) => s === "unseen");
+    const allIntroduced = ipStates.every((s) => s !== "unseen");
+    const allMastered = ipStates.every((s) => s === "mastered");
+
+    // Check if previous lesson requirements met (handled by unlock logic)
+    const isUnlocked = checkLessonUnlocked(lesson);
+
+    if (!isUnlocked) return "locked";
+    if (allUnseen) return "available";
+    if (allMastered) return "mastered";
+    if (allIntroduced) return "learning";
+    return "in_progress";
+}
+```
+
+### Progress Indicator
+
+Within each node, show progress as:
+
+- **Ring/arc fill**: Percentage of IPs at mastered state
+- **Inner indicator**: Current state icon or percentage
+
+```
+  ┌───────┐      ┌───────┐      ┌───────┐      ┌───────┐
+  │  🔒   │      │  ○    │      │ ◐ 40% │      │  ●    │
+  │       │      │       │      │       │      │  ✓    │
+  └───────┘      └───────┘      └───────┘      └───────┘
+   Locked        Available      In Progress    Mastered
+```
+
+---
+
+## Lesson Interaction
+
+### Click Behavior
+
+Clicking a lesson node:
+
+| State       | Action                                                              |
+| ----------- | ------------------------------------------------------------------- |
+| Locked      | Show tooltip: "Complete [Previous Lesson] first" or offer skip quiz |
+| Available   | Enter Learn mode for first IP                                       |
+| In Progress | Resume Learn mode for next unintroduced IP                          |
+| Learning    | Enter Quiz mode (system selects due IPs)                            |
+| Mastered    | Enter Review mode (quiz on this lesson's IPs)                       |
+
+### Context Menu / Long Press
+
+- **View Details**: Show all IPs in lesson with individual states
+- **Skip to Here**: Trigger skip quiz (if not already unlocked)
+- **Focus Mode**: Only quiz this lesson's IPs (override daily queue)
+
+---
+
+## Skip Quiz System
+
+Allows users to skip ahead by demonstrating existing knowledge.
+
+### Trigger
+
+- Click locked lesson → "Skip to here?" prompt
+- Or explicit "Skip ahead" action from lesson context menu
+
+### Quiz Parameters
+
+```typescript
+interface SkipQuiz {
+    targetLessonId: string;
+
+    // IPs sampled from all lessons BEFORE target
+    sourceRange: {
+        fromLessonIndex: 0; // First lesson
+        toLessonIndex: number; // Lesson before target
+    };
+
+    questionCount: 20; // Fixed count
+    requiredScore: 0.8; // 80% to pass
+
+    // Prefer harder quiz types
+    quizTypeWeights: {
+        binary: 0.2;
+        multiple_choice: 0.5;
+        question_answer: 0.3;
+    };
+}
+```
+
+### On Pass (≥80%)
+
+All skipped lessons marked as:
+
+- State: `reviewing`
+- Mastery: 60%
+- Baseline: 50%
+- Baseline confidence: 30%
+- Next review: 7 days
+
+User unlocks target lesson.
+
+### On Fail (<80%)
+
+- Show results: "You scored 65%. Review these topics:"
+- Highlight weak areas (IPs answered incorrectly)
+- Suggest starting from a specific lesson
+- User remains at current position
+
+---
+
+## Information Point Visibility
+
+Information Points are **not visible** at the path level. They are revealed when:
+
+1. **Entering a lesson** - List of IPs shown in lesson detail view
+2. **During Learn mode** - One IP at a time, sequential
+3. **During Quiz mode** - Question context shows IP being tested
+4. **In progress dashboard** - Detailed breakdown available
+
+### Lesson Detail View
+
+Accessed by clicking "View Details" on a lesson:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  LESSON 2.3: Binary Search Trees                                │
+│  Module 2: Data Structures                                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Progress: 5/8 mastered (62%)                                   │
+│  ═══════════════════════░░░░░░░░░░                              │
+│                                                                 │
+│  Information Points:                                            │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ ● BST Definition                           Mastered    92%  ││
+│  │ ● Node Structure                           Mastered    88%  ││
+│  │ ● Insertion Algorithm                      Mastered    85%  ││
+│  │ ● Search Operation                         Mastered    81%  ││
+│  │ ● Deletion (leaf node)                     Mastered    80%  ││
+│  │ ◐ Deletion (one child)                     Learning    65%  ││
+│  │ ◐ Deletion (two children)                  Learning    45%  ││
+│  │ ○ Tree Balancing Intro                     Available   --   ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  [Start Quiz]  [Continue Learning]  [Back to Path]              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Navigation Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Dashboard (Home)                                               │
+│  └── Course List                                                │
+│      └── Course Detail (Path View)          ← Main learning hub │
+│          ├── Module (collapsible section)                       │
+│          │   └── Lesson Node (on path)                          │
+│          │       └── Lesson Detail View                         │
+│          │           └── Information Point (via Learn/Quiz)     │
+│          └── Daily Queue (floating action)                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Primary Actions
+
+| From        | Action              | Destination                                  |
+| ----------- | ------------------- | -------------------------------------------- |
+| Dashboard   | "Continue Learning" | Course path, auto-scroll to current position |
+| Dashboard   | "Daily Review"      | Quiz mode with today's due items             |
+| Course Path | Click lesson        | Lesson detail or mode entry                  |
+| Course Path | "Study Now" FAB     | Quiz mode with optimal queue                 |
+
+---
+
+## Responsive Considerations
+
+### Desktop (≥1024px)
+
+- Full snake path with 4-5 lessons per row
+- Module sidebar optionally pinned
+- Lesson detail as slide-over panel
+
+### Tablet (768-1023px)
+
+- 3-4 lessons per row
+- Modules stack vertically
+- Lesson detail as modal
+
+### Mobile (<768px)
+
+- 2-3 lessons per row
+- Simplified node design (smaller, icon-focused)
+- Lesson detail as full-screen view
+- Swipe gestures for module navigation
+
+---
+
+## Future Considerations
+
+1. **Branching paths**: Optional/advanced modules that branch from main path
+2. **Prerequisites visualization**: Show which lessons unlock which
+3. **Time estimates**: "~15 min" per lesson based on IP count
+4. **Streak indicators**: Visual flair for consecutive daily completions
+5. **Social layer**: See where friends are on the same course path

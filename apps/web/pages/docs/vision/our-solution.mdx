@@ -1,0 +1,257 @@
+# Our Solution
+
+**How Cognia addresses the fundamental problems with learning.**
+
+---
+
+## The Core Idea
+
+Cognia inverts the traditional learning model:
+
+| Traditional | Cognia |
+|-------------|--------|
+| You adapt to the course | The course adapts to you |
+| Content presented once | Content revisited at optimal intervals |
+| Completion = success | Retention = success |
+| Passive consumption | Active engagement required |
+| Fixed difficulty | Progressive challenge |
+
+The platform treats learning as a *system* with feedback loops, not a one-way pipeline.
+
+---
+
+## Built on Learning Science
+
+Before diving into features, it's important to understand **why** Cognia works. The system is built on four evidence-based principles from cognitive science—the most robust findings we have about how human memory actually works.
+
+| Principle | What It Means | How Cognia Applies It |
+|-----------|---------------|----------------------|
+| **Spaced Repetition** | Review at increasing intervals, not all at once | Algorithm schedules optimal review times |
+| **Retrieval Practice** | Test yourself, don't just re-read | Quiz Mode is the core mechanic, not optional |
+| **Interleaving** | Mix topics during practice | Daily queue mixes items from different lessons |
+| **Elaboration** | Connect new info to what you know | AI tutoring asks why, builds connections |
+
+These principles work together in every study session:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  ONE STUDY SESSION                                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────┐                                                    │
+│  │ SPACED   │ Algorithm surfaces items at optimal times          │
+│  │REPETITION│───────────────────────────────┐                   │
+│  └──────────┘                               │                   │
+│                                             ▼                   │
+│  ┌──────────┐                        ┌──────────┐               │
+│  │INTERLEAVE│ Queue mixes topics ──▶ │  YOUR    │               │
+│  └──────────┘                        │  QUEUE   │               │
+│                                      └────┬─────┘               │
+│                                           │                     │
+│         ┌─────────────────────────────────┴──────────┐          │
+│         │                                            │          │
+│         ▼                                            ▼          │
+│  ┌──────────┐                                 ┌──────────┐      │
+│  │RETRIEVAL │ Quiz questions test recall      │ELABORATE │      │
+│  │ PRACTICE │ (not recognition)               │          │      │
+│  └──────────┘                                 │ AI explains,    │
+│                                               │ connects,       │
+│                                               │ reflects        │
+│                                               └──────────┘      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Most learning platforms ignore these principles—they optimize for engagement metrics, completion rates, and time-in-app. Cognia optimizes for what the science actually supports: durable memory and transfer to new situations.
+
+> *For a deep dive into the research behind these principles, see [The Learning Science](/docs/concepts/learning-science).*
+
+---
+
+## How It Works (High Level)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        YOUR LEARNING JOURNEY                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   1. TELL US WHAT YOU WANT TO LEARN                             │
+│      ↓                                                          │
+│      "I want to learn Python for data analysis"                 │
+│      + your current level (assessed via quick quiz)             │
+│      + your available time (days/week, minutes/day)             │
+│                                                                  │
+│   2. AI BUILDS YOUR PERSONALIZED COURSE                         │
+│      ↓                                                          │
+│      Structured into: Course → Modules → Lessons → Info Points  │
+│      Sequenced for YOUR starting level                          │
+│      Sized to fit YOUR schedule                                 │
+│                                                                  │
+│   3. LEARN THROUGH ACTIVE ENGAGEMENT                            │
+│      ↓                                                          │
+│      Learn Mode: AI introduces concepts (ELABORATION)           │
+│      Quiz Mode: Test yourself (RETRIEVAL PRACTICE)              │
+│      Reflection Mode: Understand mistakes (ELABORATION)         │
+│      Curiosity Mode: Explore freely (ELABORATION)               │
+│                                                                  │
+│   4. SYSTEM TRACKS & ADAPTS                                     │
+│      ↓                                                          │
+│      Every response updates your mastery model                  │
+│      Spaced repetition schedules optimal review times           │
+│      Daily queue interleaves topics for better discrimination   │
+│                                                                  │
+│   5. ACTUAL RETENTION                                           │
+│      ↓                                                          │
+│      You don't just complete the course                         │
+│      You can recall and apply what you learned                  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Key Innovation: Information Points
+
+The atomic unit of Cognia is the **Information Point (IP)**—a single, testable piece of knowledge.
+
+Unlike traditional courses that chunk content into "lessons" or "chapters," Cognia breaks everything down to its smallest learnable components:
+
+```
+Traditional Course Structure:
+├── Chapter 1: Introduction to Python
+│   └── (30 minutes of mixed content)
+
+Cognia Structure:
+├── Lesson: Variables and Types
+│   ├── IP: What is a variable?
+│   ├── IP: Integer type
+│   ├── IP: String type
+│   ├── IP: Type conversion
+│   └── IP: Variable naming rules
+```
+
+Why this matters:
+- **Precise tracking**: We know exactly what you know vs. don't know
+- **Targeted retrieval**: Quiz only what needs reinforcement (Retrieval Practice)
+- **Clear dependencies**: Each IP declares what must come before it
+- **Measurable progress**: Mastery is calculated per-IP, not per-chapter
+
+---
+
+## Key Innovation: Dual-Track Mastery
+
+Cognia tracks two measures for every Information Point:
+
+### 1. Current Mastery (Volatile)
+- Changes rapidly with each quiz response ← *Retrieval Practice updates this*
+- Reflects your *current* ability to recall
+- Goes up with correct answers, down with incorrect
+
+### 2. Baseline Mastery (Stable)
+- Moves slowly over time
+- Represents your *underlying* understanding
+- Buffers against temporary slips
+
+**Why two tracks?**
+
+Single-measure systems are fragile. Have a bad day? One wrong answer tanks your "mastery" even if you know the concept well.
+
+The dual-track system means:
+- Temporary mistakes don't erase proven knowledge
+- Long-term understanding is recognized
+- Recovery is faster for concepts you've truly learned
+
+```
+Mastery
+   1.0 ┤
+       │    Baseline (stable)
+       │    ════════════════════════════════
+   0.8 ┤        ╱╲
+       │       ╱  ╲ Current (volatile)
+   0.6 ┤      ╱    ╲    ╱╲
+       │     ╱      ╲  ╱  ╲
+   0.4 ┤    ╱        ╲╱    ╲
+       │   ╱                 ╲
+   0.2 ┤  ╱
+       │ ╱
+   0.0 ┼─────────────────────────────────→
+       Time / Quiz Attempts
+```
+
+---
+
+## Key Innovation: AI-Powered Everything
+
+AI isn't a feature—it's the foundation:
+
+| Component | AI Role | Principle Applied |
+|-----------|---------|------------------|
+| **Course Creation** | Generates complete course structure from a topic + your goals | Structure |
+| **Content Generation** | Writes explanations, examples, and quiz questions | Retrieval Practice |
+| **Learn Mode** | Tutors you through new concepts conversationally | Elaboration |
+| **Quiz Grading** | Evaluates free-form answers, not just multiple choice | Retrieval Practice |
+| **Reflection Mode** | Helps you understand *why* you got something wrong | Elaboration |
+| **Curiosity Mode** | Answers any question, connects to course content | Elaboration |
+
+The AI isn't just answering questions—it's constructing a personalized learning experience in real-time, guided by learning science principles.
+
+---
+
+## Key Innovation: Prescribed Study
+
+Cognia tells you **what to study, when to study it**.
+
+No decision fatigue. No "what should I review today?" The system calculates:
+- Which IPs are due for review ← *Spaced Repetition*
+- What difficulty of questions to ask ← *Desirable Difficulty*
+- How many new items to introduce ← *Pacing*
+- How to mix items from different lessons ← *Interleaving*
+
+Your daily session is:
+1. Open app
+2. See your queue
+3. Study
+4. Done
+
+The algorithm handles optimization. You handle engagement.
+
+---
+
+## What Makes This Different?
+
+| Feature | Duolingo | Coursera | Anki | Cognia |
+|---------|----------|----------|------|--------|
+| AI-generated courses | ❌ | ❌ | ❌ | ✅ |
+| Personalized to starting level | ❌ | ❌ | ❌ | ✅ |
+| Spaced repetition | ✅ | ❌ | ✅ | ✅ |
+| Retrieval practice as core | ✅ | ❌ | ✅ | ✅ |
+| Interleaving | ❌ | ❌ | Manual | ✅ |
+| Elaboration (AI tutoring) | ❌ | ❌ | ❌ | ✅ |
+| AI tutoring | ❌ | ❌ | ❌ | ✅ |
+| Granular mastery tracking | ❌ | ❌ | ✅ | ✅ |
+| Adaptive difficulty | Limited | ❌ | ❌ | ✅ |
+| Free exploration mode | ❌ | ❌ | ❌ | ✅ |
+
+Cognia combines:
+- The **structure** of traditional courses
+- The **retention** of spaced repetition systems
+- The **flexibility** of AI tutoring
+- The **precision** of per-concept mastery tracking
+- **All four** learning science principles working together
+
+---
+
+## The Promise
+
+If you use Cognia consistently:
+- You will **remember** what you learn (not just complete it) ← *Retrieval Practice + Spaced Repetition*
+- The system will **adapt** to your pace and struggles
+- Your time will be **optimally used** (no wasted review, no premature advancement)
+- You can learn **any topic** (AI generates the course)
+- Your understanding will be **deeper and more connected** ← *Elaboration + Interleaving*
+
+This is learning that actually works, because it's built on learning science that actually works.
+
+---
+
+*Continue to [Core Principles](/docs/vision/principles) →*

@@ -1,0 +1,98 @@
+# Specifications
+
+**Detailed technical specifications for implementation.**
+
+---
+
+This section contains the implementation-level documentation. These specs describe **exactly how** systems work—data models, algorithms, edge cases, and technical decisions.
+
+> **Prerequisites:** Before reading specifications, you should understand the concepts in [Core Concepts](/docs/concepts) and the high-level mechanics in [How It Works](/docs/how-it-works).
+
+---
+
+## Organization
+
+Specifications are grouped by domain:
+
+### Content Structure
+How courses and content are organized.
+
+| Spec | Description |
+|------|-------------|
+| [Course Structure & Navigation](/docs/specifications/course-structure-navigation) | Course hierarchy, path navigation, lesson states |
+| [Course Creation](/docs/specifications/course-creation) | AI generation pipeline, validation loops, IP budgets |
+| [Information Point Generation](/docs/specifications/information-point-generation) | IP content structure, prerequisite handling |
+
+### Learning Mechanics
+How users interact with content.
+
+| Spec | Description |
+|------|-------------|
+| [Learning & Interaction Modes](/docs/specifications/learning-interaction-modes) | Learn, Quiz, Curiosity, Reflection mode details |
+| [Spaced Repetition Algorithm](/docs/specifications/spaced-repetition-algorithm) | Mastery tracking, scheduling, queue building |
+| [Question Generation](/docs/specifications/question-generation) | Quiz types, generation process, grading |
+
+### Analytics & Prediction
+How progress is tracked and predicted.
+
+| Spec | Description |
+|------|-------------|
+| [Progress Prediction](/docs/specifications/progress-prediction) | Completion estimates, visualizations |
+| [Data Collection & Analytics](/docs/specifications/data-collection-analytics) | What data is collected and how it's used |
+
+---
+
+## Document Format
+
+Each specification includes:
+
+### Metadata
+```markdown
+<!--
+Status: Draft | Review | Approved | Implemented
+Created: YYYY-MM-DD
+Issue: #XX (if applicable)
+Owner: Name
+-->
+```
+
+### Related Specifications
+Links to other specs that connect to this one.
+
+### Data Models
+TypeScript interfaces for the domain objects.
+
+### Algorithm Details
+Step-by-step logic for processes.
+
+### Future Considerations
+Things deferred or planned for later.
+
+---
+
+## Document Status
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Being written, not ready for review |
+| **Review** | Ready for feedback |
+| **Approved** | Signed off, ready for implementation |
+| **Implemented** | Feature is in code |
+| **Deprecated** | No longer relevant |
+
+---
+
+## Reading Order
+
+If you're reading specifications for the first time, this order builds understanding progressively:
+
+1. **[Course Structure & Navigation](/docs/specifications/course-structure-navigation)** — Understand the content hierarchy
+2. **[Spaced Repetition Algorithm](/docs/specifications/spaced-repetition-algorithm)** — Understand mastery and scheduling
+3. **[Learning & Interaction Modes](/docs/specifications/learning-interaction-modes)** — Understand user interactions
+4. **[Course Creation](/docs/specifications/course-creation)** — Understand how courses are generated
+5. **[Question Generation](/docs/specifications/question-generation)** — Understand quiz mechanics
+6. Remaining specs as needed
+
+---
+
+*For conceptual understanding, see [Core Concepts](/docs/concepts). For high-level mechanics, see [How It Works](/docs/how-it-works).*

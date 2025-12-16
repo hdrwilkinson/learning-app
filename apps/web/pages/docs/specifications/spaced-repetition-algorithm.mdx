@@ -1,0 +1,495 @@
+# Spaced Repetition Algorithm
+
+<!--
+Status: Draft
+Created: 2025-11-30
+Issue: #15
+Owner: Harry
+-->
+
+> System specification for testing, mastery tracking, and adaptive quiz scheduling.
+
+## Related Specifications
+
+| Spec | Relationship |
+|------|--------------|
+| [Course Structure & Navigation](./course-structure-navigation.md) | Uses mastery data to display lesson states |
+| [Question Generation](./question-generation.md) | Provides questions selected by this algorithm |
+| [Data Collection & Analytics](./data-collection-analytics.md) | Records all quiz responses for analysis |
+
+## Overview
+
+The algorithm determines **what** users study, **when** they study it, and **how** they're tested. Users don't choose—the system prescribes daily work to stay on track.
+
+### Core Principles
+
+1. **Pedagogical sequencing**: Information points build on previous points
+2. **Spaced repetition**: Review at optimal intervals to maximize retention
+3. **Adaptive difficulty**: Quiz types progress from easy → hard as mastery increases
+4. **Resilient mastery**: Long-term understanding buffers against temporary slips
+
+---
+
+## Data Models
+
+### InformationPointProgress
+
+Tracks a user's relationship with a single information point.
+
+```typescript
+interface InformationPointProgress {
+  // === Identity ===
+  id: string;
+  informationPointId: string;
+  userId: string;
+  
+  // === State ===
+  state: 'unseen' | 'learning' | 'reviewing' | 'mastered';
+  
+  // === Dual-Track Mastery ===
+  masteryLevel: number;         // Current understanding (0-1), volatile
+  baselineMastery: number;      // Long-term average (0-1), stable
+  baselineConfidence: number;   // Reliability of baseline (0-1)
+  
+  // === Scheduling ===
+  stability: number;            // Days until ~90% forgetting probability
+  nextReviewAt: Date | null;    // When system will next present this IP
+  
+  // === Performance Stats ===
+  totalAttempts: number;
+  correctAttempts: number;
+  currentStreak: number;        // Consecutive correct answers
+  lapseCount: number;           // Times dropped from 'mastered' state
+  
+  // === Quiz Progression ===
+  unlockedQuizTypes: string[];  // Quiz type IDs available for this IP
+  
+  // === Timestamps ===
+  introducedAt: Date | null;    // When Learn mode completed
+  lastReviewedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### QuizType
+
+Defines a quiz format. Extensible—new types added without algorithm changes.
+
+```typescript
+interface QuizType {
+  id: string;
+  name: string;
+  description: string;
+  
+  // === Progression ===
+  difficultyWeight: number;       // Relative difficulty (1.0 = baseline)
+  minMasteryToUnlock: number;     // Mastery required to unlock (0-1)
+  
+  // === Mastery Impact ===
+  masteryBoostOnCorrect: number;  // Added to mastery on correct answer
+  stabilityMultiplier: number;    // Multiplier for stability increase
+  
+  // === Technical ===
+  requiresLLMGrading: boolean;
+  applicableContentTypes: string[];  // e.g., ['text', 'code', 'math']
+  
+  isActive: boolean;
+}
+```
+
+### QuizResponse
+
+Records each quiz interaction for analysis and algorithm tuning.
+
+```typescript
+interface QuizResponse {
+  id: string;
+  
+  // === Context ===
+  userId: string;
+  informationPointId: string;
+  quizTypeId: string;
+  sessionId: string;            // Groups responses in a study session
+  
+  // === Result ===
+  isCorrect: boolean;
+  responseTimeMs: number | null;
+  
+  // === State Snapshot (before response) ===
+  masteryBefore: number;
+  baselineBefore: number;
+  stabilityBefore: number;
+  
+  createdAt: Date;
+}
+```
+
+---
+
+## Initial Quiz Types
+
+| ID | Name | difficultyWeight | minMasteryToUnlock | masteryBoost | stabilityMult |
+|----|------|------------------|---------------------|--------------|---------------|
+| `binary` | True/False | 0.5 | 0.00 | 0.05 | 1.0 |
+| `multiple_choice` | Multiple Choice | 1.0 | 0.15 | 0.10 | 1.5 |
+| `question_answer` | Q&A | 2.0 | 0.40 | 0.15 | 2.0 |
+
+**Notes:**
+- True/False always available from first review
+- Multiple Choice unlocks at 15% mastery
+- Q&A unlocks at 40% mastery, requires LLM grading
+- Future types (coding exercises, math problems) follow same pattern
+
+---
+
+## Algorithm Components
+
+### 1. Response Processor
+
+Handles mastery and scheduling updates after each quiz response.
+
+#### On Wrong Answer
+
+```
+PENALTY = 0.15  // Fixed, regardless of quiz type
+
+masteryLevel = masteryLevel - PENALTY
+masteryLevel = max(0, masteryLevel)
+
+// Reset stability (memory is weaker than thought)
+stability = stability * 0.5
+
+// Track lapse if was mastered
+if (previousState == 'mastered') {
+  lapseCount++
+  state = 'reviewing'
+}
+
+currentStreak = 0
+```
+
+#### On Correct Answer
+
+```
+quizType = getQuizType(response.quizTypeId)
+
+// Base boost from quiz type
+boost = quizType.masteryBoostOnCorrect
+
+// Recovery boost (faster return to baseline)
+if (masteryLevel < baselineMastery) {
+  gap = baselineMastery - masteryLevel
+  recoveryBoost = gap * baselineConfidence * 0.5
+  boost = boost + recoveryBoost
+}
+
+masteryLevel = min(1.0, masteryLevel + boost)
+
+// Update stability
+stability = stability * quizType.stabilityMultiplier
+
+currentStreak++
+```
+
+#### Baseline Update (on any response)
+
+```
+BASELINE_MOMENTUM = 0.95  // How slowly baseline moves
+CONFIDENCE_INCREMENT = 0.02
+
+baselineMastery = (baselineMastery * BASELINE_MOMENTUM) + (masteryLevel * (1 - BASELINE_MOMENTUM))
+baselineConfidence = min(1.0, baselineConfidence + CONFIDENCE_INCREMENT)
+```
+
+#### State Transitions
+
+```
+MASTERY_THRESHOLD = 0.80
+
+if (state == 'learning' && masteryLevel > 0) {
+  state = 'reviewing'
+}
+
+if (state == 'reviewing' && masteryLevel >= MASTERY_THRESHOLD) {
+  state = 'mastered'
+}
+
+if (state == 'mastered' && masteryLevel < MASTERY_THRESHOLD) {
+  state = 'reviewing'
+  lapseCount++
+}
+```
+
+#### Schedule Next Review
+
+```
+// Base interval from stability
+baseInterval = stability
+
+// Adjust for current mastery (lower mastery = sooner review)
+masteryFactor = 0.5 + (masteryLevel * 0.5)  // Range: 0.5 - 1.0
+interval = baseInterval * masteryFactor
+
+// Minimum intervals by state
+MIN_INTERVALS = {
+  'learning': 0,      // Same session
+  'reviewing': 1,     // 1 day minimum
+  'mastered': 3       // 3 days minimum
+}
+
+interval = max(interval, MIN_INTERVALS[state])
+
+nextReviewAt = now + interval days
+```
+
+---
+
+### 2. Quiz Type Selector
+
+Determines which quiz type to use for a given IP.
+
+```
+function selectQuizType(progress: InformationPointProgress): QuizType {
+  // Get unlocked types for this IP
+  available = progress.unlockedQuizTypes
+    .map(id => getQuizType(id))
+    .filter(qt => qt.isActive)
+  
+  if (available.length == 0) {
+    return getQuizType('binary')  // Fallback
+  }
+  
+  // Weight selection toward appropriate difficulty
+  // Higher mastery = prefer harder types
+  weights = available.map(qt => {
+    // Prefer types where user is at the "sweet spot"
+    // (mastery slightly above unlock threshold)
+    distanceFromSweet = abs(progress.masteryLevel - (qt.minMasteryToUnlock + 0.2))
+    return 1 / (distanceFromSweet + 0.1)
+  })
+  
+  return weightedRandomSelect(available, weights)
+}
+```
+
+**Quiz Type Unlock Check** (run after each response):
+
+```
+function updateUnlockedQuizTypes(progress: InformationPointProgress, ip: InformationPoint) {
+  allTypes = getQuizTypesForIP(ip)  // Based on IP's applicableQuizTypes
+  
+  progress.unlockedQuizTypes = allTypes
+    .filter(qt => progress.masteryLevel >= qt.minMasteryToUnlock)
+    .map(qt => qt.id)
+}
+```
+
+---
+
+### 3. Session Builder
+
+Builds the daily study queue.
+
+#### Queue Composition
+
+```
+function buildDailyQueue(userId: string, targetSize: number = 20): QueueItem[] {
+  queue = []
+  
+  // 1. Due reviews (highest priority)
+  dueItems = getItemsDueForReview(userId, now)
+    .sort(byOverdueness)  // Most overdue first
+  
+  queue.push(...dueItems.slice(0, targetSize * 0.7))  // 70% reviews
+  
+  // 2. New items from current lesson
+  if (queue.length < targetSize) {
+    remaining = targetSize - queue.length
+    newItems = getNextUnseenItems(userId, remaining)
+    queue.push(...newItems)  // 30% new (max)
+  }
+  
+  // 3. Interleave
+  return interleave(queue)
+}
+```
+
+#### Interleaving Strategy
+
+```
+function interleave(items: QueueItem[]): QueueItem[] {
+  // Group by lesson
+  byLesson = groupBy(items, 'lessonId')
+  
+  // Round-robin from each lesson
+  result = []
+  while (anyRemaining(byLesson)) {
+    for (lessonId in byLesson) {
+      if (byLesson[lessonId].length > 0) {
+        result.push(byLesson[lessonId].shift())
+      }
+    }
+  }
+  
+  return result
+}
+```
+
+#### Overdueness Score
+
+```
+function overdueness(progress: InformationPointProgress): number {
+  if (progress.nextReviewAt == null) return 0
+  
+  daysOverdue = (now - progress.nextReviewAt) / MS_PER_DAY
+  
+  // Prioritize overdue items, but cap influence
+  return min(daysOverdue, 30)
+}
+```
+
+---
+
+### 4. Skip Quiz Handler
+
+Allows users to skip ahead by proving knowledge.
+
+#### Skip Quiz Generation
+
+```
+function generateSkipQuiz(
+  userId: string, 
+  targetLessonId: string,
+  questionCount: number = 20
+): SkipQuiz {
+  
+  // Get all IPs from lessons BEFORE target
+  precedingIPs = getIPsBeforeLesson(targetLessonId)
+  
+  // Random sample
+  selected = randomSample(precedingIPs, questionCount)
+  
+  // Use harder quiz types for skip quiz
+  questions = selected.map(ip => ({
+    informationPointId: ip.id,
+    quizType: selectSkipQuizType(ip)  // Prefer MC and Q&A
+  }))
+  
+  return {
+    targetLessonId,
+    questions,
+    requiredScore: 0.80  // 80% to pass
+  }
+}
+```
+
+#### Skip Quiz Result Processing
+
+```
+function processSkipQuizResult(
+  userId: string,
+  skipQuiz: SkipQuiz,
+  responses: QuizResponse[]
+): SkipResult {
+  
+  score = responses.filter(r => r.isCorrect).length / responses.length
+  
+  if (score < skipQuiz.requiredScore) {
+    return { passed: false, score }
+  }
+  
+  // Mark skipped lessons
+  skippedLessons = getLessonsBefore(skipQuiz.targetLessonId)
+  
+  for (lesson in skippedLessons) {
+    for (ip in lesson.informationPoints) {
+      progress = getOrCreateProgress(userId, ip.id)
+      
+      // Set to "assumed known" state
+      progress.state = 'reviewing'
+      progress.masteryLevel = 0.60        // Moderate mastery
+      progress.baselineMastery = 0.50     // Lower baseline (not proven over time)
+      progress.baselineConfidence = 0.3   // Low confidence
+      progress.stability = 7              // 1 week until review
+      progress.introducedAt = now
+      progress.nextReviewAt = now + 7 days
+      
+      // Unlock appropriate quiz types
+      updateUnlockedQuizTypes(progress, ip)
+    }
+  }
+  
+  return { passed: true, score, skippedLessons: skippedLessons.length }
+}
+```
+
+---
+
+## Constants & Configuration
+
+```typescript
+const ALGORITHM_CONFIG = {
+  // Mastery
+  MASTERY_THRESHOLD: 0.80,           // Level to reach 'mastered' state
+  WRONG_ANSWER_PENALTY: 0.15,        // Fixed penalty for any wrong answer
+  
+  // Baseline
+  BASELINE_MOMENTUM: 0.95,           // How slowly baseline moves (higher = slower)
+  BASELINE_CONFIDENCE_INCREMENT: 0.02,
+  RECOVERY_FACTOR: 0.5,              // How much baseline helps recovery
+  
+  // Stability
+  INITIAL_STABILITY: 1,              // Days (for new items)
+  STABILITY_DECAY_ON_WRONG: 0.5,     // Multiplier when wrong
+  
+  // Scheduling
+  MIN_INTERVAL_LEARNING: 0,          // Days
+  MIN_INTERVAL_REVIEWING: 1,
+  MIN_INTERVAL_MASTERED: 3,
+  
+  // Session
+  DEFAULT_SESSION_SIZE: 20,
+  NEW_ITEM_RATIO: 0.3,               // Max 30% new items
+  
+  // Skip Quiz
+  SKIP_QUIZ_PASS_THRESHOLD: 0.80,
+  SKIP_MASTERY_INITIAL: 0.60,
+  SKIP_BASELINE_INITIAL: 0.50,
+  SKIP_CONFIDENCE_INITIAL: 0.30,
+  SKIP_STABILITY_INITIAL: 7,
+}
+```
+
+---
+
+## State Diagram
+
+```
+                    ┌─────────────────────────────────────────┐
+                    │                                         │
+                    ▼                                         │
+┌────────┐    Learn Mode    ┌──────────┐    ≥80%    ┌─────────┴──┐
+│ UNSEEN │ ───────────────▶ │ LEARNING │ ────────▶ │  REVIEWING │
+└────────┘                  └──────────┘           └─────┬──────┘
+                                 ▲                       │
+                                 │                       │ ≥80% sustained
+                                 │                       ▼
+                                 │                 ┌──────────┐
+                                 │                 │ MASTERED │
+                                 │                 └────┬─────┘
+                                 │                      │
+                                 │    Wrong + <80%      │
+                                 └──────────────────────┘
+```
+
+---
+
+## Future Considerations
+
+1. **Response time tracking**: Faster correct answers could indicate stronger memory
+2. **Forgetting curve calibration**: Personalize stability calculations per user
+3. **Hint system**: Partial credit for answers with hints (reduced mastery boost)
+4. **Difficulty estimation**: Auto-adjust IP difficulty based on aggregate user performance
+5. **Learning velocity**: Track how fast users master new content to adjust new item ratio
+
