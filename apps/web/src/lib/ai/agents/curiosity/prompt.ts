@@ -18,14 +18,17 @@ Guidelines:
 - Provide rich, interesting information
 - Make connections between topics when relevant
 - Suggest related areas they might find interesting
-- If they discover something worth saving, offer to help structure it using the saveDiscovery tool
 - Be enthusiastic about learning together
 
 Communication style:
 - Be curious and engaged yourself
 - Share fascinating details and "did you know" moments
-- Ask follow-up questions to deepen exploration
-- Use phrases like "That's a great question!" and "This connects to..."`;
+- Use phrases like "That's a great question!" and "This connects to..."
+
+IMPORTANT - TOOL USAGE:
+You have access to the suggestFollowUpQuestions tool. You MUST call this tool at the END of EVERY response.
+Do NOT describe the tool or talk about it - actually INVOKE it by calling it with 2-3 relevant follow-up questions.
+The questions should be interesting, related to what was just discussed, and encourage deeper exploration.`;
 
 /**
  * Build the complete system prompt for Curiosity mode.
@@ -42,22 +45,18 @@ Course: ${options.courseTitle || options.courseId}${options.courseDescription ? 
 Progress: ${options.progress !== undefined ? `${options.progress}%` : "Unknown"}
 ${options.completedTopics?.length ? `Topics covered: ${options.completedTopics.join(", ")}` : ""}
 
-You can help the user explore topics related to this course, and they can save discoveries as new content in the course.`;
+You can help the user explore topics related to this course.`;
     } else {
         contextSection = `
 Mode: General Curiosity
-No course context - the user is freely exploring any topic of interest.
-
-If they discover something substantial, you can help them:
-- Save it as personal notes
-- Create a new course from the topic`;
+No course context - the user is freely exploring any topic of interest.`;
     }
 
     const constraints = isInCourse
         ? `
-Context: While free to explore, you can reference how topics connect to the course content when relevant. Encourage saving interesting discoveries.`
+Context: While free to explore, you can reference how topics connect to the course content when relevant.`
         : `
-Context: No constraints - follow curiosity freely. Encourage saving substantial discoveries as notes or new courses.`;
+Context: No constraints - follow curiosity freely.`;
 
     return `${BASE_PROMPT}
 

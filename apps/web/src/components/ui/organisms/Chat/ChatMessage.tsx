@@ -3,6 +3,7 @@
  *
  * Renders individual chat messages with role-based styling.
  * Uses Streamdown for markdown rendering in AI responses.
+ * Supports custom tool renderers via the tool registry.
  */
 
 "use client";
@@ -10,6 +11,7 @@
 import { cn } from "@/lib/utils";
 import { Streamdown } from "streamdown";
 import type { ChatMode } from "@/lib/ai/agents";
+import { getToolRenderer } from "./tool-registry";
 
 /**
  * Mode-specific styling for user message bubbles.
@@ -32,6 +34,10 @@ interface ChatMessageProps {
         args?: Record<string, unknown>;
         result?: unknown;
     }>;
+    /** Callback for tool-triggered actions (e.g., sending a message) */
+    onAction?: (action: string, payload?: unknown) => void;
+    /** Whether this is the last message in the chat (tools only render on last message) */
+    isLastMessage?: boolean;
 }
 
 export function ChatMessage({
@@ -39,9 +45,37 @@ export function ChatMessage({
     content,
     mode,
     toolInvocations,
+    onAction,
+    isLastMessage = false,
 }: ChatMessageProps) {
     const isUser = role === "user";
     const isAssistant = role === "assistant";
+
+    /**
+     * Render a tool invocation, using a custom renderer if available.
+     */
+    const renderToolInvocation = (
+        invocation: NonNullable<ChatMessageProps["toolInvocations"]>[number],
+        index: number
+    ) => {
+        const customRenderer = getToolRenderer(invocation.toolName);
+
+        if (customRenderer) {
+            return (
+                <div key={index}>
+                    {customRenderer({
+                        args: invocation.args,
+                        result: invocation.result,
+                        state: invocation.state,
+                        onAction,
+                    })}
+                </div>
+            );
+        }
+
+        // Fall back to generic tool display
+        return <ToolInvocation key={index} {...invocation} />;
+    };
 
     return (
         <div className="w-full py-2">
@@ -67,14 +101,14 @@ export function ChatMessage({
                         <Streamdown>{content}</Streamdown>
                     </div>
 
-                    {/* Tool invocations */}
-                    {toolInvocations && toolInvocations.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                            {toolInvocations.map((invocation, index) => (
-                                <ToolInvocation key={index} {...invocation} />
-                            ))}
-                        </div>
-                    )}
+                    {/* Tool invocations - only render on the last message */}
+                    {isLastMessage &&
+                        toolInvocations &&
+                        toolInvocations.length > 0 && (
+                            <div className="mt-3 space-y-2">
+                                {toolInvocations.map(renderToolInvocation)}
+                            </div>
+                        )}
                 </div>
             )}
         </div>

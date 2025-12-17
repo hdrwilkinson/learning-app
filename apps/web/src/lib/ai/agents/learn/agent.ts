@@ -20,7 +20,7 @@ import { buildLearnPrompt } from "./prompt";
  *
  * Features:
  * - Dynamic system prompt based on IP context
- * - Tools: explainConcept, markUnderstood, checkUnderstanding
+ * - Tools: none currently
  * - Max 15 steps per conversation turn
  */
 export const learnAgent = new Agent({

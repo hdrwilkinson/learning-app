@@ -5,51 +5,29 @@
  * Tools are shared across agents - each agent selects which tools it needs.
  */
 
-export { explainConcept } from "./explain-concept";
-export { markUnderstood } from "./mark-understood";
-export { checkUnderstanding } from "./check-understanding";
-export { submitAnswer } from "./submit-answer";
-export { saveDiscovery } from "./save-discovery";
+export { suggestFollowUpQuestions } from "./suggest-follow-up-questions";
 
 /**
  * Tool collections for convenience.
  * Agents can import these pre-bundled sets or pick individual tools.
  */
-import { explainConcept } from "./explain-concept";
-import { markUnderstood } from "./mark-understood";
-import { checkUnderstanding } from "./check-understanding";
-import { submitAnswer } from "./submit-answer";
-import { saveDiscovery } from "./save-discovery";
+import { suggestFollowUpQuestions } from "./suggest-follow-up-questions";
 
 /** Tools available in Learn mode */
-export const learnTools = {
-    explainConcept,
-    markUnderstood,
-    checkUnderstanding,
-};
+export const learnTools = {};
 
 /** Tools available in Quiz mode */
-export const quizTools = {
-    submitAnswer,
-    explainConcept,
-};
+export const quizTools = {};
 
 /** Tools available in Curiosity mode */
 export const curiosityTools = {
-    explainConcept,
-    saveDiscovery,
+    suggestFollowUpQuestions,
 };
 
 /** Tools available in Reflection mode */
-export const reflectionTools = {
-    explainConcept,
-};
+export const reflectionTools = {};
 
 /** All tools (for reference/testing) */
 export const allTools = {
-    explainConcept,
-    markUnderstood,
-    checkUnderstanding,
-    submitAnswer,
-    saveDiscovery,
+    suggestFollowUpQuestions,
 };

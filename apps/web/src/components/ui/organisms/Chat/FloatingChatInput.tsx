@@ -15,7 +15,7 @@ import {
     type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
-import { HiPaperAirplane } from "react-icons/hi";
+import { HiPaperAirplane, HiStop } from "react-icons/hi";
 
 interface FloatingChatInputProps {
     /** Current input value */
@@ -24,6 +24,8 @@ interface FloatingChatInputProps {
     onChange: (value: string) => void;
     /** Called when form is submitted */
     onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+    /** Called when stop button is clicked during streaming */
+    onStop?: () => void;
     /** Whether the chat is currently loading/streaming */
     isLoading?: boolean;
     /** Placeholder text */
@@ -40,6 +42,7 @@ export function FloatingChatInput({
     value,
     onChange,
     onSubmit,
+    onStop,
     isLoading = false,
     placeholder = "Type your message...",
     disabled = false,
@@ -50,12 +53,12 @@ export function FloatingChatInput({
 
     /**
      * Handle keyboard shortcuts.
-     * Enter to submit, Shift+Enter for new line.
+     * Enter to submit (even while loading - parent handles stopping stream), Shift+Enter for new line.
      */
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            if (value.trim() && !isLoading && !disabled) {
+            if (value.trim() && !disabled) {
                 const form = e.currentTarget.form;
                 if (form) {
                     const submitEvent = new Event("submit", {
@@ -86,14 +89,14 @@ export function FloatingChatInput({
             {/* Grey background container - wider than chat history to cleanly cover scrolling messages */}
             <div className="max-w-[calc(48rem+2rem)] mx-auto rounded-2xl bg-surface-1 p-3">
                 <form onSubmit={onSubmit}>
-                    {/* Textarea - full width */}
+                    {/* Textarea - full width, remains enabled during streaming to allow interruption */}
                     <textarea
                         ref={textareaRef}
                         value={value}
                         onChange={handleInput}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        disabled={disabled || isLoading}
+                        disabled={disabled}
                         rows={1}
                         className={cn(
                             "w-full resize-none bg-transparent px-1 py-1",
@@ -109,26 +112,39 @@ export function FloatingChatInput({
                         {/* Action buttons - left */}
                         <div className="flex items-center gap-2">{actions}</div>
 
-                        {/* Submit button - right */}
-                        <button
-                            type="submit"
-                            disabled={!value.trim() || isLoading || disabled}
-                            className={cn(
-                                "flex h-9 w-9 items-center justify-center rounded-full",
-                                "bg-primary text-primary-foreground",
-                                "transition-all duration-200",
-                                "hover:bg-primary/90",
-                                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                                "disabled:opacity-50 disabled:cursor-not-allowed"
-                            )}
-                            aria-label="Send message"
-                        >
-                            {isLoading ? (
-                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                            ) : (
+                        {/* Stop/Submit button - right */}
+                        {isLoading ? (
+                            <button
+                                type="button"
+                                onClick={onStop}
+                                className={cn(
+                                    "flex h-9 w-9 items-center justify-center rounded-full",
+                                    "bg-destructive text-destructive-foreground",
+                                    "transition-all duration-200",
+                                    "hover:bg-destructive/90",
+                                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                )}
+                                aria-label="Stop response"
+                            >
+                                <HiStop className="h-4 w-4" />
+                            </button>
+                        ) : (
+                            <button
+                                type="submit"
+                                disabled={!value.trim() || disabled}
+                                className={cn(
+                                    "flex h-9 w-9 items-center justify-center rounded-full",
+                                    "bg-primary text-primary-foreground",
+                                    "transition-all duration-200",
+                                    "hover:bg-primary/90",
+                                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                                )}
+                                aria-label="Send message"
+                            >
                                 <HiPaperAirplane className="h-4 w-4 rotate-90" />
-                            )}
-                        </button>
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>

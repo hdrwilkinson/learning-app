@@ -20,7 +20,7 @@ import { buildCuriosityPrompt } from "./prompt";
  *
  * Features:
  * - Dynamic system prompt based on course context (or lack thereof)
- * - Tools: explainConcept, saveDiscovery
+ * - Tools: suggestFollowUpQuestions
  * - Max 20 steps per conversation turn (more freedom to explore)
  */
 export const curiosityAgent = new Agent({

@@ -33,94 +33,56 @@ export function AppShell({ children }: AppShellProps) {
 
     return (
         <>
-            {/* Desktop Sidebar - Fixed on left */}
+            {/* Sidebar - Hidden on mobile, slim on tablet (64px), full on desktop (256px) */}
             <div className="hidden md:block">
                 <Sidebar />
             </div>
 
-            {/* Mobile/Tablet Layout - Fixed viewport with container scroll */}
-            <div className="fixed inset-0 lg:hidden md:ml-16 flex flex-col overflow-hidden bg-background">
-                {/* Secondary Nav as Header - Fixed at top (hidden for noAccessory routes) */}
+            {/* Mobile Bottom Navigation - Fixed at bottom, only on mobile */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+                <MobileNav />
+            </div>
+
+            {/* Main Content Area - Single container with responsive sidebar margins
+                - Mobile: no left margin, bottom padding for MobileNav
+                - Tablet: ml-16 (64px for slim sidebar)
+                - Desktop: ml-64 (256px for full sidebar)
+            */}
+            <div className="fixed inset-0 md:ml-16 lg:ml-64 flex flex-col bg-background pb-16 md:pb-0">
+                {/* Secondary Nav Header - Mobile/tablet only, when showing accessory content */}
                 {showAccessory && (
-                    <div className="bg-background flex-shrink-0 border-b border-border">
+                    <div className="lg:hidden flex-shrink-0 border-b border-border bg-background">
                         <SecondaryNav />
                     </div>
                 )}
 
-                {/* Email Verification Banner - Below nav, at top of scrollable content */}
+                {/* Email Verification Banner */}
                 <EmailVerificationBanner />
 
-                {/* Main Content - Scrollable (or flex for focus routes), centered with padding */}
-                <main
-                    className={
-                        showAccessory
-                            ? "flex-1 overflow-y-auto flex flex-col items-center min-h-0 p-4 md:p-6"
-                            : "flex-1 min-h-0 flex flex-col"
-                    }
-                >
-                    <div
-                        className={
-                            showAccessory ? "w-full max-w-4xl" : "w-full h-full"
-                        }
-                    >
-                        {children}
-                    </div>
-                </main>
+                {/* Content Layout - Two modes: standard (with accessory) or focus (full-height flex) */}
+                {showAccessory ? (
+                    /* Standard layout - Scrollable content with optional accessory panel on right */
+                    <div className="flex-1 overflow-y-auto min-h-0">
+                        <div className="flex justify-center px-4 md:px-6 py-4 lg:pt-8 lg:pb-6">
+                            <div className="flex gap-6 w-full max-w-[1056px] items-start">
+                                {/* Main Content Column */}
+                                <main className="flex-1 min-w-0 w-full lg:pt-2">
+                                    {children}
+                                </main>
 
-                {/* Mobile Bottom Navigation - Fixed at bottom */}
-                <div className="md:hidden flex-shrink-0">
-                    <MobileNav />
-                </div>
-            </div>
-
-            {/* Desktop Layout - Whole page scroll with centered content */}
-            <div className="hidden lg:block min-h-screen bg-background">
-                {/* Main Wrapper - Offset by sidebar, centers content */}
-                <div
-                    className={
-                        showAccessory
-                            ? "ml-64 flex flex-col"
-                            : "ml-64 flex flex-col h-screen"
-                    }
-                >
-                    {/* Email Verification Banner - Fixed at top, above content/accessory divide */}
-                    <EmailVerificationBanner />
-                    {/* Content Wrapper - Centers content with padding */}
-                    <div
-                        className={
-                            showAccessory
-                                ? "flex justify-center px-6 pt-8 pb-6"
-                                : "flex-1 min-h-0 flex flex-col"
-                        }
-                    >
-                        {/* Content Container - Max width with flex layout */}
-                        <div
-                            className={
-                                showAccessory
-                                    ? "flex gap-6 w-full max-w-[1056px] items-start"
-                                    : "flex-1 min-h-0 flex flex-col"
-                            }
-                        >
-                            {/* Main Content Column - Fills width, aligned to top */}
-                            <main
-                                className={
-                                    showAccessory
-                                        ? "flex-1 min-w-0 w-full pt-2"
-                                        : "flex-1 min-h-0 w-full"
-                                }
-                            >
-                                {children}
-                            </main>
-
-                            {/* Accessory Section - Sticky on right (hidden on certain routes) */}
-                            {showAccessory && (
-                                <div className="sticky top-8 self-start">
+                                {/* Accessory Section - Desktop only (includes SecondaryNav on desktop) */}
+                                <div className="hidden lg:block sticky top-8 self-start">
                                     <AccessorySection />
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                ) : (
+                    /* Focus layout - Full-height flex for chat/quiz experiences */
+                    <main className="flex-1 min-h-0 flex flex-col">
+                        {children}
+                    </main>
+                )}
             </div>
         </>
     );

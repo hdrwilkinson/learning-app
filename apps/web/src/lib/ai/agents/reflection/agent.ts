@@ -20,7 +20,7 @@ import { buildReflectionPrompt } from "./prompt";
  *
  * Features:
  * - Dynamic system prompt based on question/answer context
- * - Tools: explainConcept (focused on the specific IP)
+ * - Tools: none currently
  * - Max 15 steps per conversation turn
  */
 export const reflectionAgent = new Agent({

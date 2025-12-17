@@ -85,7 +85,7 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
     const [input, setInput] = useState("");
 
     // AI SDK v6 useChat hook with transport-based architecture
-    const { messages, sendMessage, status, error } = useChat({
+    const { messages, sendMessage, status, error, stop } = useChat({
         transport: new DefaultChatTransport({
             api: "/api/chat",
             body: {
@@ -104,13 +104,27 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
 
     /**
      * Handle form submission.
+     * If AI is currently streaming, stop it first then send the new message.
      */
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if (!input.trim()) return;
+
+        // Stop any current stream before sending new message
+        if (isLoading) {
+            stop();
+        }
 
         sendMessage({ text: input });
         setInput("");
+    };
+
+    /**
+     * Handle stop button click.
+     * Aborts the current AI stream.
+     */
+    const handleStop = () => {
+        stop();
     };
 
     /**
@@ -140,6 +154,19 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
     };
 
     /**
+     * Handle tool-triggered actions (e.g., from follow-up question buttons).
+     */
+    const handleToolAction = (action: string, payload?: unknown) => {
+        switch (action) {
+            case "sendMessage":
+                if (typeof payload === "string" && payload.trim()) {
+                    sendMessage({ text: payload });
+                }
+                return;
+        }
+    };
+
+    /**
      * Extract text content from UIMessage parts.
      */
     const getMessageContent = (message: (typeof messages)[number]): string => {
@@ -154,29 +181,43 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
 
     /**
      * Extract tool invocations from UIMessage parts.
+     * AI SDK v6 uses part.type format: "tool-{toolName}" (e.g., "tool-suggestFollowUpQuestions")
      */
     const getToolInvocations = (message: (typeof messages)[number]) => {
         if ("parts" in message && Array.isArray(message.parts)) {
+            // Filter for tool parts - they start with "tool-" prefix
             const toolParts = message.parts.filter(
-                (part) => part.type === "tool-invocation"
+                (part) =>
+                    typeof part.type === "string" &&
+                    part.type.startsWith("tool-")
             );
             if (toolParts.length === 0) return undefined;
 
             return toolParts.map((part) => {
                 // Cast through unknown to handle the complex union type
                 const toolPart = part as unknown as {
-                    type: "tool-invocation";
-                    toolInvocationId: string;
-                    toolName: string;
+                    type: string;
                     state: string;
-                    args?: Record<string, unknown>;
-                    result?: unknown;
+                    input?: Record<string, unknown>;
+                    output?: unknown;
+                    errorText?: string;
                 };
+
+                // Extract tool name from type (e.g., "tool-suggestFollowUpQuestions" -> "suggestFollowUpQuestions")
+                const toolName = toolPart.type.replace("tool-", "");
+
+                // Map AI SDK v6 states to our internal states
+                // AI SDK v6: "input-available" | "output-available" | "output-error"
+                let state: "pending" | "result" = "pending";
+                if (toolPart.state === "output-available") {
+                    state = "result";
+                }
+
                 return {
-                    toolName: toolPart.toolName,
-                    state: toolPart.state as "pending" | "result",
-                    args: toolPart.args,
-                    result: toolPart.result,
+                    toolName,
+                    state,
+                    args: toolPart.input,
+                    result: toolPart.output,
                 };
             });
         }
@@ -195,13 +236,15 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
                     </div>
                 ) : (
                     <div className="space-y-3 max-w-3xl mx-auto">
-                        {messages.map((message) => (
+                        {messages.map((message, index) => (
                             <ChatMessage
                                 key={message.id}
                                 role={message.role as "user" | "assistant"}
                                 content={getMessageContent(message)}
                                 mode={mode}
                                 toolInvocations={getToolInvocations(message)}
+                                onAction={handleToolAction}
+                                isLastMessage={index === messages.length - 1}
                             />
                         ))}
                         <div ref={messagesEndRef} />
@@ -229,6 +272,7 @@ export function Chat({ mode, options, onAction, className }: ChatProps) {
                 value={input}
                 onChange={setInput}
                 onSubmit={handleSubmit}
+                onStop={handleStop}
                 isLoading={isLoading}
                 placeholder={config.placeholder}
                 actions={

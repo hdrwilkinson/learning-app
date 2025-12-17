@@ -20,7 +20,7 @@ import { buildQuizPrompt } from "./prompt";
  *
  * Features:
  * - Dynamic system prompt based on quiz/question context
- * - Tools: submitAnswer, explainConcept
+ * - Tools: none currently
  * - Max 10 steps per conversation turn
  */
 export const quizAgent = new Agent({
