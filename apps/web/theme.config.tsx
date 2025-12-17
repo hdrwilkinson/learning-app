@@ -49,16 +49,6 @@ const config: DocsThemeConfig = {
                 property="og:description"
                 content="Documentation for the AI-powered learning platform"
             />
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link
-                rel="preconnect"
-                href="https://fonts.gstatic.com"
-                crossOrigin="anonymous"
-            />
-            <link
-                href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
-                rel="stylesheet"
-            />
         </>
     ),
     // Purple primary color (hue 262)

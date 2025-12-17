@@ -1,12 +1,5 @@
 # Course Structure & Navigation
 
-<!--
-Status: Draft
-Created: 2025-11-30
-Issue: #15
-Owner: Harry
--->
-
 > Design specification for course hierarchy, navigation patterns, and progress visualization.
 
 ## Related Specifications
@@ -177,7 +170,7 @@ Each lesson node on the path reflects the aggregate state of its information poi
 | **Available** | Previous lesson done, this one not started | Outlined, ready to start |
 | **In Progress** | Some IPs introduced (Learn mode done) | Partially filled |
 | **Learning** | All IPs introduced, actively being quizzed | Filled, accent color |
-| **Mastered** | All IPs at ≥80% mastery | Filled, success color |
+| **Mastered** | All IPs at 80%+ mastery | Filled, success color |
 
 ### State Calculation
 
@@ -278,7 +271,7 @@ interface SkipQuiz {
 }
 ```
 
-### On Pass (≥80%)
+### On Pass (80%+)
 
 All skipped lessons marked as:
 - State: `reviewing`
@@ -289,7 +282,7 @@ All skipped lessons marked as:
 
 User unlocks target lesson.
 
-### On Fail (<80%)
+### On Fail (below 80%)
 
 - Show results: "You scored 65%. Review these topics:"
 - Highlight weak areas (IPs answered incorrectly)
@@ -366,7 +359,7 @@ Accessed by clicking "View Details" on a lesson:
 
 ## Responsive Considerations
 
-### Desktop (≥1024px)
+### Desktop (1024px+)
 - Full snake path with 4-5 lessons per row
 - Module sidebar optionally pinned
 - Lesson detail as slide-over panel
@@ -376,7 +369,7 @@ Accessed by clicking "View Details" on a lesson:
 - Modules stack vertically
 - Lesson detail as modal
 
-### Mobile (<768px)
+### Mobile (below 768px)
 - 2-3 lessons per row
 - Simplified node design (smaller, icon-focused)
 - Lesson detail as full-screen view

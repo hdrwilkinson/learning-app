@@ -1,4 +1,4 @@
-import { HiAcademicCap, HiBookOpen, HiUser } from "react-icons/hi";
+import { HiAcademicCap, HiBookOpen, HiSparkles, HiUser } from "react-icons/hi";
 import { IconType } from "react-icons";
 
 export const APP_TITLE = "Cognia";
@@ -19,6 +19,11 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
         label: "Study",
         href: "/study",
         icon: HiBookOpen,
+    },
+    {
+        label: "Explore",
+        href: "/explore",
+        icon: HiSparkles,
     },
     {
         label: "Profile",
