@@ -4,10 +4,21 @@
  * Single endpoint for all chat modes. Uses AI SDK v6 streamText
  * with mode-specific system prompts.
  *
+ * For curiosity mode, follows the AI SDK v6 chatbot message persistence pattern:
+ * - Accepts only the last message from client (previous messages loaded from DB)
+ * - Saves messages via onFinish callback
+ * - Uses consumeStream() to handle client disconnects
+ *
+ * @see https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+    convertToModelMessages,
+    createIdGenerator,
+    streamText,
+    type UIMessage,
+} from "ai";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { gemini } from "@/lib/ai/config";
@@ -28,15 +39,31 @@ import type {
     CuriosityOptions,
     ReflectionOptions,
 } from "@/lib/ai/agents";
+import { loadChat, saveChat, getChat, updateChatTitle } from "@/lib/chat";
+import { generateTitle } from "./generate-title";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 /**
  * Request body shape for the chat endpoint.
+ *
+ * For curiosity mode with persistence:
+ * - `message`: The single new message from the user
+ * - `id`: The conversation ID for loading/saving
+ * - `isNewChat`: Whether this is a new chat (needs creation)
+ *
+ * For other modes (legacy):
+ * - `messages`: Full message history
  */
 interface ChatRequestBody {
-    messages: UIMessage[];
+    // New pattern (curiosity mode with persistence)
+    message?: UIMessage;
+    id?: string;
+    isNewChat?: boolean;
+    // Legacy pattern (other modes)
+    messages?: UIMessage[];
+    // Common
     mode: ChatMode;
     options: LearnOptions | QuizOptions | CuriosityOptions | ReflectionOptions;
 }
@@ -86,6 +113,12 @@ function getTools(mode: ChatMode) {
  * Handles chat messages for all modes (learn, quiz, curiosity, reflection).
  * The mode and options determine the system prompt and available tools.
  * Requires authenticated session.
+ *
+ * For curiosity mode:
+ * - Accepts { message, id, mode, options } - only the last message
+ * - Loads previous messages from database
+ * - Saves all messages via onFinish callback
+ * - Generates title after first assistant response
  */
 export async function POST(request: Request) {
     try {
@@ -98,8 +131,16 @@ export async function POST(request: Request) {
             );
         }
 
+        const userId = session.user.id;
         const body = (await request.json()) as ChatRequestBody;
-        const { messages, mode, options } = body;
+        const {
+            message,
+            id,
+            isNewChat,
+            messages: legacyMessages,
+            mode,
+            options,
+        } = body;
 
         // Validate mode
         if (
@@ -120,6 +161,32 @@ export async function POST(request: Request) {
             );
         }
 
+        // Determine messages based on mode
+        let messages: UIMessage[];
+        let chatId: string | undefined;
+
+        if (mode === "curiosity" && id && message) {
+            // New pattern: Load previous messages from DB, append new message
+            chatId = id;
+
+            // For new chats, don't try to load from DB (chat will be created in saveChat)
+            // For existing chats, load previous messages
+            let previousMessages: UIMessage[] = [];
+            if (!isNewChat) {
+                const chat = await loadChat(chatId, userId);
+                previousMessages = chat?.messages || [];
+            }
+            messages = [...previousMessages, message];
+        } else if (legacyMessages) {
+            // Legacy pattern: Use full message array from client
+            messages = legacyMessages;
+        } else {
+            return NextResponse.json(
+                { error: "Missing messages" },
+                { status: 400 }
+            );
+        }
+
         // Get mode-specific configuration
         const systemPrompt = getSystemPrompt(mode, options);
         const tools = getTools(mode);
@@ -132,7 +199,43 @@ export async function POST(request: Request) {
             tools,
         });
 
-        // Return streaming response
+        // For curiosity mode with persistence, consume stream and save on finish
+        if (mode === "curiosity" && chatId) {
+            // Consume stream to ensure completion even if client disconnects
+            result.consumeStream();
+
+            return result.toUIMessageStreamResponse({
+                originalMessages: messages,
+                generateMessageId: createIdGenerator({
+                    prefix: "msg",
+                    size: 16,
+                }),
+                onFinish: async ({ messages: finalMessages }) => {
+                    try {
+                        // Save all messages to database
+                        await saveChat({
+                            chatId: chatId!,
+                            messages: finalMessages,
+                            userId,
+                        });
+
+                        // Generate title after first AI response if needed
+                        const chat = await getChat(chatId!, userId);
+                        if (
+                            chat?.title === "New conversation" &&
+                            finalMessages.length >= 2
+                        ) {
+                            const title = await generateTitle(finalMessages);
+                            await updateChatTitle(chatId!, title, userId);
+                        }
+                    } catch (error) {
+                        console.error("Error in onFinish callback:", error);
+                    }
+                },
+            });
+        }
+
+        // Return streaming response (legacy pattern without persistence)
         return result.toUIMessageStreamResponse();
     } catch (error) {
         console.error("Chat API error:", error);

@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "@ai-sdk/google": "^3.0.0-beta.78",
+        "@google/generative-ai": "^0.21.0",
         "@ai-sdk/react": "^3.0.0-beta.160",
         "@auth/core": "^0.37.4",
         "@auth/prisma-adapter": "^2.7.4",

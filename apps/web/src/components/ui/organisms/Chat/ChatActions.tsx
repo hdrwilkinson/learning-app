@@ -40,10 +40,7 @@ const modeActions: Record<
         { id: "reflect", label: "Reflect", variant: "secondary", icon: "💡" },
         { id: "skip", label: "Skip", variant: "ghost" },
     ],
-    curiosity: [
-        { id: "save", label: "Save Discovery", variant: "primary", icon: "💾" },
-        { id: "new-topic", label: "New Topic", variant: "ghost" },
-    ],
+    curiosity: [{ id: "new-topic", label: "New Topic", variant: "ghost" }],
     reflection: [
         {
             id: "return",

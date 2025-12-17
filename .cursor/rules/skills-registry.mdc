@@ -279,12 +279,13 @@ Hub skills organize related skills into categories. When unsure which specific s
 - Building new React components
 - Using shadcn/ui patterns
 - Following atomic design
+- Deciding feature vs shared component placement
 
 **Path**: `skills/components/SKILL.md`
 
-**What it does**: UI component patterns using shadcn/ui and atomic design.
+**What it does**: UI component patterns using shadcn/ui, atomic design, and feature-based organization. Guides placement decisions between feature-specific and shared components.
 
-**Key principle**: Composable, accessible components from atoms to organisms
+**Key principle**: Composable, accessible components from atoms to organisms. Start in features, promote to shared upon reuse.
 
 ---
 

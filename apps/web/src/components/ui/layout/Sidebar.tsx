@@ -8,6 +8,7 @@ import {
     type NavigationItem,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { ChatHistory } from "./ChatHistory";
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -25,7 +26,7 @@ export function Sidebar() {
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 px-2 lg:px-4 py-4 space-y-1">
+            <nav className="px-2 lg:px-4 py-4 space-y-1">
                 {NAVIGATION_ITEMS.map((item: NavigationItem) => {
                     const Icon = item.icon;
                     const isActive =
@@ -62,6 +63,16 @@ export function Sidebar() {
                     );
                 })}
             </nav>
+
+            {/* Chat History - Desktop expanded only */}
+            <div className="hidden lg:block flex-1 overflow-hidden">
+                <ChatHistory isExpanded={true} />
+            </div>
+
+            {/* Chat History - Tablet collapsed */}
+            <div className="hidden md:block lg:hidden">
+                <ChatHistory isExpanded={false} />
+            </div>
         </aside>
     );
 }

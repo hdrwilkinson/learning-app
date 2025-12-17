@@ -1,76 +1,29 @@
 /**
- * Explore Page
+ * Explore Page (Server Component)
  *
- * A focused chat experience for exploring any topic freely.
- * Uses FocusLayout with left sidebar, no right accessory panel.
- * Access at: http://localhost:3002/explore
+ * Landing page for explore/curiosity mode.
+ * Shows an empty chat interface where users can start typing.
+ * Chat is created lazily on first message submission.
+ *
+ * @see https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence
  */
 
-"use client";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { ExploreChat } from "./ExploreChat";
+import { ExploreChatLayout } from "./ExploreChatLayout";
 
-import { Chat } from "@/components/ui/organisms/Chat";
-import { FocusLayout } from "@/components/ui/layout";
-import { Button } from "@/components/ui/shadcn/button";
-import { HiPlus, HiBookmark } from "react-icons/hi";
+export default async function ExplorePage() {
+    // Verify user is authenticated
+    const session = await auth();
+    if (!session?.user?.id) {
+        redirect("/auth/login");
+    }
 
-export default function ExplorePage() {
-    const handleNewChat = () => {
-        // TODO: Implement new chat functionality
-        console.log("New chat requested");
-    };
-
-    const handleSave = () => {
-        // TODO: Implement save functionality
-        alert("Save Discovery feature coming soon!");
-    };
-
+    // Render ExploreChat without id (new chat mode with lazy creation)
     return (
-        <FocusLayout
-            title="Explore"
-            icon="🔮"
-            backHref="/"
-            actions={
-                <>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleNewChat}
-                        className="gap-1.5"
-                    >
-                        <HiPlus className="h-4 w-4" />
-                        <span className="hidden sm:inline">New</span>
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleSave}
-                        className="gap-1.5"
-                    >
-                        <HiBookmark className="h-4 w-4" />
-                        <span className="hidden sm:inline">Save</span>
-                    </Button>
-                </>
-            }
-        >
-            <Chat
-                mode="curiosity"
-                options={{
-                    courseId: undefined,
-                    courseTitle: undefined,
-                    courseDescription: undefined,
-                    completedTopics: [],
-                    progress: undefined,
-                }}
-                onAction={(action) => {
-                    console.log("Action triggered:", action);
-                    if (action === "save") {
-                        handleSave();
-                    }
-                    if (action === "new-topic") {
-                        handleNewChat();
-                    }
-                }}
-            />
-        </FocusLayout>
+        <ExploreChatLayout>
+            <ExploreChat />
+        </ExploreChatLayout>
     );
 }

@@ -18,9 +18,9 @@ import { cn } from "@/lib/utils";
 import { FocusHeader } from "./FocusHeader";
 
 interface FocusLayoutProps {
-    /** Title displayed in the header */
-    title: string;
-    /** Optional icon displayed before the title */
+    /** Title displayed in the header - can be string or ReactNode (e.g., EditableTitle) */
+    title: string | ReactNode;
+    /** Optional icon displayed before the title (only used with string titles) */
     icon?: ReactNode;
     /** URL to navigate back to (defaults to '/') */
     backHref?: string;

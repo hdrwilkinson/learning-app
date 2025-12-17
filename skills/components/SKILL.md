@@ -1,70 +1,106 @@
 ---
 name: components
-description: UI component patterns using shadcn/ui and atomic design. Use when building new components, organizing component structure, or following UI patterns. Triggers include "create component", "shadcn", "atomic design".
+description: UI component patterns using shadcn/ui, atomic design, and feature-based organization. Use when building new components, organizing component structure, or following UI patterns. Triggers include "create component", "shadcn", "atomic design", "feature component".
 ---
 
 # Components Skill
 
 ## Purpose & Context (WHY)
 
-This skill provides patterns for building consistent, accessible UI components using shadcn/ui and atomic design principles. Components are organized in a hierarchy from simple atoms to complex organisms.
+This skill provides patterns for building consistent, accessible UI components using shadcn/ui and atomic design principles. Components live in **two locations**: feature-specific folders for domain logic, and shared `components/ui/` for reusable primitives.
 
 **When to use**: Building new UI components, refactoring existing components, or organizing component structure.
 
 **When to skip**: For one-off UI elements that won't be reused.
 
-## Component Hierarchy
+## Feature-Based vs Shared Components
 
-### Atomic Design Levels
+**First decision**: Is this component feature-specific or shared?
+
+| Put in...                     | When...                                              |
+| ----------------------------- | ---------------------------------------------------- |
+| `features/{name}/components/` | Component is only used within that feature           |
+| `components/ui/`              | Component is used by 2+ features OR is truly generic |
+
+**Start in features, promote upon reuse.** When a component is needed by multiple features, move it to `components/ui/`.
+
+### Feature Components Structure
+
+```
+apps/web/src/features/{feature-name}/
+├── components/           # Feature-specific UI (atomic structure)
+│   ├── atoms/
+│   │   └── FeatureAtom/
+│   ├── molecules/
+│   │   └── FeatureMolecule/
+│   ├── organisms/
+│   │   └── FeatureOrganism/
+│   └── index.ts          # Barrel export
+├── hooks/
+├── utils/
+├── types.ts
+└── index.ts              # Public API
+```
+
+### Shared Components Structure
 
 ```
 apps/web/src/components/ui/
 ├── shadcn/           # Base shadcn/ui components (button, input, etc.)
-├── atoms/            # Fundamental building blocks
-│   └── IconButton/
-│       ├── IconButton.tsx
-│       ├── IconButton.test.tsx
-│       └── index.ts
-├── molecules/        # Combinations of atoms
-│   └── SearchInput/
-└── organisms/        # Complex compositions
-    └── Header/
+├── atoms/            # Shared fundamental building blocks
+│   └── SharedAtom/
+├── molecules/        # Shared combinations of atoms
+│   └── SharedMolecule/
+├── organisms/        # Shared complex compositions (rare)
+└── layout/           # Layout components
 ```
 
-### When to Create Each Level
+## Component Hierarchy
+
+### Atomic Design Levels
+
+Both feature and shared components use atomic design:
 
 | Level    | Create when...                   | Examples                   |
 | -------- | -------------------------------- | -------------------------- |
 | shadcn   | Installing base components       | Button, Input, Dialog      |
 | Atom     | Single-purpose, highly reusable  | IconButton, Badge, Avatar  |
 | Molecule | Combines 2-3 atoms for a purpose | SearchInput, UserCard      |
-| Organism | Complex, feature-specific        | Header, Sidebar, DataTable |
+| Organism | Complex compositions             | Header, Sidebar, DataTable |
 
 ## Component Creation Workflow
 
-### 1. Check Existing Components
+### 1. Determine Placement
+
+Ask: **Is this component only used within one feature?**
+
+- **Yes** → Create in `features/{feature-name}/components/`
+- **No** → Create in `components/ui/`
+
+### 2. Check Existing Components
 
 Before creating:
 
 ```bash
-# Check shadcn components
-ls apps/web/src/components/ui/shadcn/
+# Check feature components (if feature-specific)
+ls apps/web/src/features/{feature-name}/components/
 
-# Check atoms/molecules
+# Check shared components
+ls apps/web/src/components/ui/shadcn/
 ls apps/web/src/components/ui/atoms/
 ls apps/web/src/components/ui/molecules/
 ```
 
-### 2. Install shadcn Component (if needed)
+### 3. Install shadcn Component (if needed)
 
 ```bash
 cd apps/web
 npx shadcn@latest add [component-name]
 ```
 
-### 3. Create Custom Component
+### 4. Create Custom Component
 
-**File structure** (for atoms/molecules):
+**File structure** (same for feature and shared):
 
 ```
 ComponentName/
@@ -80,7 +116,7 @@ export { ComponentName } from "./ComponentName";
 export type { ComponentNameProps } from "./ComponentName";
 ```
 
-### 4. Component Template
+### 5. Component Template
 
 ```tsx
 import { cn } from "@/lib/utils";
@@ -160,6 +196,20 @@ describe("ComponentName", () => {
 });
 ```
 
+## Import Patterns
+
+```typescript
+// Feature components (internal use within feature)
+import { FeatureMolecule } from "./components/molecules/FeatureMolecule";
+
+// Feature public API (from outside the feature)
+import { FeatureMolecule, useFeatureHook } from "@/features/feature-name";
+
+// Shared components
+import { Button } from "@/components/ui/shadcn/button";
+import { SharedAtom } from "@/components/ui/atoms";
+```
+
 ## Resources
 
 **This Skill**:
@@ -174,7 +224,7 @@ describe("ComponentName", () => {
 
 ## Key Principle
 
-Build composable, accessible components from atoms to organisms.
+Build composable, accessible components from atoms to organisms. Start in features, promote to shared upon reuse.
 
 ---
 

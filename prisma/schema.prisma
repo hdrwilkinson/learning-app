@@ -224,16 +224,20 @@ model QuizResponse {
 
 // Curiosity Zone for unstructured learning
 model CuriosityChat {
-  id        String            @id @default(cuid())
-  userId    String
-  title     String
-  messages  CuriosityMessage[]
-  savedToCourse Boolean        @default(false)
-  courseId  String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            String             @id @default(cuid())
+  userId        String
+  title         String
+  summary       String?            @db.Text // AI-generated summary
+  messages      CuriosityMessage[]
+  savedToCourse Boolean            @default(false)
+  courseId      String?
+  archived      Boolean            @default(false) // Soft delete
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   @@index([userId])
+  @@index([userId, updatedAt]) // For sorted listing
+  @@index([userId, archived])  // For filtering archived
 }
 
 model CuriosityMessage {
@@ -242,9 +246,11 @@ model CuriosityMessage {
   chat      CuriosityChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   role      String        // 'user' or 'assistant'
   content   String        @db.Text
+  parts     Json?         // AI SDK v6 parts array (tool calls, etc.)
   createdAt DateTime      @default(now())
 
   @@index([chatId])
+  @@index([chatId, createdAt]) // For ordered messages
 }
 
 // Login history and device tracking

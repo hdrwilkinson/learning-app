@@ -18,9 +18,18 @@ This hub helps you choose the right skill for frontend development tasks. It pro
 | If you need to...                        | Use this skill  |
 | ---------------------------------------- | --------------- |
 | Choose colors, typography, design tokens | `branding`      |
-| Build UI components (shadcn/atomic)      | `components`    |
+| Build UI components (feature or shared)  | `components`    |
 | Add ARIA labels, keyboard navigation     | `accessibility` |
 | Add transitions, animations              | `animations`    |
+
+### Component Placement Decision
+
+Before creating any component, decide where it belongs:
+
+| Component is...                      | Put in...                     |
+| ------------------------------------ | ----------------------------- |
+| Used only within one feature         | `features/{name}/components/` |
+| Used by 2+ features or truly generic | `components/ui/`              |
 
 ## Sub-Skills in This Category
 
@@ -36,9 +45,9 @@ This hub helps you choose the right skill for frontend development tasks. It pro
 
 ### components
 
-**Use when**: Building new components, organizing component structure, UI patterns
+**Use when**: Building new components, organizing component structure, feature vs shared placement
 
-**Trigger phrases**: "create component", "shadcn", "atomic design", "UI component"
+**Trigger phrases**: "create component", "shadcn", "atomic design", "UI component", "feature component"
 
 **Path**: `/skills/components/SKILL.md`
 
@@ -70,10 +79,11 @@ This hub helps you choose the right skill for frontend development tasks. It pro
 
 When creating a component from scratch:
 
-1. **branding**: Check design tokens for colors, spacing, typography
-2. **components**: Use atomic design pattern (atom → molecule → organism)
-3. **accessibility**: Add ARIA labels, keyboard support
-4. **animations**: Add appropriate transitions
+1. **Decide placement**: Feature-specific (`features/{name}/components/`) or shared (`components/ui/`)
+2. **branding**: Check design tokens for colors, spacing, typography
+3. **components**: Use atomic design pattern (atom → molecule → organism)
+4. **accessibility**: Add ARIA labels, keyboard support
+5. **animations**: Add appropriate transitions
 
 ### Design System Consistency
 
@@ -92,11 +102,12 @@ When adding polish to existing UI:
 
 ## Category Principles
 
-1. **Design tokens first**: Never hardcode colors, use CSS variables
-2. **Atomic composition**: Build complex UI from simple, tested atoms
-3. **Accessible by default**: Every component must be keyboard navigable
-4. **Purposeful motion**: Animations should guide, not distract
-5. **Mobile-first**: Design for mobile, enhance for desktop
+1. **Feature first**: Start in `features/{name}/`, promote to shared upon reuse
+2. **Design tokens first**: Never hardcode colors, use CSS variables
+3. **Atomic composition**: Build complex UI from simple, tested atoms
+4. **Accessible by default**: Every component must be keyboard navigable
+5. **Purposeful motion**: Animations should guide, not distract
+6. **Mobile-first**: Design for mobile, enhance for desktop
 
 ## Tech Stack Reference
 

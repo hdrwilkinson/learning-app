@@ -11,133 +11,151 @@ You are a Senior Full-Stack Developer and an Expert in Next.js, React Native (Ex
 
 ## Codebase Structure
 
-Follow this structure for file organization, using a **monorepo** with workspaces. Keep the `src` directory for app code inside each app. Build web components with **shadcn/ui** in `apps/web/src/components/ui`; mobile will mirror these designs later with React Native equivalents.
+Follow this structure for file organization, using a **monorepo** with workspaces. Keep the `src` directory for app code inside each app. Use **feature-based organization** for domain logic, with **shared UI primitives** in `components/ui/`.
 
 ```plaintext
 .
 ├── apps/
 │   ├── web/                                   # Next.js (App Router) — browser/desktop
 │   │   ├── src/
-│   │   │   ├── app/                           # layouts, pages, API routes (server actions/route handlers)
+│   │   │   ├── app/                           # Routes (thin wrappers that compose features)
 │   │   │   │   ├── layout.tsx                 # Root layout
 │   │   │   │   ├── page.tsx                   # Home
-│   │   │   │   ├── (auth)/                    # Auth routes (web UX)
+│   │   │   │   ├── (auth)/                    # Auth routes
 │   │   │   │   │   ├── login/page.tsx
 │   │   │   │   │   └── signup/page.tsx
-│   │   │   │   ├── feature-one/
-│   │   │   │   │   ├── page.tsx               # Feature pages
-│   │   │   │   │   ├── new/page.tsx
-│   │   │   │   │   └── [itemId]/page.tsx
-│   │   │   │   ├── feature-two/
-│   │   │   │   │   ├── layout.tsx
-│   │   │   │   │   └── [featureTwoId]/page.tsx
+│   │   │   │   ├── feature-one/               # Feature routes
+│   │   │   │   │   ├── page.tsx               # Server Component: auth + data
+│   │   │   │   │   ├── [itemId]/page.tsx
+│   │   │   │   │   └── _components/           # Route-specific compositions
+│   │   │   │   │       ├── FeatureOneView.tsx # Imports from features/feature-one
+│   │   │   │   │       └── FeatureOneLayout.tsx
 │   │   │   │   └── api/                       # Server-only code
-│   │   │   │       ├── auth/[...nextauth]/route.ts    # Auth.js handler (PrismaAdapter)
-│   │   │   │       ├── feature-one/route.ts           # Prisma-backed endpoints
-│   │   │   │       └── feature-two/route.ts
-│   │   │   ├── components/                    # Web components
-│   │   │   │   └── ui/                        # shadcn/ui components
-│   │   │   │       └── shadcn/                # Direct shadcn/ui components (button.tsx, input.tsx, etc.)
-│   │   │   │           ├── button.tsx
-│   │   │   │           ├── input.tsx
-│   │   │   │           └── ...
-│   │   │   │       ├── atoms/                 # Atomic components (fundamental building blocks, uses shadcn components if needed)
-│   │   │   │       ├── molecules/             # Composite components (combinations of atoms)
-│   │   │   │       ├── organisms/             # Complex components (optional, for larger compositions)
-│   │   │   ├── styles/                        # Tailwind entry (globals.css with shadcn tokens)
-│   │   │   └── lib/                           # Web utils (RSC helpers, caching, revalidate, cn helper)
+│   │   │   │       ├── auth/[...nextauth]/route.ts
+│   │   │   │       └── feature-one/route.ts
+│   │   │   │
+│   │   │   ├── features/                      # Feature modules (co-located code)
+│   │   │   │   ├── feature-one/               # Example feature
+│   │   │   │   │   ├── components/            # Feature-specific UI (atomic structure)
+│   │   │   │   │   │   ├── atoms/
+│   │   │   │   │   │   │   └── FeatureAtom/
+│   │   │   │   │   │   ├── molecules/
+│   │   │   │   │   │   │   └── FeatureMolecule/
+│   │   │   │   │   │   ├── organisms/
+│   │   │   │   │   │   │   └── FeatureOrganism/
+│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   ├── use-feature-core.ts
+│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   ├── utils/
+│   │   │   │   │   │   └── helpers.ts
+│   │   │   │   │   ├── types.ts
+│   │   │   │   │   └── index.ts               # Public API
+│   │   │   │   │
+│   │   │   │   └── feature-two/               # Another feature
+│   │   │   │       ├── components/
+│   │   │   │       │   ├── atoms/
+│   │   │   │       │   ├── molecules/
+│   │   │   │       │   └── organisms/
+│   │   │   │       ├── hooks/
+│   │   │   │       └── index.ts
+│   │   │   │
+│   │   │   ├── components/                    # Shared UI primitives (feature-agnostic)
+│   │   │   │   └── ui/
+│   │   │   │       ├── shadcn/                # shadcn/ui components
+│   │   │   │       │   ├── button.tsx
+│   │   │   │       │   ├── input.tsx
+│   │   │   │       │   └── ...
+│   │   │   │       ├── atoms/                 # Shared atoms (used by 2+ features)
+│   │   │   │       ├── molecules/             # Shared molecules
+│   │   │   │       ├── organisms/             # Shared orgamisms
+│   │   │   │       └── layout/                # Layout components
+│   │   │   │
+│   │   │   ├── styles/                        # Tailwind entry (globals.css)
+│   │   │   └── lib/                           # Shared utilities (no feature logic)
+│   │   │       └── utils.ts                   # cn(), formatters
+│   │   │
 │   │   ├── components.json                    # shadcn/ui configuration
-│   │   ├── next.config.mjs                    # Web-only config (no RN coupling)
-│   │   └── tailwind.config.ts                 # Consumes shared preset from packages/theme
+│   │   ├── next.config.mjs
+│   │   └── tailwind.config.ts
 │   │
 │   └── mobile/                                # Expo (iOS/Android) — mirrors web design
 │       ├── app/                               # Expo Router (file-based)
-│       │   ├── _layout.tsx                    # Navigation container, Safe Areas
-│       │   ├── index.tsx                      # Home screen (mirrors web)
-│       │   ├── feature-one/index.tsx
-│       │   └── feature-two/[featureTwoId].tsx
-│       ├── components/                        # Mobile components (mirror web design with RN)
-│       ├── app.config.ts                      # Expo app config
-│       └── tailwind.config.js                 # NativeWind config (extends shared preset)
+│       ├── components/                        # Mobile components
+│       ├── app.config.ts
+│       └── tailwind.config.js
 │
 ├── packages/
 │   ├── ui/                                    # React Native UI components (for mobile)
-│   │   ├── src/
-│   │   │   ├── atoms/                         # Fundamental building blocks
-│   │   │   │   ├── Button/
-│   │   │   │   │   ├── Button.tsx             # Default universal impl (uses RN primitives)
-│   │   │   │   │   ├── Button.web.tsx         # Web-specific override (e.g., focus ring, tooltip)
-│   │   │   │   │   ├── Button.native.tsx      # Mobile-specific override (e.g., haptics)
-│   │   │   │   │   ├── Button.test.tsx
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── Input/
-│   │   │   │   ├── Typography/
-│   │   │   │   └── ...
-│   │   │   ├── molecules/                     # Combinations of atoms (forms, menu items)
-│   │   │   ├── organisms/                     # Complex components (auth, navigation, cards)
-│   │   │   ├── templates/                     # Cross-platform layouts/structures
-│   │   │   └── providers/                     # Theme, SafeArea, Gesture handlers
-│   │   └── package.json
-│   │
 │   ├── screens/                               # Route-agnostic feature screens (mobile)
-│   │   ├── feature-one/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   │   └── __tests__/useFeatureOne.test.ts
-│   │   │   └── FeatureOneScreen.tsx           # Mobile screen components
-│   │   └── feature-two/
-│   │       └── FeatureTwoScreen.tsx
-│   │
 │   ├── theme/                                 # Design tokens shared across web/mobile
-│   │   ├── tailwind-preset.cjs                # Consumed by web & NativeWind
-│   │   └── tokens.ts                          # Colors/spacing/typography
-│   │
+│   │   ├── tailwind-preset.cjs
+│   │   └── tokens.ts
 │   ├── api/                                   # Shared API contracts/clients
-│   │   ├── schemas/                           # Zod schemas, DTOs
-│   │   ├── client.ts                          # fetch wrappers / TanStack Query setup
-│   │   └── types.ts
-│   │
 │   └── lib/                                   # Shared utilities, formatters, constants
 │
 ├── prisma/
 │   ├── schema.prisma
-│   └── migrations/                            # Generated by Prisma
+│   └── migrations/
 │
-├── services/                                  # Server-side wiring (imported by apps/web)
+├── services/                                  # Server-side wiring
 │   └── db/
-│       ├── db-client.ts                       # Prisma singleton (avoid hot-reload leaks)
-│       └── auth.ts                            # Auth.js config/helpers (PrismaAdapter)
+│       ├── db-client.ts
+│       └── auth.ts
 │
 ├── e2e/
-│   ├── web/                                   # Playwright tests (web)
-│   │   ├── tests/
-│   │   │   ├── auth.spec.ts
-│   │   │   └── feature-one.spec.ts
-│   │   ├── fixtures/
-│   │   ├── playwright.config.ts
-│   │   └── global-setup.ts
-│   └── mobile/                                # Optional: Detox/Maestro (mobile)
-│       └── README.md
+│   ├── web/                                   # Playwright tests
+│   └── mobile/                                # Detox/Maestro (optional)
 │
 ├── public/                                    # Static assets (web)
 ├── docs/
-│   ├── ui/
-│   │   └── shadcn.md                          # shadcn/ui documentation
-│   └── features/
-│       ├── featureOne.md
-│       └── featureTwo.md
-└── (root config files omitted for brevity: .gitignore, package.json, turbo.json, tsconfig.*, .env, etc.)
+└── skills/                                    # AI skill definitions
 ```
 
-> **Platform note:** Build web components with **shadcn/ui** in `apps/web/src/components/ui`. These are Tailwind-first, copy-paste components that live in your codebase. Mobile will mirror the design and component APIs later using React Native components. No React Native Web coupling in the web app.
+### Feature-Based Organization
+
+**Features** (`apps/web/src/features/`) contain domain-specific code that is co-located:
+
+| Folder | Purpose |
+|--------|---------|
+| `components/` | Feature-specific UI with atomic structure (atoms/molecules/organisms) |
+| `hooks/` | Feature-specific React hooks |
+| `utils/` | Feature-specific utilities |
+| `types.ts` | Feature-specific TypeScript types |
+| `index.ts` | Public API (what other code can import) |
+
+**Decision rule for component placement:**
+
+| Put in... | When... |
+|-----------|---------|
+| `features/{name}/components/` | Component is only used within that feature |
+| `components/ui/` | Component is used by 2+ features OR is truly generic |
+
+**Start in features, promote upon reuse.** When a component is needed by multiple features, move it to `components/ui/`.
+
+### Import Patterns
+
+```typescript
+// Feature components (internal use within feature)
+import { FeatureMolecule } from "./components/molecules/FeatureMolecule";
+
+// Feature public API (from outside the feature)
+import { FeatureMolecule, useFeatureCore } from "@/features/feature-one";
+
+// Shared components
+import { Button } from "@/components/ui/shadcn/button";
+import { SharedAtom } from "@/components/ui/atoms";
+```
+
+> **Platform note:** Build shared web components with **shadcn/ui** in `apps/web/src/components/ui`. Feature-specific components live in `apps/web/src/features/{name}/components/`. Mobile mirrors web design using React Native components. No React Native Web coupling.
 
 ## General Coding Practices
 
-- **DRY:** Check `/packages/api`, `/packages/lib`, `/packages/theme`, `/services`, and feature folders before coding.
+- **DRY:** Check `features/`, `components/ui/`, `packages/`, and `services/` before coding.
+- **Feature First:** Start in `features/{name}/`; promote to `components/ui/` or `packages/` upon reuse.
 - **Single Responsibility (SRP)** and **Consistency** across components and modules.
 - **Tailwind:** Use utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`).
 - **Clean Code:** Small components; remove dead code aggressively. Document non-obvious logic/props.
-- **Local First:** Start in feature/screen; promote to shared packages upon reuse.
 - **Testing:** Unit tests (utilities/hooks), RTL for components/screens, Playwright (web), optional Detox/Maestro (mobile). Run relevant tests locally before committing.
 - **Docs:** Record key decisions and edge cases in `docs/`.
 
@@ -190,17 +208,19 @@ Follow this structure for file organization, using a **monorepo** with workspace
 
 > **Brand Guidelines:** All UI components, colors, typography, and design decisions must follow the branding skill (`skills/branding/SKILL.md`). Reference it when building components or making design choices.
 
-- **Web UI Structure:** Organize components in `apps/web/src/components/ui` using atomic design principles:
-  - **`atoms/`** - Fundamental building blocks (e.g., `DropdownElement`, `IconButton`). Each atom lives in its own PascalCase folder with:
-    - `ComponentName.tsx` - Component implementation
-    - `ComponentName.test.tsx` - Tests
-    - `index.ts` - Barrel export
-  - **`molecules/`** - Composite components combining atoms (e.g., `SettingsMenu`). Same folder structure as atoms.
-  - **`organisms/`** - Complex components (optional, for larger compositions). Same folder structure.
-  - **Direct shadcn components** - shadcn/ui components added via CLI live in `ui/shadcn/` (e.g., `shadcn/button.tsx`, `shadcn/input.tsx`).
+- **Web UI Structure:** Components live in two places, both using atomic design:
+  - **`features/{name}/components/`** - Feature-specific UI (atoms/molecules/organisms used only within that feature)
+  - **`components/ui/`** - Shared UI primitives (used by 2+ features or truly generic)
+- **Atomic Design (both locations):** Each component lives in its own PascalCase folder:
+  - **`atoms/`** - Fundamental building blocks
+  - **`molecules/`** - Composite components combining atoms
+  - **`organisms/`** - Complex components (optional, for larger compositions)
+  - Folder structure: `ComponentName.tsx`, `ComponentName.test.tsx`, `index.ts`
+- **shadcn/ui components** - Added via CLI, live in `components/ui/shadcn/`
 - **Component usage:** 
-  - Atoms/molecules: Import from `@/components/ui/atoms/ComponentName` or `@/components/ui/molecules/ComponentName`
-  - shadcn components: Import from `@/components/ui/shadcn/<component>` (e.g., `@/components/ui/shadcn/button`)
+  - Feature components: Import from `@/features/{name}` (public API)
+  - Shared atoms/molecules: Import from `@/components/ui/atoms` or `@/components/ui/molecules`
+  - shadcn components: Import from `@/components/ui/shadcn/<component>`
 - **Styling:** Use Tailwind utility classes; extend via shared **theme preset** (`packages/theme/tailwind-preset.cjs`). shadcn components use CSS variables defined in `apps/web/src/styles/globals.css`. **All colors, spacing, typography, and design tokens must align with brand guidelines.**
 - **Mobile UI:** Build React Native components in `apps/mobile/components` that mirror web design. Use shared design tokens from `packages/theme` for consistency.
 - **No cross-platform UI coupling:** Web does not use React Native Web. Mobile mirrors web design independently.
