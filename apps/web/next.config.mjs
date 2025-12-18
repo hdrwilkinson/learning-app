@@ -27,15 +27,23 @@ const nextConfig = {
     '@repo/lib',
     '@repo/theme',
   ],
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       '@': path.resolve(__dirname, './src'),
     };
+    
+    // Optimize memory during build
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+    };
+    
     return config;
   },
   // Allow pages directory to coexist with app directory
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  
 };
 
 export default withNextra(nextConfig);
