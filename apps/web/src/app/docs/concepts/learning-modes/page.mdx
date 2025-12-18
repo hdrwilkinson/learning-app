@@ -1,4 +1,4 @@
-# The Four Learning Modes
+# Course Modes and Exploration
 
 **How you interact with content in Cognia.**
 
@@ -6,20 +6,45 @@
 
 ## Overview
 
-Cognia has four distinct interaction modes, each serving a specific learning purpose:
+Cognia provides two distinct ways to learn:
+
+1. **Course Modes** — Structured learning tied to Information Points (IPs)
+2. **Explore** — Free-form curiosity, independent of course structure
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   COURSE MODES (IP-based learning)                              │
+│   ────────────────────────────────                              │
+│   Learn → Quiz → Reflect                                        │
+│   Directly tied to Information Points in your courses           │
+│                                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   EXPLORE (Free-form curiosity)                                 │
+│   ─────────────────────────────                                 │
+│   Ask anything, explore any topic                               │
+│   Separate from course structure—like having a curious          │
+│   conversation with a knowledgeable friend                      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+All interactions use a **common chat interface**—they feel similar but serve different purposes.
+
+---
+
+## Part 1: Course Modes
+
+Course Modes are the core learning loop. Each mode is directly tied to **Information Points** in your courses:
 
 | Mode | Purpose | When to Use |
 |------|---------|-------------|
 | **Learn** | Introduction to new concepts | Meeting an IP for the first time |
 | **Quiz** | Active recall testing | Daily review, reinforcement |
-| **Reflection** | Understanding mistakes | After wrong answers |
-| **Curiosity** | Free exploration | Following your interests |
+| **Reflect** | Understanding mistakes | After wrong answers in Quiz |
 
-All modes share a **common chat interface**—they feel similar but have different goals and constraints.
-
----
-
-## The Science Behind Each Mode
+### The Science Behind Course Modes
 
 Each mode is designed around specific [learning science principles](/docs/concepts/learning-science):
 
@@ -27,14 +52,13 @@ Each mode is designed around specific [learning science principles](/docs/concep
 |------|-------------------|---------------------|
 | **Learn** | **Elaboration** | Connecting new concepts to prior knowledge, explaining in your own words |
 | **Quiz** | **Retrieval Practice**, **Spaced Repetition** | Active recall (not re-reading), optimally timed review |
-| **Reflection** | **Elaboration** | Deep processing of mistakes, understanding *why* you were wrong |
-| **Curiosity** | **Elaboration** | Asking questions, exploring connections, generating explanations |
+| **Reflect** | **Elaboration** | Deep processing of mistakes, understanding *why* you were wrong |
 
 **Interleaving** appears across modes—your daily queue mixes items from different lessons, and question types vary within Quiz Mode.
 
 ---
 
-## Mode 1: Learn Mode
+## Learn Mode
 
 **Purpose:** Introduce new Information Points with AI-guided explanation.
 
@@ -97,7 +121,7 @@ Each mode is designed around specific [learning science principles](/docs/concep
 
 ---
 
-## Mode 2: Quiz Mode
+## Quiz Mode
 
 **Purpose:** Test recall through varied question types.
 
@@ -164,13 +188,13 @@ Question type is selected based on your current mastery:
 
 ---
 
-## Mode 3: Reflection Mode
+## Reflect Mode
 
 **Purpose:** Help you understand concepts you got wrong.
 
 > **Primary Principle: Elaboration**
 > 
-> When you get something wrong, shallow correction ("the answer was B") doesn't help. Reflection Mode uses deep processing—understanding *why* you were wrong, connecting your misconception to the correct concept, and generating new understanding.
+> When you get something wrong, shallow correction ("the answer was B") doesn't help. Reflect Mode uses deep processing—understanding *why* you were wrong, connecting your misconception to the correct concept, and generating new understanding.
 
 ### What Happens
 
@@ -181,7 +205,7 @@ Question type is selected based on your current mastery:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  REFLECTION MODE                                                 │
+│  REFLECT MODE                                                    │
 │  💡 Let's understand this better                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
@@ -223,34 +247,69 @@ Question type is selected based on your current mastery:
 
 ### Key Behaviors
 - Stays focused on the specific IP you struggled with
-- Won't let you wander to other topics (unlike Curiosity Mode)
-- If you want to explore elsewhere: "Exit Quiz" → Curiosity Mode
+- Won't let you wander to other topics
+- If you want to explore elsewhere: "Exit Quiz" → go to Explore
 
 ---
 
-## Mode 4: Curiosity Mode
+## Course Mode Transitions
 
-**Purpose:** Free exploration and discovery.
+The three course modes form a connected learning loop:
+
+```
+                    COURSE MODE TRANSITIONS
+─────────────────────────────────────────────────────────────
+
+  LEARN MODE ─────────────────────────────────────┐
+       │              (Elaboration)               │
+       │ (Lesson complete)                        │
+       ▼                                          │
+  ┌─────────┐                                     │
+  │  QUIZ   │◄──────── "Daily Review"            │
+  │  MODE   │◄──────── "Study Now"               │
+  └────┬────┘  (Retrieval + Spacing)              │
+       │                                          │
+       │ (Wrong answer)                           │
+       ▼                                          │
+  ┌────────────┐                                  │
+  │  REFLECT   │──── "Return to Quiz" ───► QUIZ  │
+  │   MODE     │     (Elaboration)                │
+  └────────────┘                                  │
+       │                                          │
+       │ (New content from Explore)               │
+       ▼                                          │
+  New IP ─────── enter LEARN MODE ────────────────┘
+```
+
+---
+
+## Part 2: Explore (Curiosity Zone)
+
+**Explore is a separate feature from Course Modes.**
+
+While Course Modes are structured around Information Points, Explore is free-form conversation—like ChatGPT. You can ask anything, explore any topic, and follow your curiosity wherever it leads.
 
 > **Primary Principle: Elaboration**
 > 
-> Curiosity Mode is elaboration without constraints. You ask questions, explore connections, and generate understanding by following your interests. This creates rich, interconnected knowledge that transfers to new situations.
+> Explore is elaboration without constraints. You ask questions, explore connections, and generate understanding by following your interests. This creates rich, interconnected knowledge that transfers to new situations.
 
 ### What Happens
 
-1. You can ask anything
+1. You can ask anything—no constraints
 2. AI responds with rich information
-3. Optionally connects to course content ← *Elaboration: building connections*
+3. Optionally connects to course content if relevant
 4. Discoveries can be saved as new course content
 
-Curiosity Mode comes in two flavors:
+### Two Contexts
 
-### In-Course Curiosity
-You're exploring within the context of a course. The AI knows what you've learned and can make connections.
+Explore comes in two flavors:
+
+#### In-Course Explore
+You're exploring within the context of a course. The AI knows what you've learned and can make connections to your course material.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  CURIOSITY MODE                                                  │
+│  EXPLORE                                                         │
 │  🔮 Exploring: Python for Data Science                          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
@@ -275,72 +334,73 @@ You're exploring within the context of a course. The AI knows what you've learne
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### General Curiosity
+#### General Explore
 No course context. You're exploring freely. Discoveries can become new courses.
 
 ### Entry Points
 - Dashboard: "Explore" or "Ask Anything"
-- Within a course: "Curiosity" tab
-- From Reflection Mode: "Exit Quiz" → "Explore freely"
+- Within a course: "Explore" tab
+- Anytime you want to learn something new
 
 ### What It Does to Your Data
 - Conversations are saved for reference
 - Can trigger course creation (from interesting discoveries)
-- Can add IPs to existing courses
+- Can add IPs to existing courses (via "Save to Course")
 
 ### Key Behaviors
 - No constraints on topics
 - Encourages tangents and exploration
 - Offers to save/structure valuable discoveries
+- **Not tied to specific IPs**—this is the key difference from Course Modes
 
 ---
 
-## Mode Transitions
+## How Explore Connects to Courses
+
+Explore is separate from Course Modes, but can feed into them:
 
 ```
-                     MODE TRANSITION MAP
-─────────────────────────────────────────────────────────────
-
-  LEARN MODE ─────────────────────────────────────┐
-       │              (Elaboration)               │
-       │ (Lesson complete)                        │
-       ▼                                          │
-  ┌─────────┐                                     │
-  │  QUIZ   │◄──────── "Daily Review"            │
-  │  MODE   │◄──────── "Study Now"               │
-  └────┬────┘  (Retrieval + Spacing)              │
-       │                                          │
-       │ (Wrong answer)                           │
-       ▼                                          │
-  ┌────────────┐                                  │
-  │ REFLECTION │──── "Return to Quiz" ───► QUIZ  │
-  │   MODE     │     (Elaboration)                │
-  └────┬───────┘                                  │
-       │                                          │
-       │ (Want to explore)                        │
-       ▼                                          │
-  ┌────────────┐                                  │
-  │ CURIOSITY  │◄──────── "Explore" from anywhere│
-  │   MODE     │     (Elaboration)                │
-  └────────────┘                                  │
-       │                                          │
-       │ (Save discovery)                         │
-       ▼                                          │
-  New course or IP ─── enter LEARN MODE ──────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   EXPLORE (Free-form)                                           │
+│   ──────────────────                                            │
+│   Ask anything, follow curiosity                                │
+│                                                                  │
+│         │                                                       │
+│         │ "Save to Course" or "Create Course"                   │
+│         ▼                                                       │
+│                                                                  │
+│   COURSE MODES (IP-based)                                       │
+│   ───────────────────────                                       │
+│   Learn → Quiz → Reflect                                        │
+│   Structured learning with your new IP                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+When you discover something interesting in Explore, you can:
+- **Save as new IP** in an existing course → enters Learn Mode for that IP
+- **Create a new course** from the topic → AI structures it into IPs
 
 ---
 
 ## Summary
 
+### Course Modes (IP-based)
+
 | Mode | Feel | Purpose | Primary Principles |
 |------|------|---------|-------------------|
 | **Learn** | Patient tutor | Introduction | Elaboration |
 | **Quiz** | Testing booth | Recall practice | Retrieval Practice, Spaced Repetition |
-| **Reflection** | Study buddy | Understand mistakes | Elaboration |
-| **Curiosity** | Knowledgeable friend | Explore freely | Elaboration |
+| **Reflect** | Study buddy | Understand mistakes | Elaboration |
 
-All modes use the same chat interface—the difference is context, purpose, and which learning science principles are emphasized.
+### Explore (Free-form)
+
+| Feature | Feel | Purpose | Primary Principle |
+|---------|------|---------|-------------------|
+| **Explore** | Knowledgeable friend | Follow curiosity | Elaboration |
+
+The key distinction: **Course Modes are tied to Information Points**—they track mastery, schedule reviews, and form a structured learning loop. **Explore is free conversation**—no IPs, no tracking, just curiosity.
 
 ---
 

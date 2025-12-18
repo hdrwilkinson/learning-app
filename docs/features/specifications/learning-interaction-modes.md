@@ -7,19 +7,24 @@ Issue: #15 (Q9)
 Owner: Harry
 -->
 
-> Design specification for the four interaction modes: Learn, Quiz, Curiosity, and Reflection.
+> Design specification for Course Modes (Learn, Quiz, Reflect) and the Explore feature.
 
 ## Related Specifications
 
-| Spec                                                              | Relationship                                      |
-| ----------------------------------------------------------------- | ------------------------------------------------- |
-| [Course Structure & Navigation](./course-structure-navigation.md) | Defines lesson/IP hierarchy that modes operate on |
-| [Spaced Repetition Algorithm](./spaced-repetition-algorithm.md)   | Provides mastery data, receives quiz results      |
-| [Question Generation](./question-generation.md)                   | Generates quiz content for Quiz Mode              |
+| Spec                                                              | Relationship                                             |
+| ----------------------------------------------------------------- | -------------------------------------------------------- |
+| [Course Structure & Navigation](./course-structure-navigation.md) | Defines lesson/IP hierarchy that Course Modes operate on |
+| [Spaced Repetition Algorithm](./spaced-repetition-algorithm.md)   | Provides mastery data, receives quiz results             |
+| [Question Generation](./question-generation.md)                   | Generates quiz content for Quiz Mode                     |
 
 ## Overview
 
-Users interact with Information Points through **four distinct modes**, each serving a specific learning purpose. All modes share a **core chat component** that renders Markdown + React components with dynamic system prompts.
+Cognia provides two categories of interaction:
+
+1. **Course Modes** (Learn, Quiz, Reflect) — Directly tied to Information Points in courses. These form the core learning loop with mastery tracking.
+2. **Explore** (Curiosity) — Free-form conversation, separate from course structure. Like ChatGPT, users can ask anything without IP constraints.
+
+All interactions share a **core chat component** that renders Markdown + React components with dynamic system prompts.
 
 ---
 
@@ -339,7 +344,9 @@ interface ReflectionQueue {
 
 ---
 
-## Mode 3: Curiosity Mode
+## Explore (Curiosity Mode)
+
+> **Note:** Explore is a separate feature from Course Modes. It is not tied to Information Points and does not affect mastery tracking.
 
 **Purpose**: Free-form exploration and discovery, either within or outside a course context.
 
@@ -453,9 +460,9 @@ Guidelines:
 
 ---
 
-## Mode 4: Reflection Mode
+## Reflect Mode
 
-**Purpose**: Help users understand concepts they struggled with during quizzes.
+**Purpose**: Help users understand concepts they struggled with during quizzes. This is a Course Mode, directly tied to Information Points.
 
 ### Entry Points
 
@@ -617,9 +624,13 @@ interface HistoryRetrieval {
 
 ## Mode Transitions
 
+### Course Mode Loop (IP-based)
+
+The three Course Modes form a connected learning loop:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     MODE TRANSITION MAP                          │
+│                    COURSE MODE TRANSITIONS                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  LEARN MODE ─────────────────────────────────────────┐          │
@@ -634,25 +645,40 @@ interface HistoryRetrieval {
 │       │ (Wrong answer / reflect before answering)   │          │
 │       ▼                                              │          │
 │  ┌────────────┐                                      │          │
-│  │ REFLECTION │──── "Return to Quiz" ───► QUIZ MODE │          │
+│  │ REFLECT    │──── "Return to Quiz" ───► QUIZ MODE │          │
 │  │   MODE     │                                      │          │
-│  └────┬───────┘                                      │          │
-│       │                                              │          │
-│       │ (User wants to explore different topic)     │          │
-│       ▼                                              │          │
-│  ┌────────────┐                                      │          │
-│  │ CURIOSITY  │◄──────── "Explore" from dashboard   │          │
-│  │   MODE     │◄──────── "Curiosity" tab in course  │          │
 │  └────────────┘                                      │          │
 │       │                                              │          │
-│       │ (Save discovery as new content)             │          │
+│       │ (New content from Explore)                  │          │
 │       ▼                                              │          │
-│  ┌────────────────────────────────────────────┐     │          │
-│  │ COURSE CREATION FLOW (if new course)       │     │          │
-│  │ OR                                         │     │          │
-│  │ ADD TO COURSE (if in-course curiosity)     │     │          │
-│  │ → Returns to LEARN MODE for new content    │─────┘          │
-│  └────────────────────────────────────────────┘                 │
+│  New IP ─────── enter LEARN MODE ────────────────────┘          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Explore (Separate Feature)
+
+Explore is independent from the Course Mode loop but can feed into it:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     EXPLORE (CURIOSITY)                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────┐                                                 │
+│  │  EXPLORE   │◄──────── "Explore" from dashboard               │
+│  │            │◄──────── "Explore" tab in course                │
+│  │            │◄──────── Exit from any Course Mode              │
+│  └────┬───────┘                                                 │
+│       │                                                         │
+│       │ (Save discovery as new content)                         │
+│       ▼                                                         │
+│  ┌────────────────────────────────────────────┐                 │
+│  │ COURSE CREATION FLOW (if new course)       │                 │
+│  │ OR                                         │                 │
+│  │ ADD TO COURSE (if in-course explore)       │                 │
+│  │ → New IP enters LEARN MODE                 │ ───► Course     │
+│  └────────────────────────────────────────────┘      Modes      │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -665,12 +691,19 @@ interface HistoryRetrieval {
 
 Each mode should have distinct visual treatment:
 
-| Mode       | Color Theme      | Icon | Header Text                        |
-| ---------- | ---------------- | ---- | ---------------------------------- |
-| Learn      | Blue/Calm        | 📖   | "Learning: [IP Title]"             |
-| Quiz       | Orange/Focus     | ❓   | "Quiz: [Lesson Name]"              |
-| Curiosity  | Purple/Playful   | 🔮   | "Explore" or "Exploring: [Course]" |
-| Reflection | Green/Supportive | 💡   | "Let's understand this"            |
+**Course Modes (IP-based):**
+
+| Mode    | Color Theme      | Icon | Header Text             |
+| ------- | ---------------- | ---- | ----------------------- |
+| Learn   | Blue/Calm        | 📖   | "Learning: [IP Title]"  |
+| Quiz    | Orange/Focus     | ❓   | "Quiz: [Lesson Name]"   |
+| Reflect | Green/Supportive | 💡   | "Let's understand this" |
+
+**Explore (Separate Feature):**
+
+| Feature | Color Theme    | Icon | Header Text                        |
+| ------- | -------------- | ---- | ---------------------------------- |
+| Explore | Purple/Playful | 🔮   | "Explore" or "Exploring: [Course]" |
 
 ### Shared Chat Interface
 
@@ -700,8 +733,8 @@ Each mode should have distinct visual treatment:
 │  Mode-specific actions:                                         │
 │  Learn: [Next] [I got it]                                       │
 │  Quiz: [Submit Answer] [Reflect]                                │
-│  Curiosity: [Save Discovery] [New Topic]                        │
-│  Reflection: [Return to Quiz] [Exit Quiz]                       │
+│  Reflect: [Return to Quiz] [Exit Quiz]                          │
+│  Explore: [Save Discovery] [New Topic]                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

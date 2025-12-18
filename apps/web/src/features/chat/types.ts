@@ -5,7 +5,16 @@
  */
 
 /**
- * Available chat modes corresponding to learning interaction modes.
+ * Available chat modes.
+ *
+ * Course Modes (IP-based):
+ * - "learn" - Introducing new Information Points
+ * - "quiz" - Testing knowledge of IPs
+ * - "reflection" - Understanding mistakes after wrong answers
+ *
+ * Explore (separate feature):
+ * - "curiosity" - Free-form exploration, not tied to IPs
+ *
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 export type ChatMode = "learn" | "quiz" | "curiosity" | "reflection";

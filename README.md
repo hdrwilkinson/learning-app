@@ -166,11 +166,16 @@ Pre-commit hooks automatically format and lint your code.
 - **Lessons** - Individual learning units
 - **Information Points** - Granular concepts/definitions
 
-### Learning Modes
+### Course Modes (IP-based)
 
-1. **Curiosity Mode** - Interactive chat-based learning with AI guidance
+1. **Learn Mode** - AI-guided introduction to new Information Points
 2. **Quiz Mode** - Test comprehension with varied question types
-3. **Curiosity Zone** - Unstructured exploratory learning
+3. **Reflect Mode** - Understand mistakes after wrong answers
+
+### Explore (Curiosity Zone)
+
+- **Free-form exploration** - Unstructured, ChatGPT-like curiosity-driven learning
+- Separate from course structure; can optionally save discoveries as new course content
 
 ### Progress Tracking
 
