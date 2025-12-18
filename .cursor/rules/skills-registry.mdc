@@ -8,6 +8,30 @@ alwaysApply: true
 
 Skills are modular, self-contained instruction sets that extend capabilities for specific tasks. They follow Anthropic's progressive disclosure pattern for context efficiency.
 
+## Skill Check Protocol (MANDATORY)
+
+**BEFORE starting ANY multi-step task**, you MUST:
+
+1. **Identify task category**: Organization | Quality | Frontend | Backend | Infrastructure
+2. **Check the relevant hub skill** (`_hub-{category}/SKILL.md`) for routing guidance
+3. **Load applicable SKILL.md** if trigger conditions match ANY skill in this registry
+4. **Follow skill workflow** with TODOs and cite skill usage: "Following [skill-name] workflow..."
+
+**Common task → skill mappings:**
+
+| Task Type | Check These Skills |
+|-----------|-------------------|
+| Creating/fixing components | `components`, `branding`, `accessibility` |
+| Working with AI/chat features | `ai-sdk`, `api-design`, `validation` |
+| Database changes | `database`, `validation` |
+| Bug fixes | `debugging`, then relevant domain skill |
+| Git operations | `branching`, `pushing-code`, `code-review` |
+| New features | Start with relevant `_hub-*` skill |
+
+**Failure to check skills = incomplete work. Skills exist to ensure quality and consistency.**
+
+---
+
 ## How Skills Work
 
 **Progressive Disclosure (3 levels)**:
@@ -83,6 +107,26 @@ Hub skills organize related skills into categories. When unsure which specific s
 ---
 
 ## Meta Skills
+
+### _task-start
+
+**Trigger**: When starting any multi-step task
+
+**Conditions**:
+
+- Beginning feature implementation
+- Starting bug fixes that touch multiple files
+- Database/schema changes
+- Component or API creation
+- Git workflow operations
+
+**Path**: `skills/_task-start/SKILL.md`
+
+**What it does**: Routes to appropriate skill(s) before implementation. Ensures skills are consulted for quality and consistency.
+
+**Key principle**: Skills encode best practices - use them consistently
+
+---
 
 ### add-skill
 
@@ -396,6 +440,28 @@ Hub skills organize related skills into categories. When unsure which specific s
 **What it does**: Zod schemas for form validation and API validation.
 
 **Key principle**: Validate at boundaries, trust internal code
+
+---
+
+### ai-sdk
+
+**Trigger**: When working with AI SDK v6, chat functionality, or LLM integrations
+
+**Conditions**:
+
+- Implementing chat features with `useChat` hook
+- Creating AI tools or agents
+- Using `streamText` or `generateText`
+- Troubleshooting AI SDK issues
+- Need AI SDK documentation reference
+
+**Path**: `skills/ai-sdk/SKILL.md`
+
+**What it does**: Browser-based access to AI SDK v6 documentation. Provides patterns for agents, tools, `useChat`, `streamText`, and chat implementations.
+
+**Key principle**: Direct documentation access ensures accuracy for technical AI SDK queries
+
+**MANDATORY**: When implementing any AI/chat feature, load `skills/ai-sdk/reference/ai-sdk-docs.md` for code patterns.
 
 ---
 

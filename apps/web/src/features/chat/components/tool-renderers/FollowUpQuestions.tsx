@@ -30,12 +30,7 @@ export function FollowUpQuestions({
 
     // Don't render anything while pending
     if (state === "pending") {
-        return (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-                Thinking of questions...
-            </div>
-        );
+        return null;
     }
 
     // Check if we have valid questions

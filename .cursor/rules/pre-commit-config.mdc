@@ -4,9 +4,24 @@ alwaysApply: false
 ---
 ## Pre-Commit Steps
 
-Firstly, look at all the files that have been created, edited or deleted. Ensure that they make sense architecturally in our system i.e. do they follow principle in [always.mdc](mdc:.cursor/rules/always.mdc). Next, review the code itself as a senior software engineer at google - ensure it's of the highest quality.
+### 1. Skill Usage Verification
 
-Once the code structure is correct, run these pre-commit commands locally. Fix any issues that arise [debugging.mdc](mdc:.cursor/rules/debugging.mdc)., and then re-run until all pass.
+Before reviewing code, verify that skills were properly consulted:
+
+- [ ] **Was the task multi-step?** If yes, `_task-start` should have been used
+- [ ] **Were relevant skills loaded?** Check that applicable SKILL.md files were read
+- [ ] **Were skill workflows followed?** Look for TODO patterns from skills
+- [ ] **Are skill citations present?** "Following [skill-name] workflow..." should appear
+
+If skills were not used for a multi-step task, consider whether the implementation follows best practices that the skills encode.
+
+### 2. Architectural Review
+
+Look at all the files that have been created, edited or deleted. Ensure that they make sense architecturally in our system i.e. do they follow principles in [always.mdc](mdc:.cursor/rules/always.mdc). Next, review the code itself as a senior software engineer at google - ensure it's of the highest quality.
+
+### 3. Quality Commands
+
+Once the code structure is correct, run these pre-commit commands locally. Fix any issues that arise using the [debugging skill](mdc:skills/debugging/SKILL.md), and then re-run until all pass.
 
 1. Run `npm test` and `npm run test:e2e` to check all tests pass. 
 2. Run `npx tsc --noEmit`, `npx next lint`, and `npm run build`.

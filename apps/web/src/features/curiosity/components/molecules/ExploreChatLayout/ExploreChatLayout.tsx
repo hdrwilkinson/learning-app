@@ -5,8 +5,7 @@
  * Provides the layout structure for explore/curiosity mode with:
  * - Editable title (for existing chats)
  * - New Chat button
- * - Delete button (for existing chats)
- * - Settings dropdown
+ * - Settings dropdown with delete and general settings
  */
 
 "use client";
@@ -15,7 +14,7 @@ import { type ReactNode, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FocusLayout } from "@/components/ui/layout";
 import { Button } from "@/components/ui/shadcn/button";
-import { HiPlus, HiTrash } from "react-icons/hi";
+import { HiPlus } from "react-icons/hi";
 import { EditableTitle } from "@/components/ui/atoms";
 import { ChatSettingsDropdown } from "../ChatSettingsDropdown";
 import { DeleteChatDialog } from "../DeleteChatDialog";
@@ -36,8 +35,7 @@ export function ExploreChatLayout({
     chatTitle = "Explore",
 }: ExploreChatLayoutProps) {
     const router = useRouter();
-    const { renameConversation, deleteConversation, archiveConversation } =
-        useConversations();
+    const { renameConversation, deleteConversation } = useConversations();
 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -71,15 +69,6 @@ export function ExploreChatLayout({
         }
     }, [chatId, deleteConversation, router]);
 
-    const handleArchive = useCallback(async () => {
-        if (!chatId) return;
-
-        const success = await archiveConversation(chatId);
-        if (success) {
-            router.push("/explore");
-        }
-    }, [chatId, archiveConversation, router]);
-
     // Build the title component
     const titleComponent = isNewChat ? (
         <div className="flex items-center gap-2">
@@ -109,30 +98,12 @@ export function ExploreChatLayout({
                 <span className="hidden sm:inline">New Chat</span>
             </Button>
 
-            {/* Delete Button (only for existing chats) */}
-            {!isNewChat && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                    onClick={() => setDeleteDialogOpen(true)}
-                    aria-label="Delete conversation"
-                >
-                    <HiTrash className="h-5 w-5" />
-                </Button>
-            )}
-
-            {/* Settings Dropdown (only for existing chats) */}
-            {!isNewChat && (
-                <ChatSettingsDropdown
-                    canArchive={true}
-                    onArchive={handleArchive}
-                    onSettings={() => {
-                        // TODO: Open settings panel/modal
-                        console.log("Settings clicked");
-                    }}
-                />
-            )}
+            {/* Settings Dropdown (delete only available for existing chats) */}
+            <ChatSettingsDropdown
+                onDelete={
+                    !isNewChat ? () => setDeleteDialogOpen(true) : undefined
+                }
+            />
         </div>
     );
 

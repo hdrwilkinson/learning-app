@@ -201,14 +201,6 @@ export function ExploreChat({
                 </div>
             )}
 
-            {/* Loading indicator */}
-            {isLoading && (
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-2">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-                    Thinking...
-                </div>
-            )}
-
             {/* Input area */}
             <FloatingChatInput
                 value={input}

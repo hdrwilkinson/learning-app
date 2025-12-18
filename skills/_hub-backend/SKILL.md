@@ -1,6 +1,6 @@
 ---
 name: _hub-backend
-description: Backend development skills hub. Routes to api-design, database, authentication, and validation. Use when creating APIs, working with Prisma, implementing auth, or validating data.
+description: Backend development skills hub. Routes to api-design, database, authentication, validation, and ai-sdk. Use when creating APIs, working with Prisma, implementing auth, validating data, or building AI/chat features.
 ---
 
 # Backend Development Skills Hub
@@ -21,6 +21,7 @@ This hub helps you choose the right skill for backend development tasks. It prov
 | Work with Prisma schema or queries     | `database`       |
 | Implement login, sessions, OAuth       | `authentication` |
 | Validate forms or API requests         | `validation`     |
+| Build AI chat features or use AI SDK   | `ai-sdk`         |
 
 ## Sub-Skills in This Category
 
@@ -64,6 +65,18 @@ This hub helps you choose the right skill for backend development tasks. It prov
 
 ---
 
+### ai-sdk
+
+**Use when**: AI chat features, LLM integrations, AI agents and tools
+
+**Trigger phrases**: "useChat", "streamText", "AI SDK", "chat", "LLM", "agent", "AI tools"
+
+**Path**: `/skills/ai-sdk/SKILL.md`
+
+**MANDATORY**: Load `skills/ai-sdk/reference/ai-sdk-docs.md` for code patterns
+
+---
+
 ## Cross-Skill Workflows
 
 ### Creating a New API Endpoint
@@ -92,6 +105,15 @@ When adding auth to existing endpoints:
 2. **validation**: Validate user permissions
 3. **api-design**: Return appropriate error responses
 
+### Building AI Chat Features
+
+When implementing AI-powered chat:
+
+1. **ai-sdk**: Load reference docs, understand `useChat` and `streamText` patterns
+2. **validation**: Create Zod schemas for tool parameters
+3. **api-design**: Implement chat API route with `streamText`
+4. **authentication**: Add auth checks to protect AI endpoints
+
 ## Category Principles
 
 1. **Validate at boundaries**: Trust internal code, validate external input
@@ -107,6 +129,7 @@ When adding auth to existing endpoints:
 - **Authentication**: Auth.js (NextAuth.js v5)
 - **API patterns**: Next.js App Router (route handlers + server actions)
 - **Runtime**: Node.js (not Edge for Prisma operations)
+- **AI/LLM**: AI SDK v6 (`@ai-sdk/react`, `@ai-sdk/openai`)
 
 ---
 

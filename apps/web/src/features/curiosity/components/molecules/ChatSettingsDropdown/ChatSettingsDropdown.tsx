@@ -1,13 +1,15 @@
 /**
  * ChatSettingsDropdown Component
  *
- * A three-dot menu for chat-specific actions and settings.
+ * A three-dot menu for chat-specific actions and general settings.
  * Displayed in the Explore chat header.
+ * Includes delete chat option and base settings (theme, profile, logout).
  */
 
 "use client";
 
-import { HiDotsVertical, HiCog, HiArchive, HiShare } from "react-icons/hi";
+import * as React from "react";
+import { HiCog, HiTrash } from "react-icons/hi";
 import { Button } from "@/components/ui/shadcn/button";
 import {
     DropdownMenu,
@@ -16,62 +18,55 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
+import { BaseSettingsContent } from "@/components/ui/molecules/SettingsMenu";
 
 export interface ChatSettingsDropdownProps {
-    /** Whether the chat can be archived */
-    canArchive?: boolean;
-    /** Callback when archive is clicked */
-    onArchive?: () => void;
-    /** Callback when share is clicked */
-    onShare?: () => void;
-    /** Callback when settings is clicked */
-    onSettings?: () => void;
+    /** Callback when delete is clicked */
+    onDelete?: () => void;
     /** Whether actions are disabled */
     disabled?: boolean;
 }
 
 export function ChatSettingsDropdown({
-    canArchive = true,
-    onArchive,
-    onShare,
-    onSettings,
+    onDelete,
     disabled = false,
 }: ChatSettingsDropdownProps) {
+    const [mounted, setMounted] = React.useState(false);
+
+    // Avoid hydration mismatch for BaseSettingsContent
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9"
                     disabled={disabled}
-                    aria-label="Chat options"
+                    aria-label="Settings"
                 >
-                    <HiDotsVertical className="h-5 w-5" />
+                    <HiCog className="h-5 w-5" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-                {onShare && (
-                    <DropdownMenuItem onClick={onShare}>
-                        <HiShare className="mr-2 h-4 w-4" />
-                        Share
-                    </DropdownMenuItem>
+                {/* Chat-specific actions */}
+                {onDelete && (
+                    <>
+                        <DropdownMenuItem
+                            onClick={onDelete}
+                            className="text-destructive focus:text-destructive"
+                        >
+                            <HiTrash className="mr-2 h-4 w-4" />
+                            Delete Chat
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                    </>
                 )}
-                {canArchive && onArchive && (
-                    <DropdownMenuItem onClick={onArchive}>
-                        <HiArchive className="mr-2 h-4 w-4" />
-                        Archive
-                    </DropdownMenuItem>
-                )}
-                {(onShare || (canArchive && onArchive)) && onSettings && (
-                    <DropdownMenuSeparator />
-                )}
-                {onSettings && (
-                    <DropdownMenuItem onClick={onSettings}>
-                        <HiCog className="mr-2 h-4 w-4" />
-                        Settings
-                    </DropdownMenuItem>
-                )}
+
+                {/* Base settings (Theme, Profile, Logout) */}
+                <BaseSettingsContent mounted={mounted} />
             </DropdownMenuContent>
         </DropdownMenu>
     );

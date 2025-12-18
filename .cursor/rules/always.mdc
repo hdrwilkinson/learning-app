@@ -247,6 +247,28 @@ import { SharedAtom } from "@/components/ui/atoms";
 
 See the debugging skill (`skills/debugging/SKILL.md`) for detailed debugging workflows.
 
+## Skill Invocation (MANDATORY)
+
+Before implementing any feature, fix, or multi-step task:
+
+1. **Check `skills-registry.mdc`** - Identify applicable skills from the Skill Check Protocol
+2. **Load relevant SKILL.md files** - Read the full skill file for guidance
+3. **Follow skill workflows with TODOs** - Use the skill's structured approach
+4. **Cite skills used** - Reference skills in your work: "Following [skill-name] workflow..."
+
+**Key skill paths for common tasks:**
+
+| Task | Skill Path |
+|------|------------|
+| UI Components | `skills/components/SKILL.md` + `skills/branding/SKILL.md` |
+| API/Backend | `skills/api-design/SKILL.md` |
+| Database | `skills/database/SKILL.md` |
+| Bug Fixes | `skills/debugging/SKILL.md` |
+| AI/Chat Features | `skills/ai-sdk/SKILL.md` |
+| Git Operations | `skills/branching/SKILL.md`, `skills/pushing-code/SKILL.md` |
+
+**When unsure**: Start with `skills/_task-start/SKILL.md` to route to the right skill(s).
+
 # Notes
 - Use **shadcn/ui** components as the foundation for web UI—they're maintainable, accessible, and Tailwind-first.
 - Mobile mirrors web design using React Native components; shared tokens ensure consistency.
