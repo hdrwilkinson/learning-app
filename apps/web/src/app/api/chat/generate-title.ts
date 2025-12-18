@@ -7,7 +7,7 @@
 
 import { generateText, type UIMessage } from "ai";
 import { gemini } from "@/lib/ai/config";
-import { extractTextContent } from "@/lib/chat";
+import { extractTextContent } from "@/features/chat";
 
 /**
  * Extract text content from UIMessage parts.

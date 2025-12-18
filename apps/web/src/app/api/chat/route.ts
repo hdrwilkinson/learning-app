@@ -39,7 +39,7 @@ import type {
     CuriosityOptions,
     ReflectionOptions,
 } from "@/lib/ai/agents";
-import { loadChat, saveChat, getChat, updateChatTitle } from "@/lib/chat";
+import { loadChat, saveChat, getChat, updateChatTitle } from "@/features/chat";
 import { generateTitle } from "./generate-title";
 
 // Allow streaming responses up to 30 seconds

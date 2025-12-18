@@ -1,4 +1,3 @@
 export { SettingsMenu } from "./SettingsMenu";
 export { OAuthAccountManager } from "./OAuthAccountManager";
-export { DeleteChatDialog } from "./DeleteChatDialog";
-export { ChatSettingsDropdown } from "./ChatSettingsDropdown";
+// DeleteChatDialog and ChatSettingsDropdown moved to @/features/curiosity

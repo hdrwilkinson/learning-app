@@ -23,8 +23,11 @@ import {
     HiChevronRight,
 } from "react-icons/hi";
 import { cn } from "@/lib/utils";
-import { useConversations, type ConversationMeta } from "@/lib/hooks";
-import { DeleteChatDialog } from "@/components/ui/molecules";
+import {
+    useConversations,
+    DeleteChatDialog,
+    type ConversationMeta,
+} from "@/features/curiosity";
 
 interface ChatHistoryProps {
     /** Whether to show the expanded view (desktop) or collapsed (tablet) */

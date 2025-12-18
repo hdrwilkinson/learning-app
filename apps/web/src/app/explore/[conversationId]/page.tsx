@@ -9,9 +9,8 @@
 
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { loadChat } from "@/lib/chat";
-import { ExploreChat } from "../ExploreChat";
-import { ExploreChatLayout } from "../ExploreChatLayout";
+import { loadChat } from "@/features/chat";
+import { ExploreChat, ExploreChatLayout } from "@/features/curiosity";
 
 interface PageProps {
     params: Promise<{ conversationId: string }>;

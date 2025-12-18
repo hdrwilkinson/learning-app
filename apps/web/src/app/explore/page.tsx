@@ -10,8 +10,7 @@
 
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ExploreChat } from "./ExploreChat";
-import { ExploreChatLayout } from "./ExploreChatLayout";
+import { ExploreChat, ExploreChatLayout } from "@/features/curiosity";
 
 export default async function ExplorePage() {
     // Verify user is authenticated

@@ -5,7 +5,7 @@
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 
-import type { CuriosityOptions } from "../types";
+import type { CuriosityOptions } from "@/lib/ai/agents";
 
 /**
  * Base prompt defining the Curiosity mode AI behavior.
@@ -24,10 +24,6 @@ Communication style:
 - Be curious and engaged yourself
 - Share fascinating details and "did you know" moments
 - Use phrases like "That's a great question!" and "This connects to..."
-
-Formatting rules:
-- Never use horizontal rules (---, ***, ___) in your responses
-- Use paragraphs and headings for structure instead
 
 IMPORTANT - TOOL USAGE:
 You have access to the suggestFollowUpQuestions tool. You MUST call this tool at the END of EVERY response.
