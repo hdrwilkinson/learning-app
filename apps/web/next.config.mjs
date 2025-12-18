@@ -6,9 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Nextra v4 configuration for App Router
 const withNextra = nextra({
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.tsx',
+  // Content directory - docs are in (docs) route group
+  contentDirBasePath: '/docs',
 });
 
 const nextConfig = {
@@ -41,9 +42,7 @@ const nextConfig = {
     
     return config;
   },
-  // Allow pages directory to coexist with app directory
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  
 };
 
 export default withNextra(nextConfig);
