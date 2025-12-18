@@ -12,8 +12,13 @@ import {
 } from "ai";
 import { gemini } from "../../config";
 import { learnOptionsSchema, type LearnOptions } from "../types";
-import { learnTools } from "../../tools";
 import { buildLearnPrompt } from "./prompt";
+
+/**
+ * Tools available to the Learn agent.
+ * Currently none - pure conversational tutoring.
+ */
+const tools = {};
 
 /**
  * Learn Agent - Patient tutor for introducing new concepts.
@@ -32,7 +37,7 @@ export const learnAgent = new Agent({
         system: buildLearnPrompt(options),
     }),
 
-    tools: learnTools,
+    tools,
 
     // Allow up to 15 steps (tool calls) per turn
     stopWhen: stepCountIs(15),

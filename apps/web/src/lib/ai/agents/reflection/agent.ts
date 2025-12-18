@@ -12,8 +12,13 @@ import {
 } from "ai";
 import { gemini } from "../../config";
 import { reflectionOptionsSchema, type ReflectionOptions } from "../types";
-import { reflectionTools } from "../../tools";
 import { buildReflectionPrompt } from "./prompt";
+
+/**
+ * Tools available to the Reflection agent.
+ * Currently none - pure conversational guidance.
+ */
+const tools = {};
 
 /**
  * Reflection Agent - Supportive guide for understanding after mistakes.
@@ -32,7 +37,7 @@ export const reflectionAgent = new Agent({
         system: buildReflectionPrompt(options),
     }),
 
-    tools: reflectionTools,
+    tools,
 
     // Allow enough steps for thorough re-explanation
     stopWhen: stepCountIs(15),

@@ -12,8 +12,15 @@ import {
 } from "ai";
 import { gemini } from "../../config";
 import { curiosityOptionsSchema, type CuriosityOptions } from "../types";
-import { curiosityTools } from "../../tools";
+import { suggestFollowUpQuestions } from "../../tools";
 import { buildCuriosityPrompt } from "./prompt";
+
+/**
+ * Tools available to the Curiosity agent.
+ */
+const tools = {
+    suggestFollowUpQuestions,
+};
 
 /**
  * Curiosity Agent - Knowledgeable companion for exploration.
@@ -32,7 +39,7 @@ export const curiosityAgent = new Agent({
         system: buildCuriosityPrompt(options),
     }),
 
-    tools: curiosityTools,
+    tools,
 
     // Allow more steps for free-form exploration
     stopWhen: stepCountIs(20),

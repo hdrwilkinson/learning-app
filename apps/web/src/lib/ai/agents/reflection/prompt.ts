@@ -2,15 +2,20 @@
  * Reflection Mode System Prompt
  *
  * Builds the system prompt for Reflection mode based on context.
+ * Extends the shared base prompt with reflection-specific behavior.
+ *
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 
 import type { ReflectionOptions } from "../types";
+import { getBasePrompt } from "../base-prompt";
 
 /**
- * Base prompt defining the Reflection mode AI behavior.
+ * Reflection mode specific prompt - role and guidelines for rebuilding understanding.
  */
-const BASE_PROMPT = `You are helping a student understand a concept they struggled with in a quiz.
+const MODE_PROMPT = `Current Mode: REFLECTION
+
+You are helping a student understand a concept they struggled with in a quiz.
 Reflection mode is a supportive space to rebuild understanding.
 
 Guidelines:
@@ -48,7 +53,9 @@ IMPORTANT Constraints:
 - Guide them to understanding rather than just telling them the answer
 - When they demonstrate understanding, let them know they can return to the quiz`;
 
-    return `${BASE_PROMPT}
+    return `${getBasePrompt()}
+
+${MODE_PROMPT}
 
 ${contextSection}
 

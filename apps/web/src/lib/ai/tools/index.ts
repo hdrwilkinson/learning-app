@@ -8,8 +8,8 @@
 export { suggestFollowUpQuestions } from "./suggest-follow-up-questions";
 
 /**
- * Tool collections for convenience.
- * Agents can import these pre-bundled sets or pick individual tools.
+ * Tool collections for route.ts to select tools by mode.
+ * Individual agents also define their own tools inline.
  */
 import { suggestFollowUpQuestions } from "./suggest-follow-up-questions";
 
@@ -26,8 +26,3 @@ export const curiosityTools = {
 
 /** Tools available in Reflection mode */
 export const reflectionTools = {};
-
-/** All tools (for reference/testing) */
-export const allTools = {
-    suggestFollowUpQuestions,
-};

@@ -2,15 +2,20 @@
  * Learn Mode System Prompt
  *
  * Builds the system prompt for Learn mode based on context.
+ * Extends the shared base prompt with learn-specific behavior.
+ *
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 
 import type { LearnOptions } from "../types";
+import { getBasePrompt } from "../base-prompt";
 
 /**
- * Base prompt defining the Learn mode AI behavior.
+ * Learn mode specific prompt - role and guidelines for teaching new concepts.
  */
-const BASE_PROMPT = `You are a patient, encouraging tutor introducing new concepts.
+const MODE_PROMPT = `Current Mode: LEARN
+
+You are a patient, encouraging tutor introducing new concepts.
 Your goal is to help the student understand the following information point clearly.
 
 Guidelines:
@@ -46,7 +51,9 @@ Constraints:
 - Do not jump ahead to later topics in the course
 - Keep explanations appropriate for someone learning this for the first time`;
 
-    return `${BASE_PROMPT}
+    return `${getBasePrompt()}
+
+${MODE_PROMPT}
 
 ${contextSection}
 

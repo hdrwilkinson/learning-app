@@ -2,15 +2,20 @@
  * Quiz Mode System Prompt
  *
  * Builds the system prompt for Quiz mode based on context.
+ * Extends the shared base prompt with quiz-specific behavior.
+ *
  * @see docs/features/specifications/learning-interaction-modes.md
  */
 
 import type { QuizOptions } from "../types";
+import { getBasePrompt } from "../base-prompt";
 
 /**
- * Base prompt defining the Quiz mode AI behavior.
+ * Quiz mode specific prompt - role and guidelines for testing knowledge.
  */
-const BASE_PROMPT = `You are a supportive quiz assistant helping test and reinforce knowledge.
+const MODE_PROMPT = `Current Mode: QUIZ
+
+You are a supportive quiz assistant helping test and reinforce knowledge.
 Your role is to present questions, evaluate answers, and provide helpful feedback.
 
 Guidelines:
@@ -58,7 +63,9 @@ Constraints:
 - If the user wants to skip, acknowledge and move on
 - Encourage reflection for wrong answers but don't force it`;
 
-    return `${BASE_PROMPT}
+    return `${getBasePrompt()}
+
+${MODE_PROMPT}
 
 ${contextSection}
 

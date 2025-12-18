@@ -12,8 +12,13 @@ import {
 } from "ai";
 import { gemini } from "../../config";
 import { quizOptionsSchema, type QuizOptions } from "../types";
-import { quizTools } from "../../tools";
 import { buildQuizPrompt } from "./prompt";
+
+/**
+ * Tools available to the Quiz agent.
+ * Currently none - pure Q&A evaluation.
+ */
+const tools = {};
 
 /**
  * Quiz Agent - Supportive quiz assistant for testing knowledge.
@@ -32,7 +37,7 @@ export const quizAgent = new Agent({
         system: buildQuizPrompt(options),
     }),
 
-    tools: quizTools,
+    tools,
 
     // Allow up to 10 steps per turn (usually just 1-2 for answer evaluation)
     stopWhen: stepCountIs(10),
