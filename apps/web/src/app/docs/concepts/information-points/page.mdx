@@ -16,6 +16,14 @@ Everything in Cognia ultimately comes down to IPs:
 
 **Think of IPs like vocabulary flashcards, but for any kind of knowledge.** Each card has one concept. You either know it or you don't. The system tracks each independently.
 
+> **IPs are statements, not questions.**
+>
+> An IP is a factual statement from which questions can be derived. For example:
+> - **IP:** "Henry VIII had 6 wives"
+> - **Quiz questions derived from it:** "How many wives did Henry VIII have?", "True/False: Henry VIII had 5 wives", "Which monarch had 6 wives?"
+>
+> This design allows infinite question variants to test the same underlying knowledge.
+
 ---
 
 ## Examples
@@ -25,9 +33,9 @@ Here are IPs from different subjects:
 ### Programming (Python Basics)
 | IP Title | IP Type |
 |----------|---------|
-| "What is a variable?" | Definition |
+| "A variable is a named container for storing data" | Definition |
 | "Integer type in Python" | Concept |
-| "How to convert string to int" | Procedure |
+| "String to int conversion uses the int() function" | Procedure |
 | "Variables vs. constants example" | Example |
 
 ### Economics (Supply and Demand)
@@ -72,16 +80,16 @@ One concept per IP. If it has "and" in the title, it might be two IPs.
 
 ```
 ❌ "Variables and functions"      → Too broad
-✅ "What is a variable?"          → One concept
-✅ "What is a function?"          → One concept
+✅ "A variable is a container for storing data" → One concept
+✅ "Functions encapsulate reusable code" → One concept
 ```
 
 ### 2. Testable
-You should be able to ask a question where the answer proves understanding.
+You should be able to derive questions from it that prove understanding.
 
 ```
-❌ "Python is popular"            → Can't really test this
-✅ "What is Python's typing style?" → Testable (dynamically typed)
+❌ "Python is popular"            → Can't derive meaningful questions
+✅ "Python uses dynamic typing"   → Testable (enables T/F, MC questions)
 ```
 
 ### 3. Sized Right
@@ -105,7 +113,7 @@ Each IP contains:
 interface InformationPoint {
   // Identity
   id: string;
-  title: string;           // "What is a variable?"
+  title: string;           // "A variable is a container for storing data"
   type: 'definition' | 'concept' | 'procedure' | 'example';
   
   // Content
