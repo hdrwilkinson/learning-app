@@ -129,17 +129,18 @@ interface QuizResponse {
 
 ## Initial Quiz Types
 
-| ID                | Name            | difficultyWeight | minMasteryToUnlock | masteryBoost | stabilityMult |
-| ----------------- | --------------- | ---------------- | ------------------ | ------------ | ------------- |
-| `binary`          | True/False      | 0.5              | 0.00               | 0.05         | 1.0           |
-| `multiple_choice` | Multiple Choice | 1.0              | 0.15               | 0.10         | 1.5           |
-| `question_answer` | Q&A             | 2.0              | 0.40               | 0.15         | 2.0           |
+| ID                | Name            | difficultyWeight | minMasteryToUnlock | masteryBoost | stabilityMult | applicableContentTypes |
+| ----------------- | --------------- | ---------------- | ------------------ | ------------ | ------------- | ---------------------- |
+| `binary`          | True/False      | 0.5              | 0.00               | 0.05         | 1.0           | text, code, math       |
+| `multiple_choice` | Multiple Choice | 1.0              | 0.15               | 0.10         | 1.5           | text, code, math       |
+| `question_answer` | Q&A             | 2.0              | 0.40               | 0.15         | 2.0           | text, code             |
 
 **Notes:**
 
 - True/False always available from first review
 - Multiple Choice unlocks at 15% mastery
 - Q&A unlocks at 40% mastery, requires LLM grading
+- `applicableContentTypes` helps AI assign appropriate quiz types during IP generation
 - Future types (coding exercises, math problems) follow same pattern
 
 ---

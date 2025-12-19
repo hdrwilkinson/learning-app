@@ -645,15 +645,10 @@ Prerequisites: ${ip.prerequisites}
    - List IDs of IPs that MUST be understood before this one
    - Only direct prerequisites, not transitive
 
-3. **Related Points** (from previous IPs list):
-   - List IDs of conceptually related IPs
-   - Not prerequisites, but connected (for "see also", comparisons)
-
-4. **Quiz Types**:
+3. **Quiz Types**:
    - binary: For facts, definitions
    - multiple_choice: For concepts with distinct options
    - question_answer: For explanations, procedures
-   - comparison: If strongly related to another IP
 `;
 ```
 
@@ -668,7 +663,6 @@ Content:
 {ip.content}
 
 Prerequisites claimed: {ip.prerequisites}
-Related points claimed: {ip.relatedPoints}
 
 Previous IPs:
 {previousIPs.map(p => `[${p.id}] ${p.title}`)}
@@ -679,9 +673,8 @@ Change Log:
 Check:
 1. Are all claimed prerequisites from the previous IPs list?
 2. Does content actually reference/build on those prerequisites?
-3. Is difficulty appropriate for level {ip.difficultyLevel}?
-4. Are quiz types appropriate for this content type?
-5. Is the content clear and well-structured?
+3. Are quiz types appropriate for this content type?
+4. Is the content clear and well-structured?
 
 If issues found, specify adjustments.
 If acceptable, respond: "APPROVED"
@@ -785,38 +778,36 @@ function calculateIPBudget(
 
 ## Course Data Model
 
+> **See [Database Schema Reference](/docs/reference/database-schema)** for complete Prisma model definitions.
+
 ```typescript
+// Course - static course content
 interface Course {
     id: string;
-    creatorId: string;
-
-    // From user input
     title: string;
     description: string;
     topic: string;
-    learningGoal: string;
-
-    // From baseline quiz
-    userStartingLevel: number;
-
-    // From schedule
-    schedule: StudySchedule;
+    imageUrl?: string;
+    visibility: "PRIVATE" | "PUBLIC";
+    generationStatus: "PENDING" | "GENERATING" | "COMPLETED" | "FAILED";
 
     // Generation metadata
-    generationStatus: "pending" | "generating" | "completed" | "failed";
     generationStartedAt?: Date;
     generationCompletedAt?: Date;
     generationLogs?: ChangeLog[]; // Full history of validation iterations
 
-    // Estimates
-    estimatedWeeks: number;
-    estimatedTotalMinutes: number;
-
-    // Visibility (from Q13-Q18 decisions)
-    visibility: "private" | "public";
-
     // Structure (populated during generation)
     modules: Module[];
+}
+
+// CourseMembership - user-specific learning data
+// Contains learningGoal, schedule - set during course creation
+interface CourseMembership {
+    userId: string;
+    courseId: string;
+    courseRole: "CREATOR" | "ADMIN" | "STUDENT";
+    learningGoal?: string; // User's objective for this course
+    schedule?: Schedule; // User's study schedule
 }
 
 interface Module {
@@ -834,7 +825,6 @@ interface Lesson {
     title: string;
     description: string;
     order: number;
-    estimatedMinutes: number;
     informationPoints: InformationPoint[];
 }
 ```

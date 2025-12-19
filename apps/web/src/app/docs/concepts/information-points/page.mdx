@@ -96,11 +96,11 @@ You should be able to derive questions from it that prove understanding.
 About 5-10 minutes of content. If explaining it takes 30 minutes, break it into multiple IPs.
 
 ### 4. Clear Dependencies
-What must you know before this? Each IP declares its prerequisites.
+What must you know before this? Each IP has prerequisites defined in the database.
 
 ```
 IP: "List comprehension syntax"
-Prerequisites: ["For loops", "Lists"]
+Prerequisites: "For loops", "Lists"
 ```
 
 ---
@@ -114,42 +114,41 @@ interface InformationPoint {
   // Identity
   id: string;
   title: string;           // "A variable is a container for storing data"
-  type: 'definition' | 'concept' | 'procedure' | 'example';
+  typeId: string;          // References InformationPointType lookup table
   
   // Content
   content: string;         // Markdown explanation
-  difficultyLevel: number; // 1-10
   
   // Relationships
   lessonId: string;
   order: number;           // Position in lesson
-  
-  // Dependencies
-  prerequisites: string[]; // IPs that must come before
-  relatedPoints: string[]; // IPs that connect conceptually
-  
-  // Quiz configuration
-  applicableQuizTypes: string[]; // What kinds of questions work
 }
+
+// Prerequisites stored in separate table (InformationPointPrerequisite)
+// Available quiz types stored in separate table (InformationPointQuizType)
 ```
+
+> **For complete schema details**, see the [Database Schema Reference](/docs/reference/database-schema).
 
 ---
 
-## Prerequisites vs. Related Points
+## Prerequisites
 
-Two kinds of relationships between IPs:
+Prerequisites are IPs that **must** be understood first. The system enforces this sequencing.
 
-### Prerequisites
-**Must** be understood first. Enforced by the system.
+**Examples:**
 - "Integer type" → prerequisite for "Type conversion"
 - "For loops" → prerequisite for "List comprehension"
+- "Letters" → prerequisite for "Words"
 
-### Related Points
-Conceptually connected, but not required.
-- "Integer type" ↔ "Float type" (similar concepts)
-- "For loops" ↔ "While loops" (alternative approaches)
+Prerequisites are stored in a dedicated junction table (`InformationPointPrerequisite`) with:
+- `prerequisiteId` — The IP that must be learned first
+- `dependentId` — The IP that requires the prerequisite
 
-Related points enable "comparison" quiz types and "see also" suggestions.
+This allows the system to:
+- Ensure proper sequencing during Learn Mode
+- Explain *why* you need to learn A before B
+- Suggest remediation when you struggle with advanced concepts
 
 ---
 
@@ -229,5 +228,10 @@ When you study, you're always working with IPs:
 
 ---
 
-*Continue to [Course Modes & Explore](/docs/concepts/learning-modes) →*
+---
+
+## Further Reading
+
+- [Database Schema Reference](/docs/reference/database-schema) — Complete data model definitions
+- [Course Modes & Explore](/docs/concepts/learning-modes) — How IPs are presented in different learning modes
 

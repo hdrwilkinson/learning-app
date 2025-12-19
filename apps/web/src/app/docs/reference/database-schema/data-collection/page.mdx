@@ -1,0 +1,382 @@
+# Data Collection Schema
+
+**Tables for analytics, behavior tracking, and A/B testing.**
+
+[← Back to Schema Overview](/docs/reference/database-schema)
+
+---
+
+## Overview
+
+> **Status: Phase 2** — These models are documented for future implementation. They are not yet in the Prisma schema.
+
+The data collection domain will contain tables for:
+- **Study sessions**: Aggregated session data
+- **Learning events**: Non-quiz interactions
+- **User behavior profiles**: Aggregated patterns
+- **Content analytics**: Performance metrics
+- **A/B testing**: Experiment configuration
+
+---
+
+## Planned Tables
+
+### StudySession
+
+Aggregates a single study session.
+
+```typescript
+interface StudySession {
+  id: string;
+  userId: string;
+  courseId: string;
+
+  // Timing
+  startedAt: Date;
+  endedAt: Date | null;
+  totalDurationMs: number;
+  activeDurationMs: number; // Excluding idle (>30s gaps)
+
+  // Session Type
+  sessionType: 'daily_queue' | 'lesson_focus' | 'review_only' | 'skip_quiz' | 'curiosity' | 'learn_only';
+  entryPoint: 'notification' | 'home' | 'course_page' | 'deep_link' | 'widget';
+  targetLessonId: string | null;
+
+  // Content Coverage
+  ipsIntroduced: number;
+  ipsReviewed: number;
+  uniqueIPsTouched: number;
+  lessonsWorkedOn: string[];
+  modulesWorkedOn: string[];
+
+  // Performance
+  totalQuestions: number;
+  correctAnswers: number;
+  accuracyRate: number;
+  averageResponseTimeMs: number;
+
+  // Outcomes
+  masteryGainTotal: number;
+  ipsMovedToMastered: number;
+  ipsLapsed: number;
+
+  // Completion
+  wasCompleted: boolean;
+  queueCompletionRate: number;
+  exitReason: 'completed' | 'manual_quit' | 'timeout' | 'backgrounded' | 'error' | null;
+
+  createdAt: Date;
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `sessionType` | What kind of study session |
+| `entryPoint` | How user started the session |
+| `activeDurationMs` | Time excluding idle periods |
+| `accuracyRate` | Correct answers / total questions |
+| `queueCompletionRate` | % of planned queue finished |
+
+---
+
+### LearnModeEvent
+
+Tracks non-quiz learning interactions.
+
+```typescript
+interface LearnModeEvent {
+  id: string;
+  userId: string;
+  sessionId: string;
+  informationPointId: string;
+  courseId: string;
+
+  // Trigger
+  trigger: 'first_introduction' | 'quiz_help' | 'manual_review' | 'curiosity';
+
+  // Engagement
+  durationMs: number;
+  scrollDepth: number; // 0-100%
+  contentSectionsViewed: string[];
+  examplesExpanded: number;
+
+  // Interaction (if chat-based)
+  chatMessagesCount: number;
+  userQuestions: string[];
+  aiResponsesCount: number;
+
+  // Outcome
+  markedAsUnderstood: boolean;
+  confidenceAfter: number | null; // 1-5 if captured
+  immediateQuizResult: boolean | null;
+
+  createdAt: Date;
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `trigger` | What initiated the learn mode |
+| `scrollDepth` | How much of content was scrolled |
+| `markedAsUnderstood` | User indicated understanding |
+| `immediateQuizResult` | Result if followed by quiz |
+
+---
+
+### UserBehaviorProfile
+
+Aggregated user patterns, updated weekly.
+
+```typescript
+interface UserBehaviorProfile {
+  userId: string;
+
+  // Study Patterns
+  totalSessionsAllTime: number;
+  averageSessionsPerWeek: number;
+  averageSessionDurationMs: number;
+
+  // Time Preferences
+  preferredHoursOfDay: HourWeight[];
+  preferredDaysOfWeek: DayWeight[];
+  consistencyScore: number; // 0-1, regularity of study
+
+  // Learning Style Indicators
+  learnModeUsageRate: number;
+  hintUsageRate: number;
+  prefersDeepDive: boolean;
+  prefersQuickHits: boolean;
+
+  // Performance Patterns
+  overallAccuracyRate: number;
+  accuracyByQuizType: Record<string, number>;
+  accuracyByHourOfDay: Record<number, number>;
+  sessionFatigueCurve: number[];
+  fatigueOnsetPosition: number | null;
+  optimalSessionLength: number | null;
+
+  // Retention Patterns
+  averageRetentionDays: number;
+  lapseRecoveryDays: number;
+
+  // Engagement
+  currentStreakDays: number;
+  longestStreakDays: number;
+  churnRiskScore: number; // 0-1
+
+  updatedAt: Date;
+}
+
+interface HourWeight {
+  hour: number; // 0-23
+  sessionCount: number;
+  averageAccuracy: number;
+  weight: number;
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `consistencyScore` | How regular the user's study habits are |
+| `fatigueOnsetPosition` | Question # where accuracy starts dropping |
+| `optimalSessionLength` | Recommended session length in minutes |
+| `churnRiskScore` | Likelihood of user dropping off |
+
+---
+
+### InformationPointAnalytics
+
+Content performance metrics across all users.
+
+```typescript
+interface InformationPointAnalytics {
+  informationPointId: string;
+  lessonId: string;
+  courseId: string;
+
+  // Sample Size
+  totalAttempts: number;
+  uniqueUsers: number;
+
+  // Difficulty
+  globalAccuracyRate: number;
+  globalDifficultyScore: number; // 0-1
+  averageAttemptsToMaster: number;
+  averageTimeToMasterHours: number;
+
+  // By Quiz Type
+  performanceByQuizType: QuizTypePerformance[];
+
+  // Common Errors
+  commonWrongAnswers: WrongAnswerPattern[];
+  confusedWithIPs: string[]; // IPs users mix this up with
+
+  // Retention
+  averageRetentionDays: number;
+  lapseRate: number;
+  lapseRecoveryRate: number;
+
+  // Learn Mode
+  learnModeEngagementRate: number;
+  learnModeEffectiveness: number;
+
+  updatedAt: Date;
+}
+
+interface QuizTypePerformance {
+  quizTypeId: string;
+  attempts: number;
+  accuracyRate: number;
+  averageResponseTimeMs: number;
+}
+
+interface WrongAnswerPattern {
+  answer: string;
+  frequency: number;
+  possibleMisconception: string | null;
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `globalDifficultyScore` | Derived from global accuracy |
+| `confusedWithIPs` | Other IPs commonly confused with this |
+| `learnModeEffectiveness` | Correlation with quiz success |
+
+---
+
+### Experiment
+
+A/B testing configuration.
+
+```typescript
+interface Experiment {
+  id: string;
+  name: string;
+  description: string;
+
+  // Scope
+  targetEntity: 'user' | 'session' | 'course' | 'lesson' | 'ip';
+  targetFilter: ExperimentFilter | null;
+
+  // Variants
+  variants: ExperimentVariant[];
+
+  // Status
+  status: 'draft' | 'running' | 'paused' | 'completed';
+  startedAt: Date | null;
+  endedAt: Date | null;
+
+  // Metrics
+  primaryMetric: string;
+  secondaryMetrics: string[];
+  minimumSampleSize: number;
+
+  createdAt: Date;
+}
+
+interface ExperimentVariant {
+  id: string;
+  name: string; // 'control', 'treatment_a', etc.
+  weight: number; // Traffic allocation (0-1)
+  config: Record<string, any>;
+}
+
+interface ExperimentAssignment {
+  experimentId: string;
+  variantId: string;
+  userId: string;
+  assignedAt: Date;
+}
+```
+
+---
+
+## Example Experiments
+
+| Experiment | Variants | Primary Metric |
+|------------|----------|----------------|
+| Interleaving ratio | 50% vs 80% interleaved | 7-day retention |
+| Quiz type progression | Fast unlock vs gradual | Mastery rate |
+| Session length nudge | No nudge vs 15min vs 20min | Completion rate |
+| Review interval formula | SM-2 vs FSRS-inspired | Lapse rate |
+
+---
+
+## Contextual Data
+
+Captured with every event for analysis.
+
+```typescript
+interface ContextualData {
+  // Device
+  deviceType: 'mobile' | 'tablet' | 'desktop';
+  deviceModel: string | null;
+  osType: string;
+  osVersion: string;
+  appVersion: string;
+
+  // Time
+  localTimestamp: Date;
+  utcTimestamp: Date;
+  timezone: string;
+  hourOfDay: number; // 0-23
+  dayOfWeek: number; // 0-6
+  isWeekend: boolean;
+
+  // Network
+  connectionType: 'wifi' | '4g' | '5g' | '3g' | 'offline' | 'unknown';
+
+  // Location (with consent)
+  country: string | null;
+  region: string | null;
+  locationType: 'home' | 'work' | 'school' | 'commute' | 'other' | null;
+}
+```
+
+---
+
+## Data Retention Policy
+
+| Data Type | Retention | Rationale |
+|-----------|-----------|-----------|
+| Quiz responses (full) | 2 years | ML training, detailed analysis |
+| Quiz responses (aggregated) | Indefinitely | Long-term insights |
+| Session data (full) | 2 years | Behavior pattern analysis |
+| Session data (aggregated) | Indefinitely | Product metrics |
+| Learn mode events | 1 year | Content effectiveness |
+| User behavior profile | Until account deleted | Active personalization |
+| Content analytics | Indefinitely | Course improvement |
+| Experiment data | 3 years | Reference for future experiments |
+
+---
+
+## GDPR Compliance
+
+All data collection will be:
+- **Transparent**: Clear disclosure of what's collected
+- **Consensual**: User control over optional collection
+- **Exportable**: Full data export on request
+- **Deletable**: Right to be forgotten
+
+---
+
+## Implementation Priority
+
+| Phase | Tables |
+|-------|--------|
+| **Phase 1 (MVP)** | Basic quiz response logging, session tracking |
+| **Phase 2** | StudySession, LearnModeEvent, UserBehaviorProfile |
+| **Phase 3** | InformationPointAnalytics, Experiments |
+
+---
+
+## Related Specifications
+
+- [Data Collection & Analytics](/docs/features/specifications/data-collection-analytics) — Full specification
+- [Spaced Repetition Algorithm](/docs/features/specifications/spaced-repetition-algorithm) — How data feeds the algorithm
+
+---
+
+[← Back to Schema Overview](/docs/reference/database-schema)
+

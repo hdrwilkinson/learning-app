@@ -69,6 +69,8 @@ From time-per-week, we calculate:
 - Weekly milestones (expected progress checkpoints)
 - Buffer for catch-up if user falls behind
 
+> **Schema Note:** User schedule preferences (days per week, minutes per session) are stored on the `CourseMembership` record, not the `Course` itself. This allows each user to have personalized study schedules for the same course. See [Database Schema Reference](/docs/reference/database-schema).
+
 ---
 
 ## User Learning Profile

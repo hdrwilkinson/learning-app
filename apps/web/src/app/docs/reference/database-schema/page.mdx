@@ -1,0 +1,213 @@
+# Database Schema
+
+**The authoritative reference for Cognia's data models.**
+
+---
+
+## Overview
+
+This documentation defines the complete database schema for Cognia's learning platform. It serves as the single source of truth for all data models, organized by domain.
+
+**Prisma Schema Location:** [`prisma/schema.prisma`](/prisma/schema.prisma)
+
+---
+
+## Schema Domains
+
+The database is organized into five logical domains:
+
+| Domain | Description | Link |
+|--------|-------------|------|
+| **Course Structure** | Content hierarchy and access control | [View](/docs/reference/database-schema/course-structure) |
+| **Learning & Review** | Progress tracking and quiz system | [View](/docs/reference/database-schema/learning-review) |
+| **Data Collection** | Analytics and behavior tracking | [View](/docs/reference/database-schema/data-collection) |
+| **Curiosity Chat** | Free-form exploration conversations | [View](/docs/reference/database-schema/curiosity-chat) |
+| **Auth & User** | Authentication and user management | [View](/docs/reference/database-schema/auth-user) |
+
+---
+
+## Master Entity Relationship Diagram
+
+This diagram shows the relationships between all major tables across all domains.
+
+```mermaid
+erDiagram
+    %% Auth & User
+    User ||--o{ Account : "has"
+    User ||--o{ Session : "has"
+    User ||--o{ LoginHistory : "tracks"
+    User ||--o{ KnownDevice : "has"
+    
+    %% Course Access
+    User ||--o{ CourseMembership : "enrolls"
+    User ||--o{ GroupMembership : "joins"
+    Course ||--o{ CourseMembership : "has members"
+    Course ||--o{ CourseGroup : "has groups"
+    CourseGroup ||--o{ GroupMembership : "has members"
+    
+    %% Content Hierarchy
+    Course ||--o{ Module : "contains"
+    Module ||--o{ Lesson : "contains"
+    Lesson ||--o{ InformationPoint : "contains"
+    
+    %% Information Point Relations
+    InformationPointType ||--o{ InformationPoint : "categorizes"
+    InformationPoint ||--o{ InformationPointQuizType : "has available"
+    QuizType ||--o{ InformationPointQuizType : "available for"
+    InformationPoint ||--o{ InformationPointPrerequisite : "prerequisite of"
+    InformationPoint ||--o{ InformationPointPrerequisite : "depends on"
+    
+    %% Progress & Quiz
+    InformationPoint ||--o{ InformationPointProgress : "tracked by"
+    InformationPoint ||--o{ GeneratedQuestion : "generates"
+    QuizType ||--o{ GeneratedQuestion : "formats"
+    GeneratedQuestion ||--o{ QuizResponse : "answered by"
+    QuizType ||--o{ QuizResponse : "categorizes"
+    
+    %% Curiosity Chat
+    User ||--o{ CuriosityChat : "creates"
+    CuriosityChat ||--o{ CuriosityMessage : "contains"
+
+    %% Entity Definitions
+    User {
+        string id PK
+        string email UK
+        string name
+    }
+    
+    Course {
+        string id PK
+        string title
+        enum visibility
+        enum generationStatus
+    }
+    
+    Module {
+        string id PK
+        string courseId FK
+        int order
+    }
+    
+    Lesson {
+        string id PK
+        string moduleId FK
+        int order
+    }
+    
+    InformationPoint {
+        string id PK
+        string lessonId FK
+        string title
+        int order
+    }
+    
+    InformationPointProgress {
+        string id PK
+        string userId FK
+        string informationPointId FK
+        enum state
+        float masteryLevel
+    }
+    
+    GeneratedQuestion {
+        string id PK
+        string informationPointId FK
+        string quizTypeId FK
+        enum difficulty
+    }
+    
+    QuizResponse {
+        string id PK
+        string userId FK
+        string questionId FK
+        boolean isCorrect
+    }
+    
+    CuriosityChat {
+        string id PK
+        string userId FK
+        string title
+    }
+```
+
+---
+
+## Table Summary
+
+### Course Structure Domain
+
+| Table | Purpose |
+|-------|---------|
+| `Course` | Top-level learning pathway container |
+| `Module` | Thematic section within a course |
+| `Lesson` | Study session containing information points |
+| `InformationPoint` | Atomic unit of learning content |
+| `CourseMembership` | Links users to courses with roles |
+| `CourseGroup` | Cohorts/groups within a course |
+| `GroupMembership` | Links users to groups |
+| `InformationPointType` | Categorizes IPs by pedagogical purpose |
+| `QuizType` | Defines quiz formats and mastery impact |
+| `InformationPointQuizType` | Links IPs to available quiz types |
+| `InformationPointPrerequisite` | Defines IP dependency relationships |
+
+### Learning & Review Domain
+
+| Table | Purpose |
+|-------|---------|
+| `InformationPointProgress` | Tracks user mastery per information point |
+| `GeneratedQuestion` | AI-generated quiz questions |
+| `QuizResponse` | Records user quiz answers |
+
+### Data Collection Domain
+
+| Table | Purpose | Status |
+|-------|---------|--------|
+| `StudySession` | Aggregates a study session | Phase 2 |
+| `LearnModeEvent` | Tracks learning interactions | Phase 2 |
+| `UserBehaviorProfile` | Aggregated user patterns | Phase 2 |
+| `InformationPointAnalytics` | Content performance metrics | Phase 2 |
+| `Experiment` | A/B testing configuration | Phase 2 |
+
+### Curiosity Chat Domain
+
+| Table | Purpose |
+|-------|---------|
+| `CuriosityChat` | Free-form exploration conversation |
+| `CuriosityMessage` | Individual message in a curiosity chat |
+
+### Auth & User Domain
+
+| Table | Purpose |
+|-------|---------|
+| `User` | Core user identity |
+| `Account` | OAuth provider connections |
+| `Session` | Active user sessions |
+| `VerificationToken` | Email verification tokens |
+| `PasswordResetToken` | Password reset tokens |
+| `LoginHistory` | Login audit trail |
+| `KnownDevice` | Recognized user devices |
+
+---
+
+## How to Read Schema Pages
+
+Each domain page includes:
+
+- **ERD Diagrams** — Visual relationships between tables
+- **Table Definitions** — Prisma model with all fields
+- **Field Tables** — Description of each field
+- **Seed Data** — Default values for lookup tables (where applicable)
+
+---
+
+## Quick Links
+
+- [Course Structure](/docs/reference/database-schema/course-structure) — Content hierarchy, memberships, groups
+- [Learning & Review](/docs/reference/database-schema/learning-review) — Progress tracking, questions, responses
+- [Data Collection](/docs/reference/database-schema/data-collection) — Analytics models (Phase 2)
+- [Curiosity Chat](/docs/reference/database-schema/curiosity-chat) — Chat models
+- [Auth & User](/docs/reference/database-schema/auth-user) — Authentication tables
+
+---
+
+*For conceptual understanding of these models, see [Core Concepts](/docs/concepts).*

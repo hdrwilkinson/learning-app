@@ -34,12 +34,11 @@ Questions are pre-generated offline to ensure instant quiz experiences. Generati
 
 Using Google Gemini models for cost efficiency and startup-friendly free tiers.
 
-| Quiz Type       | Model            | Reasoning                                               |
-| --------------- | ---------------- | ------------------------------------------------------- |
-| True/False      | Gemini 2.5 Flash | Simple binary generation, high volume                   |
-| Multiple Choice | Gemini 2.5 Flash | Structured output, distractors need creativity          |
-| Q&A             | Gemini 2.5 Flash | Quality questions + grading rubric generation           |
-| Comparison      | Gemini 2.5 Flash | Cross-IP questions requiring relationship understanding |
+| Quiz Type       | Model            | Reasoning                                      |
+| --------------- | ---------------- | ---------------------------------------------- |
+| True/False      | Gemini 2.5 Flash | Simple binary generation, high volume          |
+| Multiple Choice | Gemini 2.5 Flash | Structured output, distractors need creativity |
+| Q&A             | Gemini 2.5 Flash | Quality questions + grading rubric generation  |
 
 **Note**: Upgrade to Gemini 3 Flash when available for improved quality at similar cost.
 
@@ -71,7 +70,6 @@ const MODEL_CONFIG = {
 interface GeneratedQuestion {
     id: string;
     informationPointId: string;
-    secondaryIpId?: string; // For comparison questions
     quizTypeId: string;
 
     // === Question Content ===
@@ -92,10 +90,6 @@ interface GeneratedQuestion {
     gradingRubric?: GradingRubric;
     keyPoints?: string[]; // Points that must be in answer
     acceptableVariations?: string[];
-
-    // Comparison (uses MC or Q&A format)
-    comparisonType?: "difference" | "similarity" | "builds_on";
-    ipPair?: [string, string]; // The two IPs being compared
 
     // === Metadata ===
     difficulty: "easy" | "medium" | "hard";
@@ -301,13 +295,6 @@ const BUFFER_CONFIG = {
         minimumBuffer: 2,
         replenishmentBatch: 4,
     },
-
-    comparison: {
-        initialGeneration: 0, // Generated when both IPs unlocked
-        perPairGeneration: 3, // Questions per IP pair
-        minimumBuffer: 1,
-        replenishmentBatch: 2,
-    },
 };
 
 // Threshold to trigger Q&A generation (before unlock at 40%)
@@ -426,7 +413,6 @@ You are generating Multiple Choice quiz questions for a learning application.
 Information Point:
 Title: {ip.title}
 Content: {ip.content}
-Related concepts: {relatedIPs}
 
 Generate {count} Multiple Choice questions with 4 options each.
 
@@ -487,91 +473,6 @@ Output as JSON array:
 ]
 `;
 ```
-
-### Comparison Question Generation
-
-Comparison questions test understanding of relationships between IPs. Generated when both IPs in a pair are unlocked.
-
-```typescript
-const COMPARISON_PROMPT = `
-You are generating comparison questions that test understanding of relationships between concepts.
-
-Information Point A:
-Title: {ipA.title}
-Content: {ipA.content}
-
-Information Point B:
-Title: {ipB.title}
-Content: {ipB.content}
-
-Relationship: {relationshipType}
-- "prerequisite": B builds on A
-- "related": Conceptually similar/comparable
-
-Generate {count} comparison questions.
-
-Question types to generate:
-1. Difference questions: "What is the key difference between A and B?"
-2. Similarity questions: "What do A and B have in common?"
-3. Build-on questions (if prerequisite): "How does B extend/improve on A?"
-
-Requirements:
-- Questions should require understanding of BOTH concepts
-- Can be Multiple Choice or Q&A format
-- Include why the comparison matters for learning
-
-Output as JSON array:
-[
-  {
-    "questionText": "Compare X and Y: ...",
-    "comparisonType": "difference|similarity|builds_on",
-    "format": "multiple_choice|question_answer",
-    "options": [...] // if MC
-    "expectedAnswer": "..." // if Q&A
-    "keyPoints": ["Must mention...", "Should contrast..."],
-    "difficulty": "medium|hard"
-  }
-]
-`;
-```
-
-### Comparison Question Triggers
-
-```typescript
-async function checkComparisonEligibility(
-    userId: string,
-    ipId: string
-): Promise<void> {
-    const ip = await getIP(ipId);
-
-    // Check related IPs
-    for (const relatedId of ip.relatedPoints) {
-        const relatedProgress = await getProgress(userId, relatedId);
-
-        // Both IPs must be in 'learning' or 'mastered' state
-        if (
-            relatedProgress.state === "learning" ||
-            relatedProgress.state === "mastered"
-        ) {
-            await generateComparisonQuestions(ipId, relatedId);
-        }
-    }
-
-    // Check prerequisite relationships
-    for (const prereqId of ip.prerequisites) {
-        const prereqProgress = await getProgress(userId, prereqId);
-
-        if (
-            prereqProgress.state === "learning" ||
-            prereqProgress.state === "mastered"
-        ) {
-            await generateComparisonQuestions(prereqId, ipId, "builds_on");
-        }
-    }
-}
-```
-
----
 
 ## Q&A Answer Grading
 

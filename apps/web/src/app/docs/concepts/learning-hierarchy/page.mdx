@@ -47,11 +47,44 @@ A **Course** is the top-level container—a complete learning pathway for a topi
 - "Spanish for Travel"
 
 A course contains:
-- **Title and description**
-- **Learning goal** (what you'll be able to do)
-- **Your starting level** (determined by baseline quiz)
-- **Study schedule** (days/week, minutes/day)
-- **Modules** (the actual content)
+- **Title and description** — What the course covers
+- **Topic** — Subject area for categorization
+- **Modules** — The actual content
+- **Members** — Users enrolled with specific roles
+- **Groups** — Cohorts for collaborative learning
+
+### Visibility
+
+Courses have two visibility levels:
+
+| Visibility | Description |
+|------------|-------------|
+| **Private** | Only members can see the course |
+| **Public** | Anyone can discover and join |
+
+### Membership & Roles
+
+Users access courses through **membership**, with distinct roles:
+
+| Course Role | Capabilities |
+|-------------|--------------|
+| **Creator** | Full control, can delete course |
+| **Admin** | Can manage members, edit content |
+| **Student** | Can learn, take quizzes |
+
+### Groups (Cohorts)
+
+Within a course, members can be organized into **groups**:
+- Each course has a default group
+- Sub-groups can be created for cohorts (e.g., "Spring 2025")
+- Users can only be in one group per course
+- Group members can be **Leaders** or regular **Members**
+
+**Example:** A university course might have:
+- Course Admins (TAs with edit access)
+- Multiple cohort groups (one per semester)
+- Group Leaders (discussion facilitators)
+- Students (members of their cohort)
 
 **Key insight:** Courses are *generated for you*. The AI creates a course structure based on your topic, goals, and starting level. Two people learning "Python" might get different courses based on their backgrounds and objectives.
 
@@ -189,5 +222,8 @@ Small courses don't need unnecessary hierarchy chrome.
 
 ---
 
-*Continue to [Information Points](/docs/concepts/information-points) →*
+## Further Reading
+
+- [Information Points](/docs/concepts/information-points) — The atomic unit of learning
+- [Database Schema Reference](/docs/reference/database-schema) — Complete data model definitions including Course, CourseMembership, CourseGroup, GroupMembership, Module, Lesson, and Information Point
 

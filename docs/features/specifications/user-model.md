@@ -84,77 +84,94 @@ Users have roles specific to each course they're involved with.
 
 ### Role Definitions
 
-| Role             | Description                  | How Assigned                                    |
-| ---------------- | ---------------------------- | ----------------------------------------------- |
-| **Creator**      | Made the course              | Automatic on creation                           |
-| **Course Admin** | Helps manage the course      | Assigned by Creator                             |
-| **Group Leader** | Manages a subset of students | Assigned by Creator/Admin, or creates own group |
-| **Student**      | Learning the course          | Enrolls or is invited                           |
+**Course Roles** (one per user per course):
 
-### Role Permissions
+| Role        | Description             | How Assigned          |
+| ----------- | ----------------------- | --------------------- |
+| **CREATOR** | Made the course         | Automatic on creation |
+| **ADMIN**   | Helps manage the course | Assigned by Creator   |
+| **STUDENT** | Learning the course     | Enrolls or is invited |
 
-| Permission             | Creator | Admin | Group Leader      | Student |
-| ---------------------- | ------- | ----- | ----------------- | ------- |
-| Delete course          | ✅      | ❌    | ❌                | ❌      |
-| Edit course content    | ✅      | ✅    | ❌                | ❌      |
-| Manage course settings | ✅      | ✅    | ❌                | ❌      |
-| Assign Admins          | ✅      | ❌    | ❌                | ❌      |
-| Create groups          | ✅      | ✅    | ❌                | ❌      |
-| Assign Group Leaders   | ✅      | ✅    | ❌                | ❌      |
-| Manage own group       | ✅      | ✅    | ✅ (own group)    | ❌      |
-| View group progress    | ✅      | ✅    | ✅ (own group)    | ❌      |
-| Invite students        | ✅      | ✅    | ✅ (to own group) | ❌      |
-| Access course content  | ✅      | ✅    | ✅                | ✅      |
-| Complete quizzes       | ✅      | ✅    | ✅                | ✅      |
-| Track own progress     | ✅      | ✅    | ✅                | ✅      |
+**Group Roles** (one per user per group, independent of course role):
+
+| Role       | Description                   | How Assigned                 |
+| ---------- | ----------------------------- | ---------------------------- |
+| **LEADER** | Manages a group within course | Assigned by Creator/Admin    |
+| **MEMBER** | Regular group member          | Joins or is invited to group |
+
+### Course Role Permissions
+
+| Permission             | CREATOR | ADMIN | STUDENT |
+| ---------------------- | ------- | ----- | ------- |
+| Delete course          | ✅      | ❌    | ❌      |
+| Edit course content    | ✅      | ✅    | ❌      |
+| Manage course settings | ✅      | ✅    | ❌      |
+| Assign Admins          | ✅      | ❌    | ❌      |
+| Create groups          | ✅      | ✅    | ❌      |
+| Manage all groups      | ✅      | ✅    | ❌      |
+| Access course content  | ✅      | ✅    | ✅      |
+| Complete quizzes       | ✅      | ✅    | ✅      |
+| Track own progress     | ✅      | ✅    | ✅      |
+
+### Group Role Permissions
+
+| Permission                         | LEADER | MEMBER                 |
+| ---------------------------------- | ------ | ---------------------- |
+| View group progress                | ✅     | ❌                     |
+| Invite to group (if policy allows) | ✅     | Depends on join policy |
+| Lead discussions                   | ✅     | ❌                     |
 
 ### Role Rules
 
-1. **Multiple roles allowed**: A user can be both Group Leader and Student on the same course
-2. **Creator is automatically Admin**: Creator has all Admin permissions plus deletion
-3. **Roles are additive**: Permissions stack (Group Leader + Student = both sets of permissions)
+1. **Single course role**: A user has exactly one course role (CREATOR, ADMIN, or STUDENT)
+2. **Separate group role**: Group roles (LEADER, MEMBER) are independent of course roles
+3. **Creator is the owner**: CREATOR has all ADMIN permissions plus course deletion
+4. **Combined access**: A STUDENT in a course can also be a LEADER in their group
 
 ---
 
 ## Course Membership
+
+Course membership connects users to courses with a **single course-level role**. Group membership is managed separately via `GroupMembership`.
 
 ```typescript
 interface CourseMembership {
     id: string;
     userId: string;
     courseId: string;
+    courseRole: CourseRole; // Single role per course
 
-    // Roles (can have multiple)
-    roles: CourseRole[];
+    // User-specific learning preferences (for this course)
+    learningGoal?: string; // User's objective for this course
+    schedule?: Schedule; // User's study schedule
 
-    // Group associations
-    leadingGroupIds: string[]; // Groups this user leads (if Group Leader)
-    memberGroupId?: string; // Group this user belongs to as student (optional)
-
-    // Timestamps
     joinedAt: Date;
-    lastAccessedAt: Date;
-
-    // Progress (for students)
-    progress?: CourseProgress;
 }
 
-type CourseRole = "creator" | "admin" | "group_leader" | "student";
+type CourseRole = "CREATOR" | "ADMIN" | "STUDENT";
 
-interface CourseProgress {
-    overallMastery: number; // 0-100%
-    completedLessons: number;
-    totalLessons: number;
-    currentLesson?: string; // Lesson ID
-    lastActivityAt: Date;
+interface Schedule {
+    daysPerWeek: DayOfWeek[];
+    minutesPerSession: number; // 5-120
 }
+
+type DayOfWeek =
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday";
 ```
+
+> **Note:** Progress is tracked separately via `InformationPointProgress` records linked to each user. See [Database Schema Reference](/docs/reference/database-schema) for details.
 
 ---
 
-## Groups
+## Groups (Cohorts)
 
-Groups are **optional** subsets of students within a course, managed by Group Leaders.
+Groups are **optional** subsets of users within a course. Group membership is managed separately from course membership via `GroupMembership`.
 
 ### Use Cases
 
@@ -168,34 +185,35 @@ Groups are **optional** subsets of students within a course, managed by Group Le
 interface CourseGroup {
     id: string;
     courseId: string;
-
-    // Identity
     name: string; // e.g., "Period 3 - Biology"
-    description?: string;
-
-    // Management
-    leaderIds: string[]; // Can have multiple leaders
-
-    // Members
-    studentIds: string[];
-    maxStudents?: number; // Optional cap
-
-    // Settings
-    isOpen: boolean; // Can students join without invitation?
-
-    // Timestamps
+    isDefault: boolean; // Default group for the course
+    joinPolicy: GroupJoinPolicy;
     createdAt: Date;
-    createdById: string;
 }
+
+type GroupJoinPolicy =
+    | "OPEN" // Anyone in the course can join
+    | "MEMBER_INVITE" // Any group member can invite others
+    | "LEADER_ONLY" // Only group leaders can invite
+    | "INVITE_ONLY"; // Only course admins/creators can add members
+
+interface GroupMembership {
+    id: string;
+    userId: string;
+    groupId: string;
+    groupRole: GroupRole;
+    joinedAt: Date;
+}
+
+type GroupRole = "LEADER" | "MEMBER";
 ```
 
 ### Group Rules
 
-1. **Groups are optional**: Courses can exist without any groups
-2. **Students can be ungrouped**: Not every student needs to be in a group
-3. **One group per student**: A student can only be in one group per course
-4. **Multiple leaders allowed**: A group can have multiple Group Leaders
-5. **Leaders can be students**: Group Leader can also learn the course
+1. **Groups are optional**: Courses can exist without any groups (each course has a default group)
+2. **One group per user per course**: A user can only be in one group per course
+3. **Separate from course role**: Group role (LEADER/MEMBER) is independent of course role (CREATOR/ADMIN/STUDENT)
+4. **Leaders can be students**: A STUDENT in the course can be a LEADER in their group
 
 ---
 
@@ -521,123 +539,16 @@ Users authenticate via Auth.js (NextAuth) with:
 
 ---
 
-## Database Schema (Prisma)
+## Database Schema
 
-```prisma
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  avatar    String?
-  createdAt DateTime @default(now())
+> **See [Database Schema Reference](/docs/reference/database-schema)** for complete Prisma model definitions including User, CourseMembership, CourseGroup, GroupMembership, and related tables.
 
-  // Relations
-  memberships     CourseMembership[]
-  createdCourses  Course[]           @relation("CourseCreator")
-  following       Follow[]           @relation("Following")
-  followers       Follow[]           @relation("Followers")
+Key models for user management:
 
-  // Settings stored as JSON
-  privacySettings Json               @default("{}")
-  learningProfile Json               @default("{}")
-}
-
-model CourseMembership {
-  id        String   @id @default(cuid())
-  userId    String
-  courseId  String
-  roles     String[] // ['creator', 'admin', 'group_leader', 'student']
-  joinedAt  DateTime @default(now())
-
-  // Group associations
-  leadingGroups CourseGroup[] @relation("GroupLeaders")
-  memberGroup   CourseGroup?  @relation("GroupMembers", fields: [memberGroupId], references: [id])
-  memberGroupId String?
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
-
-  @@unique([userId, courseId])
-}
-
-model CourseGroup {
-  id          String   @id @default(cuid())
-  courseId    String
-  name        String
-  description String?
-  isOpen      Boolean  @default(false)
-  maxStudents Int?
-  createdAt   DateTime @default(now())
-
-  // Relations
-  course   Course             @relation(fields: [courseId], references: [id])
-  leaders  CourseMembership[] @relation("GroupLeaders")
-  students CourseMembership[] @relation("GroupMembers")
-}
-
-model Follow {
-  id          String   @id @default(cuid())
-  followerId  String
-  followingId String
-  createdAt   DateTime @default(now())
-
-  follower  User @relation("Following", fields: [followerId], references: [id])
-  following User @relation("Followers", fields: [followingId], references: [id])
-
-  @@unique([followerId, followingId])
-}
-
-model CourseInvitation {
-  id            String   @id @default(cuid())
-  courseId      String
-  invitedById   String
-
-  // Target (one of these)
-  invitedUserId String?
-  invitedEmail  String?
-
-  // What they get
-  role          String   // 'student' | 'group_leader' | 'admin'
-  groupId       String?
-
-  // Status
-  status        String   @default("pending") // 'pending' | 'accepted' | 'declined' | 'expired'
-
-  // Timestamps
-  createdAt     DateTime @default(now())
-  expiresAt     DateTime
-  respondedAt   DateTime?
-
-  // Relations
-  course        Course   @relation(fields: [courseId], references: [id])
-  invitedBy     User     @relation("SentInvitations", fields: [invitedById], references: [id])
-  invitedUser   User?    @relation("ReceivedInvitations", fields: [invitedUserId], references: [id])
-  group         CourseGroup? @relation(fields: [groupId], references: [id])
-}
-
-model InviteCode {
-  id          String   @id @default(cuid())
-  code        String   @unique
-
-  // Scope (one of these)
-  courseId    String?
-  groupId     String?
-
-  // Settings
-  role        String   @default("student")
-  maxUses     Int?
-  usedCount   Int      @default(0)
-  isActive    Boolean  @default(true)
-  expiresAt   DateTime?
-
-  // Metadata
-  createdAt   DateTime @default(now())
-  createdById String
-
-  // Relations
-  course      Course?      @relation(fields: [courseId], references: [id])
-  group       CourseGroup? @relation(fields: [groupId], references: [id])
-  createdBy   User         @relation(fields: [createdById], references: [id])
-}
-```
+- **User** — Core user identity and settings
+- **CourseMembership** — Links users to courses with a single role (CREATOR, ADMIN, STUDENT)
+- **GroupMembership** — Links users to groups within a course (separate from course membership)
+- **CourseGroup** — Groups/cohorts within a course with join policies
+- **Follow** — User-to-user following relationships
+- **CourseInvitation** — Pending invitations to courses
+- **InviteCode** — Shareable codes for joining courses/groups

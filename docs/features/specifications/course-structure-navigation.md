@@ -16,9 +16,31 @@ Owner: Harry
 | [Spaced Repetition Algorithm](./spaced-repetition-algorithm.md) | Provides mastery data that determines lesson states |
 | [Progress Prediction](./progress-prediction.md)                 | Uses course structure for completion estimates      |
 
+> **Database Schema:** See [Database Schema Reference](/docs/reference/database-schema) for complete data model definitions including Course, CourseMembership, CourseGroup, GroupMembership, Module, Lesson, and InformationPoint.
+
 ## Overview
 
 Courses are **pedagogically sequenced**—each element builds on what came before. The system enforces this progression while allowing users to skip ahead by proving competency.
+
+### Course Access & Membership
+
+Course access is managed through a two-tier membership system:
+
+| Model                | Purpose                                                                       |
+| -------------------- | ----------------------------------------------------------------------------- |
+| **CourseMembership** | Links users to courses with course-level roles (Creator, Admin, Student)      |
+| **GroupMembership**  | Links users to groups within a course with group-level roles (Leader, Member) |
+
+**Visibility** controls who can discover and join a course:
+
+- **Private**: Only invited members can see the course
+- **Public**: Anyone can discover and join
+
+**Groups (Cohorts)** organize members within a course:
+
+- Each course has a default group
+- Sub-groups can be created for different cohorts (e.g., "Spring 2025")
+- Users can only be in one group per course
 
 ---
 
