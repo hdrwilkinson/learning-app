@@ -14,10 +14,17 @@ interface AppShellProps {
 // Routes that should render in fullscreen mode (no sidebars)
 const fullscreenRoutes = ["/auth"];
 
+// Layout hierarchy:
+// - DashboardLayout: Has accessory panel with widgets (default behavior below)
+// - PageLayout: Base layout with gamification header (noAccessoryRoutes)
+// - FocusLayout: Immersive experiences with back navigation (noAccessoryRoutes)
+
 // Routes that should hide the right accessory panel (prefix match)
+// Used by: FocusLayout (explore/chat experiences)
 const noAccessoryRoutes = ["/explore"];
 
 // Routes that should hide the right accessory panel (exact match only)
+// Used by: PageLayout (listing/browse pages)
 const exactNoAccessoryRoutes = ["/courses"];
 
 export function AppShell({ children }: AppShellProps) {
@@ -56,9 +63,9 @@ export function AppShell({ children }: AppShellProps) {
                 - Desktop: ml-64 (256px for full sidebar)
             */}
             <div className="fixed inset-0 md:ml-16 lg:ml-64 flex flex-col bg-background pb-16 md:pb-0">
-                {/* Secondary Nav Header - Mobile/tablet only, when showing accessory content */}
+                {/* Secondary Nav Header - Always shown for DashboardLayout (gamification stats + settings) */}
                 {showAccessory && (
-                    <div className="lg:hidden flex-shrink-0 border-b border-border bg-background">
+                    <div className="flex-shrink-0 px-4 md:px-6">
                         <SecondaryNav />
                     </div>
                 )}
@@ -66,9 +73,9 @@ export function AppShell({ children }: AppShellProps) {
                 {/* Email Verification Banner */}
                 <EmailVerificationBanner />
 
-                {/* Content Layout - Two modes: standard (with accessory) or focus (full-height flex) */}
+                {/* Content Layout - Two modes: DashboardLayout (with accessory) or PageLayout/FocusLayout (full-height flex) */}
                 {showAccessory ? (
-                    /* Standard layout - Scrollable content with optional accessory panel on right */
+                    /* DashboardLayout - Scrollable content with accessory panel on right */
                     <div className="flex-1 overflow-y-auto min-h-0">
                         <div className="flex justify-center px-4 md:px-6 py-4 lg:pt-8 lg:pb-6">
                             <div className="flex gap-6 w-full max-w-[1056px] items-start">
@@ -85,7 +92,7 @@ export function AppShell({ children }: AppShellProps) {
                         </div>
                     </div>
                 ) : (
-                    /* Focus layout - Full-height flex for chat/quiz experiences */
+                    /* PageLayout/FocusLayout - Full-height flex for pages without accessory panel */
                     <main className="flex-1 min-h-0 flex flex-col">
                         {children}
                     </main>

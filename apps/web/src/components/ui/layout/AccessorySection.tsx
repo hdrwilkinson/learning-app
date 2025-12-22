@@ -6,7 +6,6 @@ import {
     HiCheckCircle,
     HiSpeakerphone,
 } from "react-icons/hi";
-import { SecondaryNav } from "./SecondaryNav";
 
 interface AccessorySectionProps {
     children?: React.ReactNode;
@@ -15,13 +14,8 @@ interface AccessorySectionProps {
 export function AccessorySection({ children }: AccessorySectionProps) {
     return (
         <aside className="hidden lg:flex lg:flex-col lg:w-80">
-            {/* Secondary Navigation at the top */}
-            <div className="lg:z-40 lg:bg-background">
-                <SecondaryNav />
-            </div>
-
-            {/* Accessory Content */}
-            <div className="flex flex-col gap-4 py-6">
+            {/* Accessory Content - Widgets only (gamification stats moved to top header) */}
+            <div className="flex flex-col gap-4">
                 {/* Leaderboard Card */}
                 <div className="rounded-lg border border-border bg-surface-1 p-4">
                     <div className="flex items-start justify-between mb-2">

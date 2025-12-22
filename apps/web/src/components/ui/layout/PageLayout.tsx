@@ -1,13 +1,23 @@
 /**
- * BrowseLayout Component
+ * PageLayout Component
  *
- * A layout for browse/listing pages (courses, etc.) that uses the main
- * sidebar but hides the right accessory panel. Features a top header with
- * gamification stats and settings menu.
+ * The base layout for standard pages that uses the main sidebar but hides
+ * the right accessory panel. Features a top header with gamification stats
+ * and settings menu.
+ *
+ * This is the most general-purpose layout, suitable for:
+ * - Listing pages (courses, etc.)
+ * - Browse experiences
+ * - Any page that doesn't need the dashboard widgets or focused task UI
  *
  * Structure:
  * - Header with gamification stats (left) and SettingsMenu (right)
  * - Scrollable content area below
+ *
+ * Layout hierarchy:
+ * - DashboardLayout: Has accessory panel with widgets (AppShell default)
+ * - PageLayout: Base layout with gamification header (this component)
+ * - FocusLayout: Immersive experiences with back navigation
  */
 
 "use client";
@@ -17,14 +27,14 @@ import { HiFire, HiSparkles, HiGlobe } from "react-icons/hi";
 import { cn } from "@/lib/utils";
 import { SettingsMenu } from "@/components/ui/molecules/SettingsMenu/SettingsMenu";
 
-interface BrowseLayoutProps {
+interface PageLayoutProps {
     /** Main content */
     children: ReactNode;
     /** Additional class name for the layout container */
     className?: string;
 }
 
-export function BrowseLayout({ children, className }: BrowseLayoutProps) {
+export function PageLayout({ children, className }: PageLayoutProps) {
     return (
         <div className={cn("flex flex-col h-full", className)}>
             {/* Header with gamification stats and settings */}
