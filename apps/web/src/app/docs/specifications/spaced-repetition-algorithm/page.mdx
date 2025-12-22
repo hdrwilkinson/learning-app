@@ -54,9 +54,6 @@ interface InformationPointProgress {
   currentStreak: number;        // Consecutive correct answers
   lapseCount: number;           // Times dropped from 'mastered' state
   
-  // === Quiz Progression ===
-  unlockedQuizTypes: string[];  // Quiz type IDs available for this IP
-  
   // === Timestamps ===
   introducedAt: Date | null;    // When Learn mode completed
   lastReviewedAt: Date | null;
@@ -73,7 +70,8 @@ Defines a quiz format. Extensible—new types added without algorithm changes.
 interface QuizType {
   id: string;
   name: string;
-  description: string;
+  displayName: string;
+  description?: string;
   
   // === Progression ===
   difficultyWeight: number;       // Relative difficulty (1.0 = baseline)
@@ -101,18 +99,19 @@ interface QuizResponse {
   
   // === Context ===
   userId: string;
-  informationPointId: string;
+  questionId: string;           // FK to GeneratedQuestion (which has informationPointId)
   quizTypeId: string;
-  sessionId: string;            // Groups responses in a study session
+  sessionId?: string;           // Groups responses in a study session
   
   // === Result ===
+  userAnswer: string;
   isCorrect: boolean;
-  responseTimeMs: number | null;
+  responseTimeMs?: number;
   
   // === State Snapshot (before response) ===
-  masteryBefore: number;
-  baselineBefore: number;
-  stabilityBefore: number;
+  masteryBefore?: number;
+  baselineBefore?: number;
+  stabilityBefore?: number;
   
   createdAt: Date;
 }
@@ -240,17 +239,22 @@ nextReviewAt = now + interval days
 
 ### 2. Quiz Type Selector
 
-Determines which quiz type to use for a given IP.
+Determines which quiz type to use for a given IP. Quiz type availability is determined by:
+1. The IP's available quiz types (stored in `InformationPointQuizType` junction table)
+2. The user's current mastery level meeting the quiz type's unlock threshold
 
 ```
-function selectQuizType(progress: InformationPointProgress): QuizType {
-  // Get unlocked types for this IP
-  available = progress.unlockedQuizTypes
-    .map(id => getQuizType(id))
-    .filter(qt => qt.isActive)
+function selectQuizType(ip: InformationPoint, progress: InformationPointProgress): QuizType {
+  // Get quiz types available for this IP from InformationPointQuizType junction table
+  ipQuizTypes = getQuizTypesForIP(ip.id)  // Via InformationPointQuizType
+  
+  // Filter to active types where user meets mastery threshold
+  available = ipQuizTypes
+    .map(ipqt => getQuizType(ipqt.quizTypeId))
+    .filter(qt => qt.isActive && progress.masteryLevel >= qt.minMasteryToUnlock)
   
   if (available.length == 0) {
-    return getQuizType('binary')  // Fallback
+    return getQuizType('binary')  // Fallback - always available
   }
   
   // Weight selection toward appropriate difficulty
@@ -266,17 +270,7 @@ function selectQuizType(progress: InformationPointProgress): QuizType {
 }
 ```
 
-**Quiz Type Unlock Check** (run after each response):
-
-```
-function updateUnlockedQuizTypes(progress: InformationPointProgress, ip: InformationPoint) {
-  allTypes = getQuizTypesForIP(ip)  // Based on IP's applicableQuizTypes
-  
-  progress.unlockedQuizTypes = allTypes
-    .filter(qt => progress.masteryLevel >= qt.minMasteryToUnlock)
-    .map(qt => qt.id)
-}
-```
+**Note:** Quiz type availability per IP is defined at content generation time via the `InformationPointQuizType` junction table. The algorithm filters these at runtime based on the user's current mastery level.
 
 ---
 
@@ -408,8 +402,8 @@ function processSkipQuizResult(
       progress.introducedAt = now
       progress.nextReviewAt = now + 7 days
       
-      // Unlock appropriate quiz types
-      updateUnlockedQuizTypes(progress, ip)
+      // Quiz types unlocked based on masteryLevel >= QuizType.minMasteryToUnlock
+      // (evaluated at runtime via selectQuizType)
     }
   }
   

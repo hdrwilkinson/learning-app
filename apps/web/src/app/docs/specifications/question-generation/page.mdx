@@ -32,7 +32,7 @@ Using Google Gemini models for cost efficiency and startup-friendly free tiers.
 | True/False | Gemini 2.5 Flash | Simple binary generation, high volume |
 | Multiple Choice | Gemini 2.5 Flash | Structured output, distractors need creativity |
 | Q&A | Gemini 2.5 Flash | Quality questions + grading rubric generation |
-| Comparison | Gemini 2.5 Flash | Cross-IP questions requiring relationship understanding |
+| Comparison (Phase 2) | Gemini 2.5 Flash | Cross-IP questions requiring relationship understanding |
 
 **Note**: Upgrade to Gemini 3 Flash when available for improved quality at similar cost.
 
@@ -60,15 +60,17 @@ const MODEL_CONFIG = {
 
 ### Generated Question
 
+> **Schema Reference:** See `GeneratedQuestion` model in [`prisma/schema.prisma`](/prisma/schema.prisma)
+
 ```typescript
 interface GeneratedQuestion {
   id: string;
   informationPointId: string;
-  secondaryIpId?: string;          // For comparison questions
   quizTypeId: string;
   
   // === Question Content ===
   questionText: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   
   // === Type-specific fields ===
   
@@ -86,19 +88,17 @@ interface GeneratedQuestion {
   keyPoints?: string[];           // Points that must be in answer
   acceptableVariations?: string[];
   
-  // Comparison (uses MC or Q&A format)
-  comparisonType?: 'difference' | 'similarity' | 'builds_on';
-  ipPair?: [string, string];      // The two IPs being compared
-  
   // === Metadata ===
-  difficulty: 'easy' | 'medium' | 'hard';
   generatedAt: Date;
-  modelUsed: string;
-  generationBatchId: string;
+  modelUsed?: string;
+  generationBatchId?: string;
   
   // === Quality ===
   isActive: boolean;              // Can be disabled if problematic
-  reviewStatus: 'pending' | 'approved' | 'rejected';
+  reviewStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
+  
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface MCOption {
@@ -114,7 +114,9 @@ interface GradingRubric {
 }
 ```
 
-### Question Buffer
+### Question Buffer (Runtime Structure)
+
+> **Note:** `QuestionBuffer` is a runtime/cache structure used by the question selection algorithm. It is not persisted in the database—buffer state is computed from `GeneratedQuestion` records and `QuizResponse` history.
 
 ```typescript
 interface QuestionBuffer {
@@ -138,7 +140,9 @@ interface QuizTypeBuffer {
 }
 ```
 
-### Question Usage
+### Question Usage (Runtime Structure)
+
+> **Note:** `QuestionUsage` is computed at runtime from `QuizResponse` records. It is not a separate database table—question usage history is derived from the responses a user has given to each question.
 
 ```typescript
 interface QuestionUsage {
@@ -295,12 +299,13 @@ const BUFFER_CONFIG = {
     replenishmentBatch: 4,
   },
   
-  comparison: {
-    initialGeneration: 0,         // Generated when both IPs unlocked
-    perPairGeneration: 3,         // Questions per IP pair
-    minimumBuffer: 1,
-    replenishmentBatch: 2,
-  },
+  // Phase 2: Comparison questions
+  // comparison: {
+  //   initialGeneration: 0,         // Generated when both IPs unlocked
+  //   perPairGeneration: 3,         // Questions per IP pair
+  //   minimumBuffer: 1,
+  //   replenishmentBatch: 2,
+  // },
 };
 
 // Threshold to trigger Q&A generation (before unlock at 40%)
@@ -480,7 +485,9 @@ Output as JSON array:
 `;
 ```
 
-### Comparison Question Generation
+### Comparison Question Generation (Phase 2)
+
+> **Status: Phase 2** — Comparison questions are planned for future implementation. The schema fields (`secondaryIpId`, `comparisonType`, `ipPair`) are not yet in the database.
 
 Comparison questions test understanding of relationships between IPs. Generated when both IPs in a pair are unlocked.
 
@@ -527,7 +534,7 @@ Output as JSON array:
 `;
 ```
 
-### Comparison Question Triggers
+### Comparison Question Triggers (Phase 2)
 
 ```typescript
 async function checkComparisonEligibility(
@@ -763,6 +770,7 @@ async function validateGeneratedQuestions(
 - Q&A generation and grading
 - Mastery threshold trigger
 - Cooldown system
+- Comparison questions (requires schema additions: `secondaryIpId`, `comparisonType`, `ipPair`)
 
 ### Phase 3
 - Nightly background job

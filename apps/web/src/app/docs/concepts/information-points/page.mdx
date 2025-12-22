@@ -114,7 +114,7 @@ interface InformationPoint {
   // Identity
   id: string;
   title: string;           // "A variable is a container for storing data"
-  typeId: string;          // References InformationPointType lookup table
+  typeId?: string;         // Optional reference to InformationPointType lookup table
   
   // Content
   content: string;         // Markdown explanation
@@ -122,6 +122,10 @@ interface InformationPoint {
   // Relationships
   lessonId: string;
   order: number;           // Position in lesson
+  
+  // Timestamps
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Prerequisites stored in separate table (InformationPointPrerequisite)
