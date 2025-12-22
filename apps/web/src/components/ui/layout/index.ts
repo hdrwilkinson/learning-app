@@ -5,4 +5,5 @@ export { SecondaryNav } from "./SecondaryNav";
 export { AccessorySection } from "./AccessorySection";
 export { FocusLayout } from "./FocusLayout";
 export { FocusHeader } from "./FocusHeader";
+export { BrowseLayout } from "./BrowseLayout";
 export { ChatHistory } from "./ChatHistory";

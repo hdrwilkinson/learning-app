@@ -3,11 +3,13 @@
  *
  * Displays a grid of available courses.
  * Server component that fetches courses directly from Prisma.
+ * Uses BrowseLayout for the gamification header and settings.
  */
 
 import { prisma } from "../../../../../../services/db/db-client";
 import { CourseCard } from "@/features/courses";
 import type { CourseListItem } from "@/features/courses";
+import { BrowseLayout } from "@/components/ui/layout";
 
 async function getCourses(): Promise<CourseListItem[]> {
     const courses = await prisma.course.findMany({
@@ -59,29 +61,32 @@ export default async function CoursesPage() {
     const courses = await getCourses();
 
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-            <div className="mb-8">
-                <h1 className="text-4xl font-display font-bold mb-2">
-                    Courses
-                </h1>
-                <p className="text-lg text-muted-foreground">
-                    Explore structured learning paths and master new subjects.
-                </p>
-            </div>
-
-            {courses.length === 0 ? (
-                <div className="text-center py-12">
-                    <p className="text-muted-foreground">
-                        No courses available yet.
+        <BrowseLayout>
+            <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+                <div className="mb-8">
+                    <h1 className="text-4xl font-display font-bold mb-2">
+                        Courses
+                    </h1>
+                    <p className="text-lg text-muted-foreground">
+                        Explore structured learning paths and master new
+                        subjects.
                     </p>
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {courses.map((course) => (
-                        <CourseCard key={course.id} course={course} />
-                    ))}
-                </div>
-            )}
-        </div>
+
+                {courses.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-muted-foreground">
+                            No courses available yet.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {courses.map((course) => (
+                            <CourseCard key={course.id} course={course} />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </BrowseLayout>
     );
 }

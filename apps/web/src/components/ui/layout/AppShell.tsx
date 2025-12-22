@@ -14,17 +14,24 @@ interface AppShellProps {
 // Routes that should render in fullscreen mode (no sidebars)
 const fullscreenRoutes = ["/auth"];
 
-// Routes that should hide the right accessory panel
+// Routes that should hide the right accessory panel (prefix match)
 const noAccessoryRoutes = ["/explore"];
+
+// Routes that should hide the right accessory panel (exact match only)
+const exactNoAccessoryRoutes = ["/courses"];
 
 export function AppShell({ children }: AppShellProps) {
     const pathname = usePathname();
     const isFullscreenRoute = fullscreenRoutes.some((route) =>
         pathname?.startsWith(route)
     );
-    const showAccessory = !noAccessoryRoutes.some((route) =>
+    const isExactNoAccessoryRoute = exactNoAccessoryRoutes.includes(
+        pathname ?? ""
+    );
+    const isPrefixNoAccessoryRoute = noAccessoryRoutes.some((route) =>
         pathname?.startsWith(route)
     );
+    const showAccessory = !isExactNoAccessoryRoute && !isPrefixNoAccessoryRoute;
 
     // For fullscreen routes, render children directly without navigation
     if (isFullscreenRoute) {
