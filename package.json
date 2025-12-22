@@ -29,7 +29,12 @@
         "db:migrate": "npx prisma migrate dev",
         "db:migrate:deploy": "node_modules/.bin/prisma migrate deploy",
         "db:generate": "node_modules/.bin/prisma generate",
-        "db:studio": "npx prisma studio"
+        "db:studio": "npx prisma studio",
+        "db:seed": "npx prisma db seed",
+        "db:reset": "npx prisma migrate reset"
+    },
+    "prisma": {
+        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
     },
     "lint-staged": {
         "*.{ts,tsx}": "eslint --fix",

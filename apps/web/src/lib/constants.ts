@@ -11,8 +11,8 @@ export interface NavigationItem {
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
     {
-        label: "Learn",
-        href: "/learn",
+        label: "Courses",
+        href: "/courses",
         icon: HiAcademicCap,
     },
     {

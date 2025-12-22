@@ -35,7 +35,14 @@ export {
     SelectScrollDownButton,
 } from "./select";
 
+// Accordion
+export {
+    Accordion,
+    AccordionItem,
+    AccordionTrigger,
+    AccordionContent,
+} from "./accordion";
+
 // Add more shadcn components as they are used
-// export { ... } from "./accordion";
 // export { ... } from "./alert";
 // etc.

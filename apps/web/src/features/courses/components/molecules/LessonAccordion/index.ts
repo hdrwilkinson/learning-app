@@ -1,0 +1,1 @@
+export { LessonAccordion } from "./LessonAccordion";
