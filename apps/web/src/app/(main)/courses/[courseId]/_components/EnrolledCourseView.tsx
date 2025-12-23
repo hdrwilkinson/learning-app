@@ -2,14 +2,16 @@
  * EnrolledCourseView
  *
  * Displays the learning dashboard for enrolled users.
- * Includes practice button, study modes, and the snaking lesson path.
+ * Includes stats header with practice button and daily progress,
+ * learning graph, study modes, and the snaking lesson path.
  */
 
 "use client";
 
 import { useState } from "react";
 import type { ModuleData } from "@/features/courses";
-import { PracticeButton } from "./PracticeButton";
+import { StatsHeader } from "./StatsHeader";
+import { LearningGraph, type LearningDataPoint } from "./LearningGraph";
 import { StudyModesGrid } from "./StudyModesGrid";
 import { ModulePagination } from "./ModulePagination";
 import { LessonPath } from "./LessonPath";
@@ -19,16 +21,26 @@ export interface LessonStatus {
     status: "complete" | "current" | "locked";
 }
 
+export interface DailyProgress {
+    streak: number;
+    minutesStudied: number;
+    targetMinutes: number;
+}
+
 interface EnrolledCourseViewProps {
     courseId: string;
     modules: ModuleData[];
     lessonStatuses: LessonStatus[];
+    dailyProgress: DailyProgress;
+    learningHistory: LearningDataPoint[];
 }
 
 export function EnrolledCourseView({
     courseId,
     modules,
     lessonStatuses,
+    dailyProgress,
+    learningHistory,
 }: EnrolledCourseViewProps) {
     const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
     const currentModule = modules[currentModuleIndex];
@@ -53,8 +65,16 @@ export function EnrolledCourseView({
 
     return (
         <div className="w-full pb-8 space-y-6">
-            {/* Practice Now Button */}
-            <PracticeButton courseId={courseId} />
+            {/* Stats Header: Practice Button + Daily Progress */}
+            <StatsHeader
+                courseId={courseId}
+                streak={dailyProgress.streak}
+                minutesStudied={dailyProgress.minutesStudied}
+                targetMinutes={dailyProgress.targetMinutes}
+            />
+
+            {/* Learning Graph: Mastery + Completion over time */}
+            <LearningGraph data={learningHistory} />
 
             {/* Study Modes Grid */}
             <StudyModesGrid courseId={courseId} />

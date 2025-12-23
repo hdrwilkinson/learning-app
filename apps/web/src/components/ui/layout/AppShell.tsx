@@ -24,14 +24,18 @@ const fullscreenRoutes = ["/auth"];
 // Used by: FocusLayout (explore/chat experiences)
 const noAccessoryRoutes = ["/explore"];
 
+// Routes that should hide accessory panel (regex match)
+// Used by: FocusLayout (practice mode within courses)
+const noAccessoryPatternsRoutes = [/^\/courses\/[^/]+\/practice/];
+
 // Routes that should hide the right accessory panel (exact match only)
 // Used by: PageLayout (listing/browse pages)
 const exactNoAccessoryRoutes = ["/courses"];
 
 // Routes that handle their own complete layout (hero + columns)
-// Used by: Course detail pages with hero header
-// Pattern: /courses/{courseId} but NOT /courses or /courses/{courseId}/settings/*
-const customLayoutRoutes = [/^\/courses\/[^/]+$/];
+// Used by: Course detail pages with hero header and their subpages
+// Pattern: /courses/{courseId} and /courses/{courseId}/* (except practice which uses FocusLayout)
+const customLayoutRoutes = [/^\/courses\/[^/]+(\/(?!practice).*)?$/];
 
 /**
  * Check if path matches a course detail route pattern
@@ -52,10 +56,14 @@ export function AppShell({ children }: AppShellProps) {
     const isPrefixNoAccessoryRoute = noAccessoryRoutes.some((route) =>
         pathname?.startsWith(route)
     );
+    const isPatternNoAccessoryRoute = noAccessoryPatternsRoutes.some(
+        (pattern) => (pathname ? pattern.test(pathname) : false)
+    );
     const hasCustomLayout = isCustomLayoutRoute(pathname);
     const showAccessory =
         !isExactNoAccessoryRoute &&
         !isPrefixNoAccessoryRoute &&
+        !isPatternNoAccessoryRoute &&
         !hasCustomLayout;
 
     // For fullscreen routes, render children directly without navigation

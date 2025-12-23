@@ -14,7 +14,9 @@ import { UnenrolledCourseView } from "./_components/UnenrolledCourseView";
 import {
     EnrolledCourseView,
     type LessonStatus,
+    type DailyProgress,
 } from "./_components/EnrolledCourseView";
+import type { LearningDataPoint } from "./_components/LearningGraph";
 
 interface PageProps {
     params: Promise<{ courseId: string }>;
@@ -140,6 +142,106 @@ async function getLessonStatuses(
     }));
 }
 
+/**
+ * Get daily progress stats for enrolled user
+ * Includes streak, minutes studied today, and target minutes from schedule
+ */
+async function getDailyProgress(
+    courseId: string,
+    userId: string
+): Promise<DailyProgress> {
+    // Get user's schedule settings from membership
+    const membership = await prisma.courseMembership.findUnique({
+        where: {
+            userId_courseId: {
+                userId,
+                courseId,
+            },
+        },
+        select: {
+            schedule: true,
+        },
+    });
+
+    // Parse schedule to get target minutes (default 30 min)
+    const schedule = membership?.schedule as {
+        minutesPerSession?: number;
+    } | null;
+    const targetMinutes = schedule?.minutesPerSession ?? 30;
+
+    // TODO: Calculate actual streak from QuizResponse/study session data
+    // For now, return mock data
+    const streak = 5;
+
+    // TODO: Calculate actual minutes studied today from QuizResponse timestamps
+    // For now, return mock data
+    const minutesStudied = 15;
+
+    return {
+        streak,
+        minutesStudied,
+        targetMinutes,
+    };
+}
+
+/**
+ * Get learning history for the graph
+ * Returns mastery % and completion % over the last 90 days
+ * Supports week, month, and all-time views
+ */
+async function getLearningHistory(
+    _courseId: string,
+    _userId: string
+): Promise<LearningDataPoint[]> {
+    // TODO: Use courseId and userId to fetch actual historical data from InformationPointProgress
+    // For now, generate mock historical data for the last 90 days
+    // This would require tracking snapshots of progress over time
+    // For now, generate mock historical data for the last 90 days
+
+    const history: LearningDataPoint[] = [];
+    const today = new Date();
+    const totalDays = 90;
+
+    // Generate a realistic learning curve with some variance
+    let baseMastery = 15; // Starting point
+    let baseCompletion = 5;
+
+    for (let i = totalDays - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+
+        // Simulate study days (not every day has progress)
+        const isStudyDay = Math.random() > 0.3; // 70% chance of studying
+
+        if (isStudyDay) {
+            // Progress on study days
+            baseMastery += Math.random() * 1.2 + 0.3;
+            baseCompletion += Math.random() * 0.8 + 0.2;
+        } else {
+            // Slight decay on non-study days
+            baseMastery -= Math.random() * 0.3;
+        }
+
+        // Add daily variance
+        const masteryPercent = Math.min(
+            100,
+            Math.max(0, Math.round(baseMastery + (Math.random() - 0.5) * 3))
+        );
+        const completionPercent = Math.min(
+            100,
+            Math.max(0, Math.round(baseCompletion + (Math.random() - 0.5) * 2))
+        );
+
+        history.push({
+            date: date.toISOString(),
+            masteryPercent,
+            completionPercent,
+        });
+    }
+
+    return history;
+}
+
 export default async function CourseDetailPage({ params }: PageProps) {
     const { courseId } = await params;
     const course = await getCourse(courseId);
@@ -156,16 +258,21 @@ export default async function CourseDetailPage({ params }: PageProps) {
 
     // Render different views based on enrollment status
     if (isEnrolled && session?.user?.id) {
-        const lessonStatuses = await getLessonStatuses(
-            courseId,
-            session.user.id
-        );
+        // Fetch all enrolled user data in parallel
+        const [lessonStatuses, dailyProgress, learningHistory] =
+            await Promise.all([
+                getLessonStatuses(courseId, session.user.id),
+                getDailyProgress(courseId, session.user.id),
+                getLearningHistory(courseId, session.user.id),
+            ]);
 
         return (
             <EnrolledCourseView
                 courseId={course.id}
                 modules={course.modules}
                 lessonStatuses={lessonStatuses}
+                dailyProgress={dailyProgress}
+                learningHistory={learningHistory}
             />
         );
     }

@@ -9,6 +9,13 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth;
     const pathname = nextUrl.pathname;
 
+    // Helper to create response with pathname header
+    const nextWithPathname = () => {
+        const response = NextResponse.next();
+        response.headers.set("x-pathname", pathname);
+        return response;
+    };
+
     // 1. Static/API: Allow pass-through
     if (
         pathname.startsWith("/api/auth") ||
@@ -16,7 +23,7 @@ export default auth((req) => {
         pathname.startsWith("/static") ||
         pathname === "/favicon.ico"
     ) {
-        return NextResponse.next();
+        return nextWithPathname();
     }
 
     // 2. Unauthenticated users
@@ -31,7 +38,7 @@ export default auth((req) => {
             pathname.startsWith("/auth/verify-email") ||
             pathname.startsWith("/auth/resend-verification")
         ) {
-            return NextResponse.next();
+            return nextWithPathname();
         }
         // Redirect all other unauthenticated requests (including homepage "/") to login
         // This ensures homepage and all non-auth pages require authentication
@@ -54,7 +61,7 @@ export default auth((req) => {
             pathname.startsWith("/auth/verify-email") ||
             pathname.startsWith("/auth/resend-verification")
         ) {
-            return NextResponse.next();
+            return nextWithPathname();
         }
         // Redirect everything else to onboarding
         const url = nextUrl.clone();
@@ -70,7 +77,7 @@ export default auth((req) => {
             pathname.startsWith("/auth/resend-verification") ||
             pathname.startsWith("/auth/signout")
         ) {
-            return NextResponse.next();
+            return nextWithPathname();
         }
         // Allow access to other pages but banner will prompt verification
         // Don't redirect to avoid blocking user from seeing the banner
@@ -91,7 +98,7 @@ export default auth((req) => {
     }
 
     // Allow everything else for complete profiles
-    return NextResponse.next();
+    return nextWithPathname();
 });
 
 export const config = {

@@ -11,10 +11,10 @@ import { getCourseReviews } from "@/app/actions/courses";
 import { ReviewCard } from "@/features/courses";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-    HiArrowLeft,
     HiStar,
     HiChevronLeft,
     HiChevronRight,
+    HiArrowLeft,
 } from "react-icons/hi";
 
 interface PageProps {
@@ -60,7 +60,7 @@ export default async function CourseReviewsPage({
 
     if ("error" in reviewsResult) {
         return (
-            <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+            <div className="w-full py-8">
                 <p className="text-destructive">{reviewsResult.error}</p>
             </div>
         );
@@ -70,47 +70,38 @@ export default async function CourseReviewsPage({
         reviewsResult.data;
 
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 lg:-mt-2">
-            {/* Back link */}
-            <Link
-                href={`/courses/${courseId}`}
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-            >
-                <HiArrowLeft className="h-4 w-4" />
-                Back to course
-            </Link>
-
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-display font-bold mb-2">
-                    Reviews for {course.title}
-                </h1>
-
-                {/* Rating summary */}
-                <div className="flex items-center gap-4 text-muted-foreground">
-                    {course.averageRating ? (
-                        <>
-                            <div className="flex items-center gap-1">
-                                <HiStar className="h-5 w-5 text-amber-500 fill-amber-500" />
-                                <span className="text-xl font-bold text-foreground">
-                                    {course.averageRating.toFixed(1)}
-                                </span>
-                            </div>
-                            <span>•</span>
-                            <span>
-                                {totalCount}{" "}
-                                {totalCount === 1 ? "review" : "reviews"}
+        <div className="w-full pb-8 space-y-6">
+            {/* Section header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-display font-semibold">
+                        Reviews
+                    </h2>
+                    {course.averageRating && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <HiStar className="h-5 w-5 text-amber-500 fill-amber-500" />
+                            <span className="font-medium text-foreground">
+                                {course.averageRating.toFixed(1)}
                             </span>
-                        </>
-                    ) : (
-                        <span>No reviews yet</span>
+                            <span className="text-sm">
+                                ({totalCount}{" "}
+                                {totalCount === 1 ? "review" : "reviews"})
+                            </span>
+                        </div>
                     )}
                 </div>
+                <Link
+                    href={`/courses/${courseId}`}
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                    <HiArrowLeft className="h-4 w-4" />
+                    Back to course
+                </Link>
             </div>
 
             {/* Reviews list */}
             {reviews.length > 0 ? (
-                <div className="space-y-4 mb-8">
+                <div className="space-y-4">
                     {reviews.map((review) => (
                         <ReviewCard
                             key={review.id}

@@ -5,9 +5,13 @@
  * Renders different sidebars based on enrollment status:
  * - Unenrolled: CourseInfoSidebar with community stats and time investment
  * - Enrolled: ProgressSidebar with leaderboards, quests, and progress
+ *
+ * Note: Child routes like /practice use FocusLayout and bypass this layout's
+ * hero/sidebar by passing children through directly.
  */
 
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "../../../../../../../services/db/db-client";
 import { CourseHero } from "./_components/CourseHero";
 import { CourseInfoSidebar } from "@/components/ui/layout/CourseInfoSidebar";
@@ -19,6 +23,12 @@ interface LayoutProps {
     children: React.ReactNode;
     params: Promise<{ courseId: string }>;
 }
+
+/**
+ * Routes that should bypass the course detail layout (hero + sidebar)
+ * These routes use their own layout (e.g., FocusLayout for practice mode)
+ */
+const bypassLayoutRoutes = ["/practice"];
 
 /**
  * Fetch course data needed for the layout (hero + sidebar)
@@ -159,6 +169,19 @@ export default async function CourseDetailLayout({
     params,
 }: LayoutProps) {
     const { courseId } = await params;
+
+    // Check if current route should bypass the course detail layout
+    const headersList = await headers();
+    const pathname = headersList.get("x-pathname") || "";
+    const shouldBypassLayout = bypassLayoutRoutes.some((route) =>
+        pathname.includes(`/courses/${courseId}${route}`)
+    );
+
+    // For routes like /practice, just render children without hero/sidebar
+    if (shouldBypassLayout) {
+        return <>{children}</>;
+    }
+
     const course = await getCourseForLayout(courseId);
 
     if (!course) {
