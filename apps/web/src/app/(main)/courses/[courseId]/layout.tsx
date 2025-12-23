@@ -2,13 +2,16 @@
  * Course Detail Layout
  *
  * Provides the hero header + two-column layout for course detail pages.
- * Fetches minimal course data for the hero and renders children in the main column.
+ * Renders different sidebars based on enrollment status:
+ * - Unenrolled: CourseInfoSidebar with community stats and time investment
+ * - Enrolled: ProgressSidebar with leaderboards, quests, and progress
  */
 
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../../../../services/db/db-client";
 import { CourseHero } from "./_components/CourseHero";
-import { AccessorySection } from "@/components/ui/layout/AccessorySection";
+import { CourseInfoSidebar } from "@/components/ui/layout/CourseInfoSidebar";
+import { ProgressSidebar } from "@/components/ui/layout/ProgressSidebar";
 import { auth } from "@/auth";
 import { CourseMenu } from "./_components/CourseMenu";
 
@@ -18,9 +21,9 @@ interface LayoutProps {
 }
 
 /**
- * Fetch minimal course data needed for the hero
+ * Fetch course data needed for the layout (hero + sidebar)
  */
-async function getCourseForHero(courseId: string) {
+async function getCourseForLayout(courseId: string) {
     const course = await prisma.course.findFirst({
         where: {
             id: courseId,
@@ -33,18 +36,62 @@ async function getCourseForHero(courseId: string) {
             topic: true,
             imageUrl: true,
             description: true,
+            averageRating: true,
+            ratingCount: true,
+            estimatedMinutesPerIP: true,
+            _count: {
+                select: { memberships: true },
+            },
+            modules: {
+                select: {
+                    lessons: {
+                        select: {
+                            _count: {
+                                select: { informationPoints: true },
+                            },
+                        },
+                    },
+                },
+            },
         },
     });
 
-    return course;
+    if (!course) {
+        return null;
+    }
+
+    // Calculate total IPs for time estimates
+    const totalInformationPoints = course.modules.reduce(
+        (sum, module) =>
+            sum +
+            module.lessons.reduce(
+                (lessonSum, lesson) =>
+                    lessonSum + lesson._count.informationPoints,
+                0
+            ),
+        0
+    );
+
+    return {
+        id: course.id,
+        title: course.title,
+        topic: course.topic,
+        imageUrl: course.imageUrl,
+        description: course.description,
+        averageRating: course.averageRating,
+        ratingCount: course.ratingCount,
+        memberCount: course._count.memberships,
+        estimatedMinutesPerIP: course.estimatedMinutesPerIP,
+        totalInformationPoints,
+    };
 }
 
 /**
- * Get enrollment status for the course menu
+ * Get enrollment status and progress data for enrolled users
  */
-async function getEnrollmentStatus(courseId: string, userId: string | null) {
+async function getEnrollmentData(courseId: string, userId: string | null) {
     if (!userId) {
-        return { isEnrolled: false, role: null };
+        return { isEnrolled: false, role: null, progress: null };
     }
 
     const membership = await prisma.courseMembership.findUnique({
@@ -54,12 +101,56 @@ async function getEnrollmentStatus(courseId: string, userId: string | null) {
                 courseId,
             },
         },
-        select: { courseRole: true },
+        select: {
+            courseRole: true,
+            joinedAt: true,
+        },
     });
 
+    if (!membership) {
+        return { isEnrolled: false, role: null, progress: null };
+    }
+
+    // TODO: Fetch actual progress data from progress tracking tables
+    // For now, return mock progress data
+    const progress = {
+        completionPercent: 42,
+        masteryPercent: 28,
+        totalTimeStudiedMinutes: 750,
+        memberSince: membership.joinedAt,
+    };
+
     return {
-        isEnrolled: !!membership,
-        role: membership?.courseRole ?? null,
+        isEnrolled: true,
+        role: membership.courseRole,
+        progress,
+    };
+}
+
+/**
+ * Calculate time estimates for unenrolled users
+ */
+function calculateTimeEstimates(
+    totalIPs: number,
+    minutesPerIP: number,
+    hoursPerWeek: number = 5
+) {
+    if (totalIPs === 0) {
+        return {
+            totalHours: 0,
+            weeksToMastery: 0,
+            hoursPerWeek,
+        };
+    }
+
+    const totalMinutes = totalIPs * minutesPerIP;
+    const totalHours = totalMinutes / 60;
+    const weeks = totalHours / hoursPerWeek;
+
+    return {
+        totalHours,
+        weeksToMastery: Math.ceil(weeks),
+        hoursPerWeek,
     };
 }
 
@@ -68,16 +159,21 @@ export default async function CourseDetailLayout({
     params,
 }: LayoutProps) {
     const { courseId } = await params;
-    const course = await getCourseForHero(courseId);
+    const course = await getCourseForLayout(courseId);
 
     if (!course) {
         notFound();
     }
 
     const session = await auth();
-    const { isEnrolled, role } = await getEnrollmentStatus(
+    const { isEnrolled, role, progress } = await getEnrollmentData(
         courseId,
         session?.user?.id ?? null
+    );
+
+    const timeEstimates = calculateTimeEstimates(
+        course.totalInformationPoints,
+        course.estimatedMinutesPerIP
     );
 
     return (
@@ -102,13 +198,13 @@ export default async function CourseDetailLayout({
                 </div>
             </div>
 
-            {/* Two Column Layout - Main content + Accessory */}
+            {/* Two Column Layout - Main content + Sidebar */}
             <div className="flex justify-center px-4 md:px-6 py-6">
                 <div className="flex gap-6 w-full max-w-[1056px] items-start">
                     {/* Main Content Column */}
                     <main className="flex-1 min-w-0 w-full">
-                        {/* Description below hero */}
-                        {course.description && (
+                        {/* Description below hero (only for unenrolled) */}
+                        {!isEnrolled && course.description && (
                             <p className="text-lg text-muted-foreground max-w-3xl mb-8">
                                 {course.description}
                             </p>
@@ -116,9 +212,25 @@ export default async function CourseDetailLayout({
                         {children}
                     </main>
 
-                    {/* Accessory Section - Desktop only, sticky */}
+                    {/* Sidebar - Different content based on enrollment */}
                     <div className="hidden lg:block sticky top-8 self-start">
-                        <AccessorySection />
+                        {isEnrolled && progress ? (
+                            <ProgressSidebar
+                                courseId={course.id}
+                                progress={progress}
+                            />
+                        ) : (
+                            <CourseInfoSidebar
+                                memberCount={course.memberCount}
+                                averageRating={course.averageRating}
+                                ratingCount={course.ratingCount}
+                                weeksToMastery={timeEstimates.weeksToMastery}
+                                hoursPerWeek={timeEstimates.hoursPerWeek}
+                                totalHours={timeEstimates.totalHours}
+                                courseId={course.id}
+                                isLoggedIn={!!session?.user}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

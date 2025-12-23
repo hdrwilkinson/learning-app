@@ -1,18 +1,20 @@
 /**
  * Course Detail Page
  *
- * Displays course stats, module/lesson structure, and reviews.
- * Title and description are shown in the layout's hero header.
+ * Displays different views based on enrollment status:
+ * - Unenrolled: Course content accordion and reviews
+ * - Enrolled: Learning dashboard with study modes and lesson path
  */
 
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../../../../services/db/db-client";
-import { Accordion } from "@/components/ui/shadcn/accordion";
-import { ModuleAccordion } from "@/features/courses";
 import type { CourseDetail } from "@/features/courses";
 import { auth } from "@/auth";
-import { ReviewsPreview } from "./_components/ReviewsPreview";
-import { HiStar, HiUsers, HiClock, HiCalendar } from "react-icons/hi";
+import { UnenrolledCourseView } from "./_components/UnenrolledCourseView";
+import {
+    EnrolledCourseView,
+    type LessonStatus,
+} from "./_components/EnrolledCourseView";
 
 interface PageProps {
     params: Promise<{ courseId: string }>;
@@ -110,44 +112,32 @@ async function getEnrollmentStatus(courseId: string, userId: string | null) {
 }
 
 /**
- * Format hours to a readable string (e.g., "12 hours" or "1.5 hours")
+ * Get lesson statuses for enrolled users
+ * TODO: Fetch actual progress from LessonProgress table
  */
-function formatHours(hours: number): string {
-    if (hours < 1) {
-        return `${Math.round(hours * 60)} min`;
-    }
-    if (hours === Math.floor(hours)) {
-        return `${hours} ${hours === 1 ? "hour" : "hours"}`;
-    }
-    return `${hours.toFixed(1)} hours`;
-}
+async function getLessonStatuses(
+    courseId: string,
+    _userId: string
+): Promise<LessonStatus[]> {
+    // Get all lessons for the course
+    const lessons = await prisma.lesson.findMany({
+        where: {
+            module: {
+                courseId,
+            },
+        },
+        orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
+        select: {
+            id: true,
+        },
+    });
 
-/**
- * Calculate estimated weeks to mastery
- * Assumes 5 hours per week as default study time
- */
-function calculateTimeEstimates(
-    totalIPs: number,
-    minutesPerIP: number,
-    hoursPerWeek: number = 5
-) {
-    if (totalIPs === 0) {
-        return {
-            totalHours: 0,
-            weeksToMastery: 0,
-            hoursPerWeek,
-        };
-    }
-
-    const totalMinutes = totalIPs * minutesPerIP;
-    const totalHours = totalMinutes / 60;
-    const weeks = totalHours / hoursPerWeek;
-
-    return {
-        totalHours,
-        weeksToMastery: Math.ceil(weeks),
-        hoursPerWeek,
-    };
+    // TODO: Fetch actual progress from LessonProgress/InformationPointProgress tables
+    // For now, generate mock data: first 2 complete, 3rd current, rest locked
+    return lessons.map((lesson, index) => ({
+        lessonId: lesson.id,
+        status: index < 2 ? "complete" : index === 2 ? "current" : "locked",
+    }));
 }
 
 export default async function CourseDetailPage({ params }: PageProps) {
@@ -164,135 +154,26 @@ export default async function CourseDetailPage({ params }: PageProps) {
         session?.user?.id ?? null
     );
 
-    const timeEstimates = calculateTimeEstimates(
-        course.totalInformationPoints,
-        course.estimatedMinutesPerIP
-    );
+    // Render different views based on enrollment status
+    if (isEnrolled && session?.user?.id) {
+        const lessonStatuses = await getLessonStatuses(
+            courseId,
+            session.user.id
+        );
+
+        return (
+            <EnrolledCourseView
+                courseId={course.id}
+                modules={course.modules}
+                lessonStatuses={lessonStatuses}
+            />
+        );
+    }
 
     return (
-        <div className="w-full pb-8">
-            {/* Stats sections */}
-            <div className="grid gap-6 md:grid-cols-2 mb-8">
-                {/* Competitive stats */}
-                <div className="p-6 bg-muted/50 rounded-lg border">
-                    <h3 className="text-sm font-medium text-muted-foreground mb-4">
-                        Community
-                    </h3>
-                    <div className="flex flex-wrap gap-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-primary/10">
-                                <HiUsers className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                                <span className="text-2xl font-bold font-mono">
-                                    {course.memberCount}
-                                </span>
-                                <p className="text-sm text-muted-foreground">
-                                    {course.memberCount === 1
-                                        ? "student enrolled"
-                                        : "students enrolled"}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-amber-500/10">
-                                <HiStar className="h-5 w-5 text-amber-500" />
-                            </div>
-                            <div>
-                                {course.averageRating ? (
-                                    <>
-                                        <span className="text-2xl font-bold font-mono">
-                                            {course.averageRating.toFixed(1)}
-                                        </span>
-                                        <p className="text-sm text-muted-foreground">
-                                            {course.ratingCount}{" "}
-                                            {course.ratingCount === 1
-                                                ? "rating"
-                                                : "ratings"}
-                                        </p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="text-lg font-medium text-muted-foreground">
-                                            No ratings yet
-                                        </span>
-                                        <p className="text-sm text-muted-foreground">
-                                            Be the first to rate
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Time estimates */}
-                <div className="p-6 bg-muted/50 rounded-lg border">
-                    <h3 className="text-sm font-medium text-muted-foreground mb-4">
-                        Time Investment
-                    </h3>
-                    <div className="flex flex-wrap gap-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-secondary/10">
-                                <HiCalendar className="h-5 w-5 text-secondary" />
-                            </div>
-                            <div>
-                                <span className="text-2xl font-bold font-mono">
-                                    {timeEstimates.weeksToMastery}
-                                </span>
-                                <p className="text-sm text-muted-foreground">
-                                    {timeEstimates.weeksToMastery === 1
-                                        ? "week to mastery"
-                                        : "weeks to mastery"}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-accent/10">
-                                <HiClock className="h-5 w-5 text-accent" />
-                            </div>
-                            <div>
-                                <span className="text-2xl font-bold font-mono">
-                                    {timeEstimates.hoursPerWeek}
-                                </span>
-                                <p className="text-sm text-muted-foreground">
-                                    hours per week
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-4">
-                        Based on {formatHours(timeEstimates.totalHours)} total
-                        study time
-                    </p>
-                </div>
-            </div>
-
-            {/* Modules accordion */}
-            <div className="space-y-4">
-                <h2 className="text-2xl font-display font-semibold">
-                    Course Content
-                </h2>
-                <Accordion
-                    type="multiple"
-                    defaultValue={[`module-${course.modules[0]?.id}`]}
-                    className="space-y-4"
-                >
-                    {course.modules.map((module) => (
-                        <ModuleAccordion key={module.id} module={module} />
-                    ))}
-                </Accordion>
-            </div>
-
-            {/* Reviews section */}
-            <div className="mt-12">
-                <ReviewsPreview
-                    courseId={course.id}
-                    averageRating={course.averageRating}
-                    isEnrolled={isEnrolled}
-                    currentUserId={session?.user?.id ?? null}
-                />
-            </div>
-        </div>
+        <UnenrolledCourseView
+            course={course}
+            currentUserId={session?.user?.id ?? null}
+        />
     );
 }

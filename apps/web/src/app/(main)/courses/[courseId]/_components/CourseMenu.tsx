@@ -10,7 +10,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
-import { HiDotsVertical, HiCog, HiLogout, HiPlus } from "react-icons/hi";
+import {
+    HiDotsVertical,
+    HiCog,
+    HiLogout,
+    HiPlus,
+    HiStar,
+} from "react-icons/hi";
 import { LeaveCourseDialog } from "./LeaveCourseDialog";
 
 interface CourseMenuProps {
@@ -77,6 +83,16 @@ export function CourseMenu({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                        <Link
+                            href={`/courses/${courseId}/reviews`}
+                            className="flex items-center gap-2 cursor-pointer"
+                        >
+                            <HiStar className="h-4 w-4" />
+                            Reviews
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link
                             href={`/courses/${courseId}/settings`}
