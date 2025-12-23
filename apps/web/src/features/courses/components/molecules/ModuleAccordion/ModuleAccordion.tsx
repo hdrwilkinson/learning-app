@@ -1,36 +1,26 @@
 /**
  * ModuleAccordion Component
  *
- * Displays a module with nested lesson accordions.
+ * Displays a module with nested lesson items.
  * Shows module title, description, and lessons when expanded.
  */
 
 "use client";
 
 import {
-    Accordion,
     AccordionItem,
     AccordionTrigger,
     AccordionContent,
 } from "@/components/ui/shadcn/accordion";
 import { Badge } from "@/components/ui/shadcn/badge";
-import { LessonAccordion } from "../LessonAccordion";
+import { LessonItem } from "../LessonItem";
 import type { ModuleData } from "../../../types";
 
 interface ModuleAccordionProps {
     module: ModuleData;
-    defaultOpen?: boolean;
 }
 
-export function ModuleAccordion({
-    module,
-    defaultOpen = false,
-}: ModuleAccordionProps) {
-    const totalIPs = module.lessons.reduce(
-        (sum, lesson) => sum + lesson.informationPoints.length,
-        0
-    );
-
+export function ModuleAccordion({ module }: ModuleAccordionProps) {
     return (
         <AccordionItem
             value={`module-${module.id}`}
@@ -51,33 +41,21 @@ export function ModuleAccordion({
                             </span>
                         )}
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                        <Badge variant="secondary">
-                            {module.lessons.length}{" "}
-                            {module.lessons.length === 1 ? "lesson" : "lessons"}
-                        </Badge>
-                        <Badge variant="outline">{totalIPs} IPs</Badge>
-                    </div>
+                    <Badge variant="secondary" className="shrink-0">
+                        {module.lessons.length}{" "}
+                        {module.lessons.length === 1 ? "lesson" : "lessons"}
+                    </Badge>
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="pb-4">
-                    <Accordion
-                        type="multiple"
-                        defaultValue={
-                            defaultOpen
-                                ? [`lesson-${module.lessons[0]?.id}`]
-                                : []
-                        }
-                    >
-                        {module.lessons.map((lesson) => (
-                            <LessonAccordion
-                                key={lesson.id}
-                                lesson={lesson}
-                                moduleOrder={module.order}
-                            />
-                        ))}
-                    </Accordion>
+                <div className="pb-4 space-y-2">
+                    {module.lessons.map((lesson) => (
+                        <LessonItem
+                            key={lesson.id}
+                            lesson={lesson}
+                            moduleOrder={module.order}
+                        />
+                    ))}
                 </div>
             </AccordionContent>
         </AccordionItem>

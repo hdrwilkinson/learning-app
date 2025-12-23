@@ -8,9 +8,8 @@ export type {
     CourseDetail,
     ModuleData,
     LessonData,
-    InformationPointData,
 } from "./types";
 
 // Components
 export { CourseCard } from "./components";
-export { ModuleAccordion, LessonAccordion } from "./components";
+export { ModuleAccordion, LessonItem } from "./components";

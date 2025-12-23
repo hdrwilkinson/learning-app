@@ -11,6 +11,7 @@
 The course structure domain contains tables for:
 - **Content hierarchy**: Course → Module → Lesson → Information Point
 - **Course access**: Memberships and roles
+- **Course ratings**: User ratings and reviews
 - **Groups**: Cohorts within courses
 - **Lookup tables**: Content types and quiz formats
 - **Junction tables**: Prerequisites and quiz type assignments
@@ -25,6 +26,7 @@ erDiagram
     User ||--o{ GroupMembership : "group assignment"
     Course ||--o{ CourseMembership : "has members"
     Course ||--o{ CourseGroup : "has groups"
+    Course ||--o{ CourseRating : "has ratings"
     Course ||--o{ Module : "has many"
     CourseGroup ||--o{ GroupMembership : "has members"
     Module ||--o{ Lesson : "has many"
@@ -49,6 +51,17 @@ erDiagram
         string imageUrl
         enum visibility
         enum generationStatus
+        float averageRating
+        int ratingCount
+        int estimatedMinutesPerIP
+    }
+
+    CourseRating {
+        string id PK
+        string userId FK
+        string courseId FK
+        int rating
+        text review
     }
 
     CourseGroup {
@@ -164,6 +177,11 @@ model Course {
   visibility       CourseVisibility       @default(PRIVATE)
   generationStatus CourseGenerationStatus @default(PENDING)
   
+  // Rating & time estimates (denormalized for performance)
+  averageRating         Float?  // 0-5 scale, null if no ratings
+  ratingCount           Int     @default(0)
+  estimatedMinutesPerIP Int     @default(30) // For time estimates
+  
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
 }
@@ -190,10 +208,71 @@ enum CourseGenerationStatus {
 | `imageUrl` | String? | Cover image URL |
 | `visibility` | CourseVisibility | Who can see/join the course |
 | `generationStatus` | CourseGenerationStatus | AI content generation state |
+| `averageRating` | Float? | Denormalized average rating (0-5 scale), null if no ratings |
+| `ratingCount` | Int | Denormalized count of ratings |
+| `estimatedMinutesPerIP` | Int | Estimated minutes to master each Information Point (default: 30) |
+
+**Time Estimates:**
+
+The `estimatedMinutesPerIP` field is used to calculate time-to-mastery estimates:
+- Default is 30 minutes per Information Point
+- Total hours = `totalIPs * estimatedMinutesPerIP / 60`
+- Weeks to mastery = `totalHours / hoursPerWeek` (assumes 5 hrs/week by default)
 
 **Relationships:**
 - Members are managed via `CourseMembership` table
 - Groups/cohorts are managed via `CourseGroup` table
+- Ratings are stored in `CourseRating` table (individual) with denormalized aggregates on Course
+
+---
+
+### CourseRating
+
+Stores individual user ratings for courses. The Course model maintains denormalized `averageRating` and `ratingCount` fields for efficient queries.
+
+```prisma
+model CourseRating {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  rating    Int      // 1-5 scale
+  review    String?  @db.Text // Optional written review
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId]) // One rating per user per course
+  @@index([courseId])
+  @@index([userId])
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String | Unique identifier (CUID) |
+| `userId` | String | Foreign key to User |
+| `courseId` | String | Foreign key to Course |
+| `rating` | Int | Rating value (1-5 scale) |
+| `review` | String? | Optional written review |
+| `createdAt` | DateTime | When the rating was created |
+| `updatedAt` | DateTime | When the rating was last updated |
+
+**Average Update Formulas:**
+
+When a rating is created, updated, or deleted, the Course's `averageRating` and `ratingCount` must be updated:
+
+```typescript
+// On new rating:
+newAverage = ((oldAverage * oldCount) + newRating) / (oldCount + 1)
+
+// On update:
+newAverage = ((oldAverage * oldCount) - oldRating + newRating) / oldCount
+
+// On delete:
+newAverage = oldCount > 1 
+  ? ((oldAverage * oldCount) - deletedRating) / (oldCount - 1) 
+  : null
+```
 
 ---
 

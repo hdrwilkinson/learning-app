@@ -138,10 +138,16 @@ model Course {
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
 
+  // Rating & time estimates (denormalized for performance)
+  averageRating         Float? // 0-5 scale, null if no ratings
+  ratingCount           Int    @default(0)
+  estimatedMinutesPerIP Int    @default(30) // For time estimates
+
   // Relations
   modules     Module[]
   memberships CourseMembership[]
   groups      CourseGroup[]
+  ratings     CourseRating[]
 }
 
 enum CourseVisibility {
@@ -168,6 +174,15 @@ model CourseMembership {
   learningGoal String?    @db.Text // User's objective for this course
   schedule     Json?      // { daysPerWeek: string[], minutesPerSession: number }
   joinedAt     DateTime   @default(now())
+
+  // Notification preferences
+  emailReminders      Boolean @default(true)
+  pushNotifications   Boolean @default(true)
+  weeklyProgressEmail Boolean @default(true)
+
+  // Privacy preferences
+  showProgressToGroup  Boolean @default(true)
+  appearInLeaderboards Boolean @default(true)
 
   // Relations
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -226,6 +241,23 @@ model GroupMembership {
 enum GroupRole {
   LEADER // Can view group progress, lead discussions
   MEMBER // Regular group member
+}
+
+model CourseRating {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  rating    Int // 1-5 scale
+  review    String?  @db.Text // Optional written review
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId]) // One rating per user per course
+  @@index([courseId])
+  @@index([userId])
 }
 
 // =============================================================================

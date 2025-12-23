@@ -4,4 +4,4 @@
 
 export { CourseCard } from "./CourseCard";
 export { ModuleAccordion } from "./ModuleAccordion";
-export { LessonAccordion } from "./LessonAccordion";
+export { LessonItem } from "./LessonItem";

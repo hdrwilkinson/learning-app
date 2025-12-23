@@ -155,6 +155,12 @@ As we gather more data, additional metrics may include:
 
 ## Course Sizing
 
+### Time Per Information Point
+
+The baseline estimate for time to master an Information Point is **30 minutes**. This is stored in the `Course.estimatedMinutesPerIP` field (default: 30) and can be adjusted per course based on content complexity.
+
+This translates to approximately **2 IPs per hour** for an average user without prior knowledge.
+
 ### Base Calculation
 
 ```typescript
@@ -184,7 +190,8 @@ function calculateCourseSize(course: Course): CourseSizeMetrics {
 
     const effectiveSize = baseSize * scaleFactor;
 
-    // Baseline estimate: ~3 IPs per hour for average user
+    // Baseline estimate: ~2 IPs per hour for average user (30 min per IP)
+    // This is stored as `estimatedMinutesPerIP` on Course model (default: 30)
     const estimatedHours = effectiveSize / BASELINE_IPS_PER_HOUR;
 
     return { totalIPs, avgComplexity, effectiveSize, estimatedHours };

@@ -1,1 +1,0 @@
-export { LessonAccordion } from "./LessonAccordion";

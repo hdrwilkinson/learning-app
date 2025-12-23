@@ -20,7 +20,7 @@ export function SettingsMenu() {
 
     if (!mounted) {
         return (
-            <Button size="icon" disabled aria-label="Settings">
+            <Button variant="ghost" size="icon" disabled aria-label="Settings">
                 <HiCog className="h-5 w-5" />
             </Button>
         );
@@ -29,7 +29,7 @@ export function SettingsMenu() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button size="icon" aria-label="Settings">
+                <Button variant="ghost" size="icon" aria-label="Settings">
                     <HiCog className="h-5 w-5" />
                 </Button>
             </DropdownMenuTrigger>

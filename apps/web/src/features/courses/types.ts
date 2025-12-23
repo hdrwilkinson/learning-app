@@ -13,20 +13,17 @@ export interface CourseListItem {
     lessonCount: number;
 }
 
-export interface InformationPointData {
-    id: string;
-    title: string;
-    content: string;
-    order: number;
-    type: string | null;
-}
-
+/**
+ * Lesson data for display in accordions.
+ * Note: informationPoints count is tracked internally but not displayed to users.
+ */
 export interface LessonData {
     id: string;
     title: string;
     description: string | null;
     order: number;
-    informationPoints: InformationPointData[];
+    /** Internal count used for time estimates, not displayed directly */
+    informationPointCount: number;
 }
 
 export interface ModuleData {
@@ -45,4 +42,11 @@ export interface CourseDetail {
     imageUrl: string | null;
     createdAt: string;
     modules: ModuleData[];
+    // Rating & engagement stats
+    averageRating: number | null;
+    ratingCount: number;
+    memberCount: number;
+    // Time estimates
+    estimatedMinutesPerIP: number;
+    totalInformationPoints: number;
 }
