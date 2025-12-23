@@ -325,3 +325,477 @@ export async function updateCourseSettings(
         return { error: "Failed to update course settings" };
     }
 }
+
+// =============================================================================
+// COURSE REVIEWS
+// =============================================================================
+
+/**
+ * User progress metrics for a course
+ */
+export interface UserCourseProgress {
+    completionPercent: number; // % of IPs introduced (0-100)
+    masteryPercent: number; // Average mastery across attempted IPs (0-100)
+    totalIPs: number;
+    introducedIPs: number;
+}
+
+/**
+ * Get the current user's progress in a course.
+ * Returns completion % (IPs introduced) and mastery % (average mastery).
+ */
+export async function getUserCourseProgress(
+    courseId: string
+): Promise<
+    { success: true; progress: UserCourseProgress } | { error: string }
+> {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { error: "You must be logged in to view progress" };
+    }
+
+    try {
+        // Get all information points for the course
+        const course = await prisma.course.findUnique({
+            where: { id: courseId },
+            include: {
+                modules: {
+                    include: {
+                        lessons: {
+                            include: {
+                                informationPoints: {
+                                    select: { id: true },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!course) {
+            return { error: "Course not found" };
+        }
+
+        // Flatten all IP IDs
+        const allIPIds = course.modules.flatMap((m) =>
+            m.lessons.flatMap((l) => l.informationPoints.map((ip) => ip.id))
+        );
+
+        const totalIPs = allIPIds.length;
+
+        if (totalIPs === 0) {
+            return {
+                success: true,
+                progress: {
+                    completionPercent: 0,
+                    masteryPercent: 0,
+                    totalIPs: 0,
+                    introducedIPs: 0,
+                },
+            };
+        }
+
+        // Get user's progress on these IPs
+        const progressRecords = await prisma.informationPointProgress.findMany({
+            where: {
+                userId: session.user.id,
+                informationPointId: { in: allIPIds },
+            },
+            select: {
+                state: true,
+                masteryLevel: true,
+                introducedAt: true,
+            },
+        });
+
+        // Count introduced IPs (state !== UNSEEN or introducedAt is set)
+        const introducedIPs = progressRecords.filter(
+            (p) => p.state !== "UNSEEN" || p.introducedAt !== null
+        ).length;
+
+        // Calculate average mastery across IPs with progress
+        const ipsWithMastery = progressRecords.filter(
+            (p) => p.masteryLevel > 0
+        );
+        const averageMastery =
+            ipsWithMastery.length > 0
+                ? ipsWithMastery.reduce((sum, p) => sum + p.masteryLevel, 0) /
+                  ipsWithMastery.length
+                : 0;
+
+        return {
+            success: true,
+            progress: {
+                completionPercent: Math.round((introducedIPs / totalIPs) * 100),
+                masteryPercent: Math.round(averageMastery * 100),
+                totalIPs,
+                introducedIPs,
+            },
+        };
+    } catch (error) {
+        console.error("Get user course progress error:", error);
+        return { error: "Failed to get course progress" };
+    }
+}
+
+/**
+ * Review data for display
+ */
+export interface CourseReviewData {
+    id: string;
+    rating: number;
+    review: string | null;
+    completionPercent: number;
+    masteryPercent: number;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+        id: string;
+        name: string | null;
+        image: string | null;
+    };
+}
+
+/**
+ * Paginated reviews response
+ */
+export interface PaginatedReviews {
+    reviews: CourseReviewData[];
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+    hasMore: boolean;
+}
+
+/**
+ * Get paginated reviews for a course.
+ */
+export async function getCourseReviews(
+    courseId: string,
+    page: number = 1,
+    pageSize: number = 20
+): Promise<{ success: true; data: PaginatedReviews } | { error: string }> {
+    try {
+        const skip = (page - 1) * pageSize;
+
+        const [reviews, totalCount] = await Promise.all([
+            prisma.courseRating.findMany({
+                where: { courseId },
+                orderBy: { createdAt: "desc" },
+                skip,
+                take: pageSize,
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                        },
+                    },
+                },
+            }),
+            prisma.courseRating.count({ where: { courseId } }),
+        ]);
+
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        return {
+            success: true,
+            data: {
+                reviews: reviews.map((r) => ({
+                    id: r.id,
+                    rating: r.rating,
+                    review: r.review,
+                    completionPercent: r.completionPercent,
+                    masteryPercent: r.masteryPercent,
+                    createdAt: r.createdAt.toISOString(),
+                    updatedAt: r.updatedAt.toISOString(),
+                    user: {
+                        id: r.user.id,
+                        name: r.user.name,
+                        image: r.user.image,
+                    },
+                })),
+                totalCount,
+                totalPages,
+                currentPage: page,
+                hasMore: page < totalPages,
+            },
+        };
+    } catch (error) {
+        console.error("Get course reviews error:", error);
+        return { error: "Failed to get course reviews" };
+    }
+}
+
+/**
+ * Get a limited number of reviews for preview (e.g., on course page).
+ */
+export async function getCourseReviewsPreview(
+    courseId: string,
+    limit: number = 3
+): Promise<
+    | { success: true; reviews: CourseReviewData[]; totalCount: number }
+    | { error: string }
+> {
+    try {
+        const [reviews, totalCount] = await Promise.all([
+            prisma.courseRating.findMany({
+                where: { courseId },
+                orderBy: { createdAt: "desc" },
+                take: limit,
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                        },
+                    },
+                },
+            }),
+            prisma.courseRating.count({ where: { courseId } }),
+        ]);
+
+        return {
+            success: true,
+            reviews: reviews.map((r) => ({
+                id: r.id,
+                rating: r.rating,
+                review: r.review,
+                completionPercent: r.completionPercent,
+                masteryPercent: r.masteryPercent,
+                createdAt: r.createdAt.toISOString(),
+                updatedAt: r.updatedAt.toISOString(),
+                user: {
+                    id: r.user.id,
+                    name: r.user.name,
+                    image: r.user.image,
+                },
+            })),
+            totalCount,
+        };
+    } catch (error) {
+        console.error("Get course reviews preview error:", error);
+        return { error: "Failed to get course reviews" };
+    }
+}
+
+/**
+ * Get the current user's review for a course (if any).
+ */
+export async function getUserCourseReview(
+    courseId: string
+): Promise<
+    { success: true; review: CourseReviewData | null } | { error: string }
+> {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { success: true, review: null };
+    }
+
+    try {
+        const rating = await prisma.courseRating.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: session.user.id,
+                    courseId,
+                },
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    },
+                },
+            },
+        });
+
+        if (!rating) {
+            return { success: true, review: null };
+        }
+
+        return {
+            success: true,
+            review: {
+                id: rating.id,
+                rating: rating.rating,
+                review: rating.review,
+                completionPercent: rating.completionPercent,
+                masteryPercent: rating.masteryPercent,
+                createdAt: rating.createdAt.toISOString(),
+                updatedAt: rating.updatedAt.toISOString(),
+                user: {
+                    id: rating.user.id,
+                    name: rating.user.name,
+                    image: rating.user.image,
+                },
+            },
+        };
+    } catch (error) {
+        console.error("Get user course review error:", error);
+        return { error: "Failed to get user review" };
+    }
+}
+
+/**
+ * Submit or update a course review.
+ * Only enrolled users can submit reviews.
+ * Captures user's current progress at time of review.
+ */
+export async function submitCourseReview(
+    courseId: string,
+    rating: number,
+    review?: string
+): Promise<{ success: true; message: string } | { error: string }> {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { error: "You must be logged in to submit a review" };
+    }
+
+    // Validate rating
+    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+        return { error: "Rating must be an integer between 1 and 5" };
+    }
+
+    try {
+        // Check enrollment
+        const membership = await prisma.courseMembership.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: session.user.id,
+                    courseId,
+                },
+            },
+        });
+
+        if (!membership) {
+            return {
+                error: "You must be enrolled in this course to submit a review",
+            };
+        }
+
+        // Get user's current progress
+        const progressResult = await getUserCourseProgress(courseId);
+        if ("error" in progressResult) {
+            return { error: progressResult.error };
+        }
+
+        const { completionPercent, masteryPercent } = progressResult.progress;
+
+        // Upsert the review
+        await prisma.courseRating.upsert({
+            where: {
+                userId_courseId: {
+                    userId: session.user.id,
+                    courseId,
+                },
+            },
+            update: {
+                rating,
+                review: review?.trim() || null,
+                completionPercent,
+                masteryPercent,
+            },
+            create: {
+                userId: session.user.id,
+                courseId,
+                rating,
+                review: review?.trim() || null,
+                completionPercent,
+                masteryPercent,
+            },
+        });
+
+        // Update denormalized rating on course
+        const ratingStats = await prisma.courseRating.aggregate({
+            where: { courseId },
+            _avg: { rating: true },
+            _count: { rating: true },
+        });
+
+        await prisma.course.update({
+            where: { id: courseId },
+            data: {
+                averageRating: ratingStats._avg.rating,
+                ratingCount: ratingStats._count.rating,
+            },
+        });
+
+        revalidatePath(`/courses/${courseId}`);
+        revalidatePath(`/courses/${courseId}/reviews`);
+
+        return { success: true, message: "Review submitted successfully" };
+    } catch (error) {
+        console.error("Submit course review error:", error);
+        return { error: "Failed to submit review" };
+    }
+}
+
+/**
+ * Delete the current user's review for a course.
+ */
+export async function deleteCourseReview(
+    courseId: string
+): Promise<{ success: true; message: string } | { error: string }> {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { error: "You must be logged in to delete a review" };
+    }
+
+    try {
+        // Check if review exists
+        const existingReview = await prisma.courseRating.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: session.user.id,
+                    courseId,
+                },
+            },
+        });
+
+        if (!existingReview) {
+            return { error: "No review found to delete" };
+        }
+
+        // Delete the review
+        await prisma.courseRating.delete({
+            where: {
+                userId_courseId: {
+                    userId: session.user.id,
+                    courseId,
+                },
+            },
+        });
+
+        // Update denormalized rating on course
+        const ratingStats = await prisma.courseRating.aggregate({
+            where: { courseId },
+            _avg: { rating: true },
+            _count: { rating: true },
+        });
+
+        await prisma.course.update({
+            where: { id: courseId },
+            data: {
+                averageRating: ratingStats._avg.rating ?? null,
+                ratingCount: ratingStats._count.rating,
+            },
+        });
+
+        revalidatePath(`/courses/${courseId}`);
+        revalidatePath(`/courses/${courseId}/reviews`);
+
+        return { success: true, message: "Review deleted successfully" };
+    } catch (error) {
+        console.error("Delete course review error:", error);
+        return { error: "Failed to delete review" };
+    }
+}

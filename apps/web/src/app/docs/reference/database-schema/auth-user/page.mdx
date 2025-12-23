@@ -27,6 +27,7 @@ erDiagram
     User ||--o{ Session : "has"
     User ||--o{ LoginHistory : "tracks"
     User ||--o{ KnownDevice : "has"
+    User ||--o{ CourseRating : "writes"
 
     User {
         string id PK
@@ -116,6 +117,7 @@ model User {
   groupMemberships  GroupMembership[]
   loginHistory      LoginHistory[]
   knownDevices      KnownDevice[]
+  courseRatings     CourseRating[]
 }
 ```
 

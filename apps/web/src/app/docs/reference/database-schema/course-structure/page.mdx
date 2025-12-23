@@ -24,6 +24,7 @@ The course structure domain contains tables for:
 erDiagram
     User ||--o{ CourseMembership : "course access"
     User ||--o{ GroupMembership : "group assignment"
+    User ||--o{ CourseRating : "writes reviews"
     Course ||--o{ CourseMembership : "has members"
     Course ||--o{ CourseGroup : "has groups"
     Course ||--o{ CourseRating : "has ratings"
@@ -62,6 +63,8 @@ erDiagram
         string courseId FK
         int rating
         text review
+        float completionPercent
+        float masteryPercent
     }
 
     CourseGroup {
@@ -228,7 +231,12 @@ The `estimatedMinutesPerIP` field is used to calculate time-to-mastery estimates
 
 ### CourseRating
 
-Stores individual user ratings for courses. The Course model maintains denormalized `averageRating` and `ratingCount` fields for efficient queries.
+Stores individual user ratings and reviews for courses. Each review captures the reviewer's progress metrics (completion % and mastery %) at the time of review, providing transparency about their experience level. The Course model maintains denormalized `averageRating` and `ratingCount` fields for efficient queries.
+
+**Key Features:**
+- Only enrolled users can submit reviews
+- Reviews display the reviewer's progress for transparency
+- One review per user per course (can be updated)
 
 ```prisma
 model CourseRating {
@@ -238,8 +246,16 @@ model CourseRating {
   rating    Int      // 1-5 scale
   review    String?  @db.Text // Optional written review
   
+  // Reviewer's progress snapshot at time of review
+  completionPercent Float  // % of IPs introduced (0-100)
+  masteryPercent    Float  // Average mastery across attempted IPs (0-100)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId]) // One rating per user per course
   @@index([courseId])
@@ -254,8 +270,18 @@ model CourseRating {
 | `courseId` | String | Foreign key to Course |
 | `rating` | Int | Rating value (1-5 scale) |
 | `review` | String? | Optional written review |
+| `completionPercent` | Float | Reviewer's course completion % at time of review (0-100) |
+| `masteryPercent` | Float | Reviewer's average mastery % at time of review (0-100) |
 | `createdAt` | DateTime | When the rating was created |
 | `updatedAt` | DateTime | When the rating was last updated |
+
+**Progress Snapshot:**
+
+When a user submits a review, their current progress is captured:
+- **Completion %**: Percentage of Information Points that have been introduced (state ≠ UNSEEN)
+- **Mastery %**: Average mastery level across all IPs where the user has made progress
+
+This provides context to other users reading the review—a 5-star review from someone at 80% completion/mastery carries different weight than one from someone at 5% completion.
 
 **Average Update Formulas:**
 

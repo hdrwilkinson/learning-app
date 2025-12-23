@@ -43,6 +43,17 @@ export {
     AccordionContent,
 } from "./accordion";
 
+// Avatar
+export { Avatar, AvatarImage, AvatarFallback } from "./avatar";
+
+// Tooltip
+export {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    TooltipProvider,
+} from "./tooltip";
+
 // Add more shadcn components as they are used
 // export { ... } from "./alert";
 // etc.

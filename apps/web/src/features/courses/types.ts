@@ -9,8 +9,13 @@ export interface CourseListItem {
     topic: string | null;
     imageUrl: string | null;
     createdAt: string;
-    moduleCount: number;
-    lessonCount: number;
+    // Rating & engagement stats
+    averageRating: number | null;
+    ratingCount: number;
+    memberCount: number;
+    // Time estimates
+    estimatedMinutesPerIP: number;
+    totalInformationPoints: number;
 }
 
 /**

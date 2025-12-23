@@ -28,16 +28,23 @@ async function getCourses(): Promise<CourseListItem[]> {
             topic: true,
             imageUrl: true,
             createdAt: true,
+            averageRating: true,
+            ratingCount: true,
+            estimatedMinutesPerIP: true,
             _count: {
                 select: {
-                    modules: true,
+                    memberships: true,
                 },
             },
             modules: {
                 select: {
-                    _count: {
+                    lessons: {
                         select: {
-                            lessons: true,
+                            _count: {
+                                select: {
+                                    informationPoints: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -46,19 +53,31 @@ async function getCourses(): Promise<CourseListItem[]> {
         orderBy: { createdAt: "desc" },
     });
 
-    return courses.map((course) => ({
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        topic: course.topic,
-        imageUrl: course.imageUrl,
-        createdAt: course.createdAt.toISOString(),
-        moduleCount: course._count.modules,
-        lessonCount: course.modules.reduce(
-            (sum, m) => sum + m._count.lessons,
+    return courses.map((course) => {
+        const totalInformationPoints = course.modules.reduce(
+            (sum, m) =>
+                sum +
+                m.lessons.reduce(
+                    (lSum, l) => lSum + l._count.informationPoints,
+                    0
+                ),
             0
-        ),
-    }));
+        );
+
+        return {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            topic: course.topic,
+            imageUrl: course.imageUrl,
+            createdAt: course.createdAt.toISOString(),
+            averageRating: course.averageRating,
+            ratingCount: course.ratingCount,
+            memberCount: course._count.memberships,
+            estimatedMinutesPerIP: course.estimatedMinutesPerIP,
+            totalInformationPoints,
+        };
+    });
 }
 
 async function getEnrolledCourses(userId: string): Promise<CourseListItem[]> {
@@ -80,16 +99,23 @@ async function getEnrolledCourses(userId: string): Promise<CourseListItem[]> {
                     topic: true,
                     imageUrl: true,
                     createdAt: true,
+                    averageRating: true,
+                    ratingCount: true,
+                    estimatedMinutesPerIP: true,
                     _count: {
                         select: {
-                            modules: true,
+                            memberships: true,
                         },
                     },
                     modules: {
                         select: {
-                            _count: {
+                            lessons: {
                                 select: {
-                                    lessons: true,
+                                    _count: {
+                                        select: {
+                                            informationPoints: true,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -99,19 +125,31 @@ async function getEnrolledCourses(userId: string): Promise<CourseListItem[]> {
         },
     });
 
-    return memberships.map(({ course }) => ({
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        topic: course.topic,
-        imageUrl: course.imageUrl,
-        createdAt: course.createdAt.toISOString(),
-        moduleCount: course._count.modules,
-        lessonCount: course.modules.reduce(
-            (sum, m) => sum + m._count.lessons,
+    return memberships.map(({ course }) => {
+        const totalInformationPoints = course.modules.reduce(
+            (sum, m) =>
+                sum +
+                m.lessons.reduce(
+                    (lSum, l) => lSum + l._count.informationPoints,
+                    0
+                ),
             0
-        ),
-    }));
+        );
+
+        return {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            topic: course.topic,
+            imageUrl: course.imageUrl,
+            createdAt: course.createdAt.toISOString(),
+            averageRating: course.averageRating,
+            ratingCount: course.ratingCount,
+            memberCount: course._count.memberships,
+            estimatedMinutesPerIP: course.estimatedMinutesPerIP,
+            totalInformationPoints,
+        };
+    });
 }
 
 export default async function CoursesPage() {

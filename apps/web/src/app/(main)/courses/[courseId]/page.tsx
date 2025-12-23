@@ -13,6 +13,7 @@ import { ModuleAccordion } from "@/features/courses";
 import type { CourseDetail } from "@/features/courses";
 import { auth } from "@/auth";
 import { CourseMenu } from "./_components/CourseMenu";
+import { ReviewsPreview } from "./_components/ReviewsPreview";
 import { HiStar, HiUsers, HiClock, HiCalendar } from "react-icons/hi";
 
 interface PageProps {
@@ -310,6 +311,16 @@ export default async function CourseDetailPage({ params }: PageProps) {
                         <ModuleAccordion key={module.id} module={module} />
                     ))}
                 </Accordion>
+            </div>
+
+            {/* Reviews section */}
+            <div className="mt-12">
+                <ReviewsPreview
+                    courseId={course.id}
+                    averageRating={course.averageRating}
+                    isEnrolled={isEnrolled}
+                    currentUserId={session?.user?.id ?? null}
+                />
             </div>
         </div>
     );
