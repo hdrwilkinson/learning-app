@@ -36,5 +36,7 @@ export interface SeedCourse {
     title: string;
     description: string;
     topic: string;
+    /** Unsplash photo ID (e.g., "photo-1481627834876-b7833e8f5570") */
+    imageId?: string;
     modules: SeedModule[];
 }

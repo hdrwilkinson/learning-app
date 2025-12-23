@@ -13,6 +13,7 @@ export const psychologyCourse: SeedCourse = {
     description:
         "A comprehensive introduction to the scientific study of mind and behavior, covering research methods, biological foundations, cognition, and social influences.",
     topic: "Psychology",
+    imageId: "photo-1507413245164-6160d8298b31",
     modules: [
         // WEEK 1: Foundations of Psychology
         {

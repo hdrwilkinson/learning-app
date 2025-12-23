@@ -194,7 +194,7 @@ export default async function CoursesPage() {
                                 Continue where you left off
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {enrolledCourses.map((course) => (
                                 <CourseCard key={course.id} course={course} />
                             ))}
@@ -221,7 +221,7 @@ export default async function CoursesPage() {
                             </p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {exploreCourses.map((course) => (
                                 <CourseCard key={course.id} course={course} />
                             ))}

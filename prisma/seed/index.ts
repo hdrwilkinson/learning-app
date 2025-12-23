@@ -4,13 +4,21 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import * as path from "path";
 import { informationPointTypes, quizTypes } from "./lookup-tables";
 import { psychologyCourse } from "./courses/psychology";
 import { philosophyCourse } from "./courses/philosophy";
 import { statisticsCourse } from "./courses/statistics";
+import { downloadAndOptimizeImage, generateSlug } from "./utils/download-image";
 import type { SeedCourse } from "./types";
 
 const prisma = new PrismaClient();
+
+/** Output directory for course images (relative to project root) */
+const COURSE_IMAGES_DIR = path.join(
+    process.cwd(),
+    "apps/web/public/images/courses"
+);
 
 /**
  * Seeds the InformationPointType lookup table
@@ -88,12 +96,32 @@ async function seedCourse(
 ): Promise<void> {
     console.log(`\nSeeding course: ${courseData.title}...`);
 
+    // Download and optimize course image if imageId is provided
+    let imageUrl: string | null = null;
+    if (courseData.imageId) {
+        const slug = generateSlug(courseData.title);
+        try {
+            imageUrl = await downloadAndOptimizeImage(
+                courseData.imageId,
+                COURSE_IMAGES_DIR,
+                slug
+            );
+        } catch (error) {
+            console.warn(
+                `  Warning: Could not download image for ${courseData.title}:`,
+                error
+            );
+            // Continue without image
+        }
+    }
+
     // Create the course
     const course = await prisma.course.create({
         data: {
             title: courseData.title,
             description: courseData.description,
             topic: courseData.topic,
+            imageUrl,
             visibility: "PUBLIC",
             generationStatus: "COMPLETED",
         },

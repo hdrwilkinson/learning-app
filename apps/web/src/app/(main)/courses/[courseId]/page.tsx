@@ -1,18 +1,16 @@
 /**
  * Course Detail Page
  *
- * Displays a course with title, description, stats, and module/lesson structure.
- * Shows different UI based on enrollment status.
+ * Displays course stats, module/lesson structure, and reviews.
+ * Title and description are shown in the layout's hero header.
  */
 
 import { notFound } from "next/navigation";
 import { prisma } from "../../../../../../../services/db/db-client";
-import { Badge } from "@/components/ui/shadcn/badge";
 import { Accordion } from "@/components/ui/shadcn/accordion";
 import { ModuleAccordion } from "@/features/courses";
 import type { CourseDetail } from "@/features/courses";
 import { auth } from "@/auth";
-import { CourseMenu } from "./_components/CourseMenu";
 import { ReviewsPreview } from "./_components/ReviewsPreview";
 import { HiStar, HiUsers, HiClock, HiCalendar } from "react-icons/hi";
 
@@ -93,7 +91,7 @@ async function getCourse(courseId: string): Promise<CourseDetail | null> {
 
 async function getEnrollmentStatus(courseId: string, userId: string | null) {
     if (!userId) {
-        return { isEnrolled: false, role: null };
+        return { isEnrolled: false };
     }
 
     const membership = await prisma.courseMembership.findUnique({
@@ -108,7 +106,6 @@ async function getEnrollmentStatus(courseId: string, userId: string | null) {
 
     return {
         isEnrolled: !!membership,
-        role: membership?.courseRole ?? null,
     };
 }
 
@@ -162,7 +159,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
     }
 
     const session = await auth();
-    const { isEnrolled, role } = await getEnrollmentStatus(
+    const { isEnrolled } = await getEnrollmentStatus(
         courseId,
         session?.user?.id ?? null
     );
@@ -173,33 +170,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
     );
 
     return (
-        <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 lg:-mt-2">
-            {/* Course header */}
-            <div className="mb-8">
-                <div className="flex items-start gap-4 mb-2">
-                    <h1 className="text-4xl font-display font-bold flex-1">
-                        {course.title}
-                    </h1>
-                    {/* Course menu - top right */}
-                    <CourseMenu
-                        courseId={course.id}
-                        isEnrolled={isEnrolled}
-                        role={role}
-                        isLoggedIn={!!session?.user}
-                    />
-                </div>
-                {course.topic && (
-                    <Badge variant="outline" className="text-xs mb-3">
-                        {course.topic}
-                    </Badge>
-                )}
-                {course.description && (
-                    <p className="text-lg text-muted-foreground max-w-3xl">
-                        {course.description}
-                    </p>
-                )}
-            </div>
-
+        <div className="w-full pb-8">
             {/* Stats sections */}
             <div className="grid gap-6 md:grid-cols-2 mb-8">
                 {/* Competitive stats */}

@@ -13,6 +13,7 @@ export const statisticsCourse: SeedCourse = {
     description:
         "A comprehensive introduction to statistical thinking, covering descriptive statistics, probability theory, inferential methods, and data relationships.",
     topic: "Statistics",
+    imageId: "photo-1551288049-bebda4e38f71",
     modules: [
         // WEEK 1: Descriptive Statistics
         {

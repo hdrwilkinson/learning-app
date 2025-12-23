@@ -13,6 +13,7 @@ export const philosophyCourse: SeedCourse = {
     description:
         "A rigorous introduction to philosophical thinking, covering logic, metaphysics, epistemology, ethics, and contemporary issues in philosophy of mind.",
     topic: "Philosophy",
+    imageId: "photo-1481627834876-b7833e8f5570",
     modules: [
         // WEEK 1: Logic and Critical Thinking
         {
