@@ -1,10 +1,9 @@
 /**
- * Course Detail Layout
+ * Course Detail Layout (Public View)
  *
- * Provides the hero header + two-column layout for course detail pages.
- * Renders different sidebars based on enrollment status:
- * - Unenrolled: CourseInfoSidebar with community stats and time investment
- * - Enrolled: ProgressSidebar with leaderboards, quests, and progress
+ * Provides the hero header + two-column layout for the public course page.
+ * Always shows CourseInfoSidebar with community stats and time investment.
+ * The CourseMenu shows "Enroll" or "Go to Course" based on enrollment status.
  *
  * Note: Child routes like /practice use FocusLayout and bypass this layout's
  * hero/sidebar by passing children through directly.
@@ -15,7 +14,6 @@ import { headers } from "next/headers";
 import { prisma } from "../../../../../../../services/db/db-client";
 import { CourseHero } from "./_components/CourseHero";
 import { CourseInfoSidebar } from "@/components/ui/layout/CourseInfoSidebar";
-import { ProgressSidebar } from "@/components/ui/layout/ProgressSidebar";
 import { auth } from "@/auth";
 import { CourseMenu } from "./_components/CourseMenu";
 
@@ -28,7 +26,7 @@ interface LayoutProps {
  * Routes that should bypass the course detail layout (hero + sidebar)
  * These routes use their own layout (e.g., FocusLayout for practice mode)
  */
-const bypassLayoutRoutes = ["/practice"];
+const bypassLayoutRoutes = ["/practice", "/user/"];
 
 /**
  * Fetch course data needed for the layout (hero + sidebar)
@@ -97,11 +95,11 @@ async function getCourseForLayout(courseId: string) {
 }
 
 /**
- * Get enrollment status and progress data for enrolled users
+ * Get enrollment status for the current user
  */
-async function getEnrollmentData(courseId: string, userId: string | null) {
+async function getEnrollmentStatus(courseId: string, userId: string | null) {
     if (!userId) {
-        return { isEnrolled: false, role: null, progress: null };
+        return { isEnrolled: false };
     }
 
     const membership = await prisma.courseMembership.findUnique({
@@ -111,34 +109,16 @@ async function getEnrollmentData(courseId: string, userId: string | null) {
                 courseId,
             },
         },
-        select: {
-            courseRole: true,
-            joinedAt: true,
-        },
+        select: { courseRole: true },
     });
 
-    if (!membership) {
-        return { isEnrolled: false, role: null, progress: null };
-    }
-
-    // TODO: Fetch actual progress data from progress tracking tables
-    // For now, return mock progress data
-    const progress = {
-        completionPercent: 42,
-        masteryPercent: 28,
-        totalTimeStudiedMinutes: 750,
-        memberSince: membership.joinedAt,
-    };
-
     return {
-        isEnrolled: true,
-        role: membership.courseRole,
-        progress,
+        isEnrolled: !!membership,
     };
 }
 
 /**
- * Calculate time estimates for unenrolled users
+ * Calculate time estimates for the sidebar
  */
 function calculateTimeEstimates(
     totalIPs: number,
@@ -177,7 +157,7 @@ export default async function CourseDetailLayout({
         pathname.includes(`/courses/${courseId}${route}`)
     );
 
-    // For routes like /practice, just render children without hero/sidebar
+    // For routes like /practice or /user/[userId], just render children without hero/sidebar
     if (shouldBypassLayout) {
         return <>{children}</>;
     }
@@ -189,7 +169,7 @@ export default async function CourseDetailLayout({
     }
 
     const session = await auth();
-    const { isEnrolled, role, progress } = await getEnrollmentData(
+    const { isEnrolled } = await getEnrollmentStatus(
         courseId,
         session?.user?.id ?? null
     );
@@ -214,7 +194,7 @@ export default async function CourseDetailLayout({
                         <CourseMenu
                             courseId={course.id}
                             isEnrolled={isEnrolled}
-                            role={role}
+                            userId={session?.user?.id ?? null}
                             isLoggedIn={!!session?.user}
                         />
                     </div>
@@ -226,8 +206,8 @@ export default async function CourseDetailLayout({
                 <div className="flex gap-6 w-full max-w-[1056px] items-start">
                     {/* Main Content Column */}
                     <main className="flex-1 min-w-0 w-full">
-                        {/* Description below hero (only for unenrolled) */}
-                        {!isEnrolled && course.description && (
+                        {/* Description below hero */}
+                        {course.description && (
                             <p className="text-lg text-muted-foreground max-w-3xl mb-8">
                                 {course.description}
                             </p>
@@ -235,25 +215,20 @@ export default async function CourseDetailLayout({
                         {children}
                     </main>
 
-                    {/* Sidebar - Different content based on enrollment */}
+                    {/* Sidebar - Always show CourseInfoSidebar on public page */}
                     <div className="hidden lg:block sticky top-8 self-start">
-                        {isEnrolled && progress ? (
-                            <ProgressSidebar
-                                courseId={course.id}
-                                progress={progress}
-                            />
-                        ) : (
-                            <CourseInfoSidebar
-                                memberCount={course.memberCount}
-                                averageRating={course.averageRating}
-                                ratingCount={course.ratingCount}
-                                weeksToMastery={timeEstimates.weeksToMastery}
-                                hoursPerWeek={timeEstimates.hoursPerWeek}
-                                totalHours={timeEstimates.totalHours}
-                                courseId={course.id}
-                                isLoggedIn={!!session?.user}
-                            />
-                        )}
+                        <CourseInfoSidebar
+                            memberCount={course.memberCount}
+                            averageRating={course.averageRating}
+                            ratingCount={course.ratingCount}
+                            weeksToMastery={timeEstimates.weeksToMastery}
+                            hoursPerWeek={timeEstimates.hoursPerWeek}
+                            totalHours={timeEstimates.totalHours}
+                            courseId={course.id}
+                            isLoggedIn={!!session?.user}
+                            isEnrolled={isEnrolled}
+                            userId={session?.user?.id ?? null}
+                        />
                     </div>
                 </div>
             </div>

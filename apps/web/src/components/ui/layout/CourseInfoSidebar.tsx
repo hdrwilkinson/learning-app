@@ -1,10 +1,18 @@
 /**
  * CourseInfoSidebar
  *
- * Sidebar for unenrolled users showing community stats and time investment.
+ * Sidebar for the public course page showing community stats and time investment.
+ * Shows "Go to Course" button for enrolled users, "Enroll" for unenrolled.
  */
 
-import { HiStar, HiUsers, HiClock, HiCalendar } from "react-icons/hi";
+import Link from "next/link";
+import {
+    HiStar,
+    HiUsers,
+    HiClock,
+    HiCalendar,
+    HiArrowRight,
+} from "react-icons/hi";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface CourseInfoSidebarProps {
@@ -16,6 +24,8 @@ interface CourseInfoSidebarProps {
     totalHours: number;
     courseId: string;
     isLoggedIn: boolean;
+    isEnrolled?: boolean;
+    userId?: string | null;
 }
 
 export function CourseInfoSidebar({
@@ -27,6 +37,8 @@ export function CourseInfoSidebar({
     totalHours,
     courseId,
     isLoggedIn,
+    isEnrolled = false,
+    userId,
 }: CourseInfoSidebarProps) {
     /**
      * Format hours to a readable string
@@ -137,23 +149,37 @@ export function CourseInfoSidebar({
                     </p>
                 </div>
 
-                {/* Enroll CTA */}
-                <form action={`/api/courses/${courseId}/enroll`} method="POST">
-                    <Button
-                        type={isLoggedIn ? "submit" : "button"}
-                        className="w-full"
-                        size="lg"
-                        asChild={!isLoggedIn}
-                    >
-                        {isLoggedIn ? (
-                            "Enroll Now"
-                        ) : (
-                            <a href={`/login?callbackUrl=/courses/${courseId}`}>
-                                Sign in to Enroll
-                            </a>
-                        )}
+                {/* CTA Button - Go to Course for enrolled, Enroll for unenrolled */}
+                {isEnrolled && userId ? (
+                    <Button className="w-full" size="lg" asChild>
+                        <Link href={`/courses/${courseId}/user/${userId}`}>
+                            Go to Course
+                            <HiArrowRight className="h-4 w-4 ml-2" />
+                        </Link>
                     </Button>
-                </form>
+                ) : (
+                    <form
+                        action={`/api/courses/${courseId}/enroll`}
+                        method="POST"
+                    >
+                        <Button
+                            type={isLoggedIn ? "submit" : "button"}
+                            className="w-full"
+                            size="lg"
+                            asChild={!isLoggedIn}
+                        >
+                            {isLoggedIn ? (
+                                "Enroll Now"
+                            ) : (
+                                <a
+                                    href={`/login?callbackUrl=/courses/${courseId}`}
+                                >
+                                    Sign in to Enroll
+                                </a>
+                            )}
+                        </Button>
+                    </form>
+                )}
 
                 {/* Footer Links */}
                 <div className="pt-4 border-t border-border">

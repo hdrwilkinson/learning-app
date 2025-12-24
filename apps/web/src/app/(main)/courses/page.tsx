@@ -2,8 +2,8 @@
  * Courses Listing Page
  *
  * Displays courses in two sections:
- * - "My Courses" for enrolled courses (if logged in)
- * - "Explore" for browsable courses
+ * - "My Courses" for enrolled courses (if logged in) - links to user's dashboard
+ * - "Explore" for browsable courses - links to public course page
  *
  * Server component that fetches courses directly from Prisma.
  * Uses PageLayout for the gamification header and settings.
@@ -183,8 +183,8 @@ export default async function CoursesPage() {
                     </p>
                 </div>
 
-                {/* My Courses Section - only shown if logged in and has enrollments */}
-                {hasEnrolledCourses && (
+                {/* My Courses Section - links to user's dashboard */}
+                {hasEnrolledCourses && userId && (
                     <section className="mb-12">
                         <div className="mb-4">
                             <h2 className="text-2xl font-display font-semibold">
@@ -196,13 +196,17 @@ export default async function CoursesPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {enrolledCourses.map((course) => (
-                                <CourseCard key={course.id} course={course} />
+                                <CourseCard
+                                    key={course.id}
+                                    course={course}
+                                    userId={userId}
+                                />
                             ))}
                         </div>
                     </section>
                 )}
 
-                {/* Explore Section */}
+                {/* Explore Section - links to public course pages */}
                 <section>
                     <div className="mb-4">
                         <h2 className="text-2xl font-display font-semibold">

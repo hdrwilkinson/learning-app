@@ -10,7 +10,7 @@
 
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "../../../../../../../../services/db/db-client";
+import { prisma } from "../../../../../../../../../../services/db/db-client";
 import { auth } from "@/auth";
 import { HiArrowLeft } from "react-icons/hi";
 import { ScheduleSection } from "./_components/ScheduleSection";
@@ -19,7 +19,7 @@ import { PrivacySection } from "./_components/PrivacySection";
 import { DangerZone } from "./_components/DangerZone";
 
 interface PageProps {
-    params: Promise<{ courseId: string }>;
+    params: Promise<{ courseId: string; userId: string }>;
 }
 
 async function getCourseAndMembership(courseId: string, userId: string) {
@@ -58,12 +58,14 @@ async function getCourseAndMembership(courseId: string, userId: string) {
 }
 
 export default async function CourseSettingsPage({ params }: PageProps) {
-    const { courseId } = await params;
+    const { courseId, userId } = await params;
     const session = await auth();
 
-    // Must be logged in
-    if (!session?.user?.id) {
-        redirect(`/auth/login?callbackUrl=/courses/${courseId}/settings`);
+    // Must be logged in and match the URL userId
+    if (!session?.user?.id || session.user.id !== userId) {
+        redirect(
+            `/auth/login?callbackUrl=/courses/${courseId}/user/${userId}/settings`
+        );
     }
 
     const { course, membership } = await getCourseAndMembership(
@@ -95,21 +97,26 @@ export default async function CourseSettingsPage({ params }: PageProps) {
 
     return (
         <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 lg:-mt-2">
-            {/* Back link */}
-            <Link
-                href={`/courses/${courseId}`}
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-            >
-                <HiArrowLeft className="h-4 w-4" />
-                <span>Back to Course</span>
-            </Link>
+            {/* Header with back link */}
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6 mb-8">
+                {/* Title and subtitle */}
+                <div className="min-w-0">
+                    <h1 className="text-2xl sm:text-3xl font-display font-bold">
+                        Course Settings
+                    </h1>
+                    <p className="text-sm text-muted-foreground truncate">
+                        {course.title}
+                    </p>
+                </div>
 
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-display font-bold mb-2">
-                    Course Settings
-                </h1>
-                <p className="text-muted-foreground">{course.title}</p>
+                {/* Back link */}
+                <Link
+                    href={`/courses/${courseId}/user/${userId}`}
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0 whitespace-nowrap"
+                >
+                    <HiArrowLeft className="h-4 w-4" />
+                    <span>Back to Course</span>
+                </Link>
             </div>
 
             {/* Settings sections */}

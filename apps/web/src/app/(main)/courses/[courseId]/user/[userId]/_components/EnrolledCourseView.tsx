@@ -29,6 +29,7 @@ export interface DailyProgress {
 
 interface EnrolledCourseViewProps {
     courseId: string;
+    userId: string;
     modules: ModuleData[];
     lessonStatuses: LessonStatus[];
     dailyProgress: DailyProgress;

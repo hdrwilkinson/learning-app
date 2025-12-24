@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/shadcn/button";
-import { LeaveCourseDialog } from "../../_components/LeaveCourseDialog";
+import { LeaveCourseDialog } from "../../../../_components/LeaveCourseDialog";
 import { HiLogout } from "react-icons/hi";
 
 interface DangerZoneProps {

@@ -4,6 +4,8 @@
  * Displays a course summary card with image and overlay text.
  * Minimal view shows title, rating, and enrolled count at bottom of image.
  * Expanded view (on hover/focus) expands overlay upward to reveal description and time estimates.
+ *
+ * For enrolled courses (My Courses), pass `userId` to link to the user's course dashboard.
  */
 
 "use client";
@@ -19,6 +21,8 @@ import type { CourseListItem } from "../../../types";
 
 interface CourseCardProps {
     course: CourseListItem;
+    /** If provided, the card links to the user's enrolled course dashboard */
+    userId?: string;
 }
 
 /**
@@ -102,7 +106,7 @@ function ImagePlaceholder({ topic }: { topic: string | null }) {
     );
 }
 
-export function CourseCard({ course }: CourseCardProps) {
+export function CourseCard({ course, userId }: CourseCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const timeEstimates = calculateTimeEstimates(
@@ -115,9 +119,14 @@ export function CourseCard({ course }: CourseCardProps) {
     const handleFocus = useCallback(() => setIsExpanded(true), []);
     const handleBlur = useCallback(() => setIsExpanded(false), []);
 
+    // Link to user's course dashboard if userId provided, otherwise public course page
+    const href = userId
+        ? `/courses/${course.id}/user/${userId}`
+        : `/courses/${course.id}`;
+
     return (
         <Link
-            href={`/courses/${course.id}`}
+            href={href}
             className="block group/card outline-none"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

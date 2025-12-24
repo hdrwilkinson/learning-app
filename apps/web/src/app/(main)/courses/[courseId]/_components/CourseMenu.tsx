@@ -3,36 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/shadcn/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/shadcn/dropdown-menu";
-import {
-    HiDotsVertical,
-    HiCog,
-    HiLogout,
-    HiPlus,
-    HiStar,
-} from "react-icons/hi";
-import { LeaveCourseDialog } from "./LeaveCourseDialog";
+import { HiPlus, HiArrowRight } from "react-icons/hi";
 
 interface CourseMenuProps {
     courseId: string;
     isEnrolled: boolean;
-    role: string | null;
+    userId: string | null;
     isLoggedIn: boolean;
 }
 
 export function CourseMenu({
     courseId,
     isEnrolled,
-    role,
+    userId,
     isLoggedIn,
 }: CourseMenuProps) {
-    const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
     const [enrolling, setEnrolling] = useState(false);
 
     // Not logged in - show login button
@@ -47,81 +32,37 @@ export function CourseMenu({
         );
     }
 
-    // Not enrolled - show enroll button
-    if (!isEnrolled) {
-        const handleEnroll = async () => {
-            setEnrolling(true);
-            try {
-                const { enrollInCourse } =
-                    await import("@/app/actions/courses");
-                await enrollInCourse(courseId);
-            } finally {
-                setEnrolling(false);
-            }
-        };
-
+    // Enrolled - show "Go to Course" button
+    if (isEnrolled && userId) {
         return (
-            <Button
-                className="shrink-0"
-                onClick={handleEnroll}
-                disabled={enrolling}
-            >
-                <HiPlus className="h-4 w-4" />
-                {enrolling ? "Enrolling..." : "Enroll"}
+            <Button asChild className="shrink-0">
+                <Link href={`/courses/${courseId}/user/${userId}`}>
+                    Go to Course
+                    <HiArrowRight className="h-4 w-4 ml-1" />
+                </Link>
             </Button>
         );
     }
 
-    // Enrolled - show three-dot menu
-    return (
-        <>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0">
-                        <HiDotsVertical className="h-5 w-5" />
-                        <span className="sr-only">Course options</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                        <Link
-                            href={`/courses/${courseId}/reviews`}
-                            className="flex items-center gap-2 cursor-pointer"
-                        >
-                            <HiStar className="h-4 w-4" />
-                            Reviews
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link
-                            href={`/courses/${courseId}/settings`}
-                            className="flex items-center gap-2 cursor-pointer"
-                        >
-                            <HiCog className="h-4 w-4" />
-                            Settings
-                        </Link>
-                    </DropdownMenuItem>
-                    {role !== "CREATOR" && (
-                        <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="text-destructive focus:text-destructive cursor-pointer"
-                                onSelect={() => setLeaveDialogOpen(true)}
-                            >
-                                <HiLogout className="h-4 w-4" />
-                                Leave Course
-                            </DropdownMenuItem>
-                        </>
-                    )}
-                </DropdownMenuContent>
-            </DropdownMenu>
+    // Not enrolled - show enroll button
+    const handleEnroll = async () => {
+        setEnrolling(true);
+        try {
+            const { enrollInCourse } = await import("@/app/actions/courses");
+            await enrollInCourse(courseId);
+        } finally {
+            setEnrolling(false);
+        }
+    };
 
-            <LeaveCourseDialog
-                courseId={courseId}
-                open={leaveDialogOpen}
-                onOpenChange={setLeaveDialogOpen}
-            />
-        </>
+    return (
+        <Button
+            className="shrink-0"
+            onClick={handleEnroll}
+            disabled={enrolling}
+        >
+            <HiPlus className="h-4 w-4" />
+            {enrolling ? "Enrolling..." : "Enroll"}
+        </Button>
     );
 }
